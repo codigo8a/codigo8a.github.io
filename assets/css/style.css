@@ -384,20 +384,25 @@ select {
 
 #window1 {
   top: 300px;
-  left: 120px;
+  left: 20px;
 }
 
 #window2 {
+	top: 300px;
+	left: 780px;
+  }
+
+#window3 {
   top: 60px;
   left: 600px;
 }
 
-#window3 {
+#window4 {
   top: 125px;
   left: 420px;
 }
 
-#window4 {
+#window5 {
   top: 60px;
   left: 520px;
 }
@@ -408,23 +413,32 @@ select {
 }
 
 #window1 .wincontent {
-  width: 500px;
+  width: 700px;
   height: 300px;
 }
 
 #window2 .wincontent {
+	width: 700px;
+	height: 300px;
+  }
+
+#window3 .wincontent {
   width: 800px;
   height: 590px;
 }
 
-#window3 .wincontent {
+#window4 .wincontent {
   width: 450px;
   height: 360px;
 }
 
-#window4 .wincontent {
+#window5 .wincontent {
   width: 800px;
   height: 600px;
+}
+
+small{
+	font-size: 10px;
 }
 
 .link-list {

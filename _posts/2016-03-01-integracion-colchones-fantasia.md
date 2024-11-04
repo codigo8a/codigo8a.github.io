@@ -6,7 +6,7 @@ comments: true
 category: Sistematizaciones
 tags: Integraciones Web E-commerce
 ---
-<img src="/public/imgs/proyectos/colchonesFantasia.png" />
+<img src="/assets/imgs/proyectos/colchonesFantasia.png" style="width: 100%;"/>
 
 (Backend y Frontend) Maquetación web, e-commerce y creación de sistema de envíos a la medida. 
 

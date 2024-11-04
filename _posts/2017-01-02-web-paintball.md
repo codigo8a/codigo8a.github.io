@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/paintball-Tag36.png" />
+<img src="/assets/imgs/proyectos/paintball-Tag36.png" style="width: 100%;"/>

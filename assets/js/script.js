@@ -20,7 +20,7 @@ function loadURL(url, id) {
         '[itemprop="articleBody"]'
       ).innerHTML;
       document.getElementById("post-content").innerHTML = articleBodyContent;
-      document.getElementById("title3").innerHTML = title;
+      document.getElementById("title4").innerHTML = title;
     })
     .catch((error) => console.log("Error:", error));
 }

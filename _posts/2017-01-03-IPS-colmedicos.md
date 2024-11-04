@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/colmedicos.jpg" />
+<img src="/assets/imgs/proyectos/colmedicos.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/colmedicos1.jpg" />
+<img src="/assets/imgs/proyectos/colmedicos1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/colmedicos2.jpg" />
+<img src="/assets/imgs/proyectos/colmedicos2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/colmedicos3.jpg" />
+<img src="/assets/imgs/proyectos/colmedicos3.jpg" style="width: 100%;"/>

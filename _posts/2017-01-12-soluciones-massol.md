@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/remaster.jpg" />
+<img src="/assets/imgs/proyectos/remaster.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/remaster1.jpg" />
+<img src="/assets/imgs/proyectos/remaster1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/remaster2.jpg" />
+<img src="/assets/imgs/proyectos/remaster2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/remaster3.jpg" />
+<img src="/assets/imgs/proyectos/remaster3.jpg" style="width: 100%;"/>

@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/galletasMarce.jpg" />
+<img src="/assets/imgs/proyectos/galletasMarce.jpg" style="width: 100%;"/>

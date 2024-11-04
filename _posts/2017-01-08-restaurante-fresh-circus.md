@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/freshCircus.jpg" />
+<img src="/assets/imgs/proyectos/freshCircus.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/freshCircus1.jpg" />
+<img src="/assets/imgs/proyectos/freshCircus1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/freshCircus2.jpg" />
+<img src="/assets/imgs/proyectos/freshCircus2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/freshCircus3.jpg" />
+<img src="/assets/imgs/proyectos/freshCircus3.jpg" style="width: 100%;"/>

@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web E-commerce
 ---
-<img src="/public/imgs/proyectos/tiendaMakeno.jpg" />
+<img src="/assets/imgs/proyectos/tiendaMakeno.jpg" style="width: 100%;"/>

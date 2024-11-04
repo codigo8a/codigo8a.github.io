@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/todofresa.jpg" />
+<img src="/assets/imgs/proyectos/todofresa.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/todofresa1.jpg" />
+<img src="/assets/imgs/proyectos/todofresa1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/todofresa2.jpg" />
+<img src="/assets/imgs/proyectos/todofresa2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/todofresa3.jpg" />
+<img src="/assets/imgs/proyectos/todofresa3.jpg" style="width: 100%;"/>

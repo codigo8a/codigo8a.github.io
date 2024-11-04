@@ -6,10 +6,10 @@ comments: true
 category: Sistematizaciones
 tags: Web Integraciones
 ---
-<img src="/public/imgs/proyectos/constructoraLatinco.jpg" />
+<img src="/assets/imgs/proyectos/constructoraLatinco.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/constructoraLatinco1.jpg" />
+<img src="/assets/imgs/proyectos/constructoraLatinco1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/constructoraLatinco2.jpg" />
+<img src="/assets/imgs/proyectos/constructoraLatinco2.jpg" style="width: 100%;" />
 <hr>
-<img src="/public/imgs/proyectos/constructoraLatinco3.jpg" />
+<img src="/assets/imgs/proyectos/constructoraLatinco3.jpg" style="width: 100%;"/>

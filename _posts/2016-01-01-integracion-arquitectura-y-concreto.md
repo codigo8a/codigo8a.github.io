@@ -6,7 +6,7 @@ comments: true
 category: Sistematizaciones
 tags: Integraciones Web
 ---
-<img src="/public/imgs/proyectos/arquitectura.png" />
+<img src="/assets/imgs/proyectos/arquitectura.png" style="width: 100%;"/>
 
 Herramienta web (Backend y Frontend) para la empresa Arquitectura y Concreto, dedicada a la construcción, comercialización y gerencia de proyectos inmobiliarios de índole institucional, pública, comercial, empresarial, turística y residencial.
 

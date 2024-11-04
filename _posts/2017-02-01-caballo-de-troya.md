@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/caballoDeTroya.jpg" />
+<img src="/assets/imgs/proyectos/caballoDeTroya.jpg" style="width: 100%;"/>

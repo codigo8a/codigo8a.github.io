@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/hotelLaNaval.jpg" />
+<img src="/assets/imgs/proyectos/hotelLaNaval.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/hotelLaNaval1.jpg" />
+<img src="/assets/imgs/proyectos/hotelLaNaval1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/hotelLaNaval2.jpg" />
+<img src="/assets/imgs/proyectos/hotelLaNaval2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/hotelLaNaval3.jpg" />
+<img src="/assets/imgs/proyectos/hotelLaNaval3.jpg" style="width: 100%;"/>

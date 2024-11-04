@@ -6,7 +6,7 @@ comments: true
 category: Sistematizaciones
 tags: Integraciones Web
 ---
-<img src="/public/imgs/proyectos/promesas.jpg" />
+<img src="/assets/imgs/proyectos/promesas.jpg" style="width: 100%;"/>
 
 Vitrina virtual para deportistas de alto rendimiento en Colombia y el mundo. Sistematización de datos antropometricos, pruebas técnicas, físicas y psicológicas para promoción de futbolistas.
 

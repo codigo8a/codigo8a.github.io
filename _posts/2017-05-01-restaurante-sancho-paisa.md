@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/sanchoPaisa.jpg" />
+<img src="/assets/imgs/proyectos/sanchoPaisa.jpg" style="width: 100%;"/>

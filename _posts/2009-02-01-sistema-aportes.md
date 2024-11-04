@@ -6,7 +6,7 @@ comments: true
 category: Sistematizaciones
 tags: Integraciones Web
 ---
-<img src="/public/imgs/proyectos/elcinco.png" />
+<img src="/assets/imgs/proyectos/elcinco.png" style="width: 100%;"/>
 
 Sistematización de procesos (Backend y Frontend) para el desarrollo de proyectos productivos de carácter asociativo. Se establece encadenamientos productivos, empleando para ello recursos provenientes de individuos e instituciones.
 

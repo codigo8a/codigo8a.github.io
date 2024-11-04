@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/portafolio.jpg" />
+<img src="/assets/imgs/proyectos/portafolio.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/portafolio1.jpg" />
+<img src="/assets/imgs/proyectos/portafolio1.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/portafolio2.jpg" />
+<img src="/assets/imgs/proyectos/portafolio2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/portafolio3.jpg" />
+<img src="/assets/imgs/proyectos/portafolio3.jpg" style="width: 100%;"/>

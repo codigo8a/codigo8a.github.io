@@ -6,7 +6,7 @@ comments: true
 category: Sistematizaciones
 tags: Integraciones Web
 ---
-<img src="/public/imgs/proyectos/renacerPrendas.jpg" />
+<img src="/assets/imgs/proyectos/renacerPrendas.jpg" style="width: 100%;"/>
 
 Sistematización de procesos internos en Colombia y Venezuela para empresa dedicada a la comercialización por sistema de Venta Directa de las Colecciones de Accesorios en fantasía fina, baño de oro y plata.
 

@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/laCajonera.jpg" />
+<img src="/assets/imgs/proyectos/laCajonera.jpg" style="width: 100%;"/>

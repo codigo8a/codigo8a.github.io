@@ -6,8 +6,8 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/azimutConsultores1.png" />
+<img src="/assets/imgs/proyectos/azimutConsultores1.png" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/azimutConsultores2.png" />
+<img src="/assets/imgs/proyectos/azimutConsultores2.png" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/azimutConsultores3.jpg" />
+<img src="/assets/imgs/proyectos/azimutConsultores3.jpg" style="width: 100%;"/>

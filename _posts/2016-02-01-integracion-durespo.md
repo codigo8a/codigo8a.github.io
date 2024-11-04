@@ -6,4 +6,4 @@ comments: true
 category: Página Web
 tags: Web E-commerce Integraciones
 ---
-<img src="/public/imgs/proyectos/ecomerceDurespo.jpg" />
+<img src="/assets/imgs/proyectos/ecomerceDurespo.jpg" style="width: 100%;"/>

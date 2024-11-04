@@ -6,10 +6,10 @@ comments: true
 category: Página Web
 tags: Web
 ---
-<img src="/public/imgs/proyectos/parmesano.jpg" />
+<img src="/assets/imgs/proyectos/parmesano.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/parmesano2.jpg" />
+<img src="/assets/imgs/proyectos/parmesano2.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/parmesano3.jpg" />
+<img src="/assets/imgs/proyectos/parmesano3.jpg" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/parmesano4.jpg" />
+<img src="/assets/imgs/proyectos/parmesano4.jpg" style="width: 100%;"/>

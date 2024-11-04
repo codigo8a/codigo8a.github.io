@@ -10,14 +10,14 @@ tags: SapBusinessOne Web
 > Este sistema es una integración con el ERP SAP BUSINESS ONE instalado en servidor windows privado en la nube y accedido por medio del SDK DIAPI
 
 
-<img src="/public/imgs/proyectos/SapbusinessOne-informes-ArticulosBajaRotacion.png" />
+<img src="/assets/imgs/proyectos/SapbusinessOne-informes-ArticulosBajaRotacion.png" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/SapbusinessOne-Informes1.png" />
+<img src="/assets/imgs/proyectos/SapbusinessOne-Informes1.png" style="width: 100%;"/>
 <hr>
-<img src="/public/imgs/proyectos/SapbusinessOne-Informes2.png" /> 
+<img src="/assets/imgs/proyectos/SapbusinessOne-Informes2.png" style="width: 100%;"/> 
 <hr>
-<img src="/public/imgs/proyectos/SapbusinessOne-Informes3.png" /> 
+<img src="/assets/imgs/proyectos/SapbusinessOne-Informes3.png" style="width: 100%;"/> 
 <hr>
-<img src="/public/imgs/proyectos/SapbusinessOne-Informes6.png" /> 
+<img src="/assets/imgs/proyectos/SapbusinessOne-Informes6.png" style="width: 100%;"/> 
 <hr>
-<img src="/public/imgs/proyectos/SapbusinessOne-Informes-ActividadesDeLlamada.png" />
+<img src="/assets/imgs/proyectos/SapbusinessOne-Informes-ActividadesDeLlamada.png" style="width: 100%;"/>
