@@ -13,10 +13,14 @@ function loadURL(url, id) {
     .then((data) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, "text/html");
+      const title = doc.querySelector(
+        '[class="post-title p-name"]'
+      ).innerHTML;
       const articleBodyContent = doc.querySelector(
         '[itemprop="articleBody"]'
       ).innerHTML;
-      document.getElementById("contento").innerHTML = articleBodyContent;
+      document.getElementById("post-content").innerHTML = articleBodyContent;
+      document.getElementById("title3").innerHTML = title;
     })
     .catch((error) => console.log("Error:", error));
 }
@@ -107,7 +111,7 @@ $(document).ready(function () {
     $(this).attr("id", "window" + i++);
     $(this).wrapInner('<div class="wincontent"></div>');
     $(this).prepend(
-      '<div class="windowHeader"><strong>' +
+      '<div class="windowHeader"><strong id="title'+ i +'">' +
         $(this).attr("data-title") +
         '</strong><span title="Minimize" class="winminimize"><span></span></span><span title="Maximize" class="winmaximize"><span></span><span></span></span><span title="Close" class="winclose">x</span></div>'
     );
