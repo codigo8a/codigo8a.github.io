@@ -220,8 +220,10 @@ select {
 }
 
 .windowHeader {
+  display: flex;
   background-color: #aaa;
-  text-align: right;
+  align-items: center;
+  justify-content: space-between;
   border-bottom: 2px solid #000;
   padding: 2px;
   cursor: move;
@@ -304,11 +306,11 @@ select {
   border-radius: 0 0 5px 5px;
 }
 
-.windowHeader > strong {
-  float: left;
-  margin: 0px 3px 0 10px;
-  line-height: 29px;
-  font-size: 17px;
+.windowHeader strong {
+  flex-grow: 1;
+  flex-shrink: 1;
+  padding-left: 5px;
+
 }
 
 .taskbarPanel {
@@ -495,8 +497,8 @@ small {
   font-size: 12px; /* Ajustar el tamaño de la fuente según sea necesario */
   text-align: center; /* Asegurarse de que el texto esté centrado */
 }
-.icon-text{
-    margin-top: 10px;
+.icon-text {
+  margin-top: 10px;
 }
 
 /*links post list page*/
@@ -563,27 +565,27 @@ small {
     top: 110px;
     left: 0px;
   }
-  
+
   #window1 {
     top: 170px;
     left: 0px;
   }
-  
+
   #window2 {
     top: 230px;
     left: 0px;
   }
-  
+
   #window3 {
     top: 250px;
     left: 0px;
   }
-  
+
   #window4 {
     top: 300px;
     left: 0px;
   }
-  
+
   #window5 {
     top: 0px;
     left: 0px;
@@ -593,29 +595,35 @@ small {
     width: auto;
     height: 400px;
   }
-  
+
   #window1 .wincontent {
     width: auto;
     height: 300px;
   }
-  
+
   #window2 .wincontent {
     width: auto;
     height: 300px;
   }
-  
+
   #window3 .wincontent {
     width: auto;
     height: 590px;
   }
-  
+
   #window4 .wincontent {
     width: auto;
     height: 300px;
   }
-  
+
   #window5 .wincontent {
     width: auto;
     height: 600px;
+  }
+  .windowHeader strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 5px;
   }
 }
