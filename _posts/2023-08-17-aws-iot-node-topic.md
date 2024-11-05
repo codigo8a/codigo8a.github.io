@@ -24,7 +24,7 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 
 5. Ingresamos el codigo node:
 
-```csharp
+```react
 const awsIot = require('aws-iot-device-sdk');
 
 const today = new Date();

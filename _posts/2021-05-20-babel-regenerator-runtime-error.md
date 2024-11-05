@@ -11,12 +11,12 @@ Un par de lineas necesarias para solucionar el error de node.js (ReferenceError:
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```
 npm install -D  @babel/plugin-transform-runtime
 npm install @babel/runtime
 ```
 Agregar al archivo .babelrc
-```PHP
+```react
 "plugins": [
     ["@babel/plugin-transform-runtime",
       {

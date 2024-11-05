@@ -11,16 +11,20 @@ Paso a paso para crear una prueba unitaria basica con Jest en React con Vite y T
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```csharp
+```react
 yarn add --dev jest babel-jest @babel/preset-env @babel/preset-react 
 yarn add --dev @testing-library/react @testing-library/dom @testing-library/user-event @types/jest jest-environment-jsdom
 yarn add --dev jest-svg-transformer
 pnpm i --save-dev @babel/core @babel/preset-typescript
 pnpm i --save-dev identity-obj-proxy
-
+```
+package.json
+```react
 "test": "jest --watchAll=false --coverage --CI=true"
+```
 
 babel.config.js 
+```react
 module.exports = {
     presets: [
         [ '@babel/preset-env', { targets: { esmodules: true } } ],
@@ -28,8 +32,10 @@ module.exports = {
         '@babel/preset-typescript',
     ],
 };
+```
 
 jest.config.js
+```react
 module.exports = {
     testEnvironment: 'jest-environment-jsdom',
     setupFiles: ['./jest.setup.js'],
@@ -38,10 +44,11 @@ module.exports = {
 	"\\.(css|less|scss)$": "identity-obj-proxy",
   }
 }
-
+```
 jest.setup.js
 
 App.test.tsx
+```react
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 

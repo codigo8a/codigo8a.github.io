@@ -15,7 +15,7 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 - npm create vite@latest
 
 2 Instalar pnpm (PowerShell)
-```csharp
+```react
 Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression
 ```
 
@@ -23,13 +23,13 @@ Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expr
 - pnpm add @originjs/vite-plugin-federation
 
 4 Configurar package.json (cliente y remoto)
-```csharp
+```react
 "preview": "vite preview --port 5001 --strictPort",
 "start": "npm run build && npm run preview"
 ```
 
 5 Configurar vite.config (remoto)
-```csharp
+```react
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import federation from "@originjs/vite-plugin-federation";
@@ -56,7 +56,7 @@ export default defineConfig({
 ```
 
 6 Configurar main.tsx (remoto)
-```csharp
+```react
 const Main = () => (
   <StrictMode>
     <App />
@@ -67,7 +67,7 @@ export default Main;
 ```
 
 7 Configurar vite.config (cliente)  
-```csharp
+```react
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import federation from "@originjs/vite-plugin-federation";
@@ -94,7 +94,7 @@ export default defineConfig({
 ```
 
 8 Crear declares.d.ts (cliente)  
-```csharp
+```react
 declare module 'remoteApp/remote-app' {
     export default RemoteApp;
 }

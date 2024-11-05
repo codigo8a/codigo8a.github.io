@@ -11,7 +11,7 @@ Recopilación de puntos en google maps sobre sitios curiosos dentro de Chernobyl
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```csharp
 //Hospital Unit Number 126
 https://goo.gl/maps/EBvNcwCj7G4xjy5p9
 https://goo.gl/maps/25tidTmLVq76DmxUA

@@ -11,7 +11,7 @@ Codigo javascript que nos permite listar todos los contactos inactivos de facebo
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```javascript
 let segundos = 0;
 
 function hacerScrollUnMinuto() {

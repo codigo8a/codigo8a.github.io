@@ -11,7 +11,7 @@ Código SQL para eliminar todas las tablas de una base de datos SQL sin eliminar
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```sql
 DECLARE @sql NVARCHAR(max)=''
 
 SELECT @sql += ' Drop table ' + QUOTENAME(TABLE_SCHEMA) + '.'+ QUOTENAME(TABLE_NAME) + '; '

@@ -11,8 +11,8 @@ Paso a paso para instalar un certificado SSL gratis en servidor web ubuntu
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
-//instalamos Certbot
+Instalamos Certbot
+```csharp
 sudo apt-get update
 sudo apt-get install software-properties-common
 sudo add-apt-repository universe

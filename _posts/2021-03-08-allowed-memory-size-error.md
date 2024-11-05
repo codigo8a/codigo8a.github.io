@@ -13,7 +13,7 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 
 Debemos buscar el archivo "wp-config.php" y agregar las siguientes lineas
 
-```PHP
+```php
 define('WP_MEMORY_LIMIT', '256M');
 define( 'WP_MAX_MEMORY_LIMIT', '512M' );
 ```

@@ -12,7 +12,7 @@ A continuación doy una solución rápida al problema Access-Control-Allow-Origi
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```csharp
 //Instalamos
 composer require barryvdh/laravel-cors
 

@@ -11,7 +11,7 @@ Un par de lineas necesarias para poder hacer deploy correctamente de una aplicac
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```react
 "start": "next start -p $PORT",
 "heroku-postbuild": "npm run build"
 ```

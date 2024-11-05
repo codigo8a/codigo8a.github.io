@@ -11,11 +11,10 @@ Paso a paso para importar un archivo excel o CSV a una base de datos firestore d
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
-//Ingresamos a consola
-https://console.cloud.google.com
+Ingresamos a consola
+- https://console.cloud.google.com
 
-//ejecutamos
+```
 gcloud config set project IDPROJECT
 mkdir csv
 npm init
@@ -25,7 +24,7 @@ touch csvExport.js
 node csvExport.js archivo.csv
 ```
 
-```PHP
+```javascript
 const {readFile}  = require('fs').promises;
 const {promisify} = require('util');
 const parse       = promisify(require('csv-parse'));

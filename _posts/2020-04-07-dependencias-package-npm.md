@@ -11,7 +11,7 @@ Paso a paso para arreglar las dependencias registradas en el package.json y pode
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
+```csharp
 //Instalamos
 npm i -g npm-check-updates
 

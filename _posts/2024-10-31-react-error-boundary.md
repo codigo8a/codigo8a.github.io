@@ -11,8 +11,8 @@ Código paso a paso para agregar un archivo que nos maneje los errores en un Mic
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
  
-***01 Crear ErrorBoundary.tsx***
-```csharp
+1 Crear ErrorBoundary.tsx
+```react
 import { Component, ErrorInfo, ReactNode } from "react";
 
 interface ErrorBoundaryState {
@@ -51,15 +51,15 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 export default ErrorBoundary;
 ```
 
-***02 Envolver app***
-```csharp
+2 Envolver app
+```react
 <ErrorBoundary>
   <App />
 </ErrorBoundary>
 ```
 
-***03 Error de ejemplo***
-```csharp
+3 Error de ejemplo
+```react
   useEffect(() => {
       throw new Error('Este es un error generado intencionalmente');
   }, []);

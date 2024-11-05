@@ -13,17 +13,22 @@ A continuación doy una solución rápida al problema Access-Control-Allow-Origi
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```PHP
-//Instalamos
+Instalamos
+```
 composer require fruitcake/laravel-cors
+```
 
-//Agregamos esta linea al archivo app/Http/Kernel.php
-//en "protected $middleware"
+Agregamos esta linea al archivo app/Http/Kernel.php en "protected $middleware"
+```php
 \Fruitcake\Cors\HandleCors::class,
+```
 
-//Creamos arvhivo de conficuración
+Creamos arvhivo de conficuración
+```php
 php artisan vendor:publish --tag="cors"
+```
 
-//Abrimos el archivo de configuracion config/cors.php y agregamos el Path que queremos darle acceso de origenes
+Abrimos el archivo de configuracion config/cors.php y agregamos el Path que queremos darle acceso de origenes
+```php
 'paths' => ['api/*'],
 ```

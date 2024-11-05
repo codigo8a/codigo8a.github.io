@@ -11,7 +11,7 @@ A continuación describo los comandos de consola SSH para instalar en menos de 5
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```
+```csharp
 sudo rm -rf /usr/share/themes/{Arc,Arc-Darker,Arc-Dark}
 rm -rf ~/.local/share/themes/{Arc,Arc-Darker,Arc-Dark}
 rm -rf ~/.themes/{Arc,Arc-Darker,Arc-Dark}

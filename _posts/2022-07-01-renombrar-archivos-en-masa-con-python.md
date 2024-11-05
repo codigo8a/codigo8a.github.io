@@ -11,7 +11,7 @@ Paso a paso para renombrar archivos MP3 en masa y poder darle un orden aleatorio
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-```csharp
+```python
 cont = 1
 for i in file_list:
         print ("file: "+i)
