@@ -3,7 +3,7 @@ layout: post
 title:  "Sap Business One | Informes"
 description: Pagina web y sistema de informes integrado a SAP BUSINESS ONE
 comments: true
-category: Web
+category: Soluciones
 tags: SapBusinessOne Integración PHP Laravel
 ---
 <p>Frontend y Backend privado construido sobre Framework Laravel que permite al los usuarios del sistema con roles y privilegios suficientes para visualizar informes (últimos cambios de precios, Alistamientos de bodega para despachos e historicos de venta de los ejecutivos de cuenta).</p>

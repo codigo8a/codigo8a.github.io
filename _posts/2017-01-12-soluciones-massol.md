@@ -3,7 +3,7 @@ layout: post
 title:  "Soluciones Massol"
 description: Página web para Soluciones Massol - Remaster
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/remaster.jpg" style="width: 100%;"/>

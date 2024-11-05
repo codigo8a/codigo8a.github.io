@@ -3,7 +3,7 @@ layout: post
 title:  "Arquitectura y Concreto"
 description: Integración de sistemas, sistematización de procesos y catalogo de proyectos.
 comments: true
-category: Página Web
+category: Página web
 tags: Integración CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/arquitectura.png" style="width: 100%;"/>

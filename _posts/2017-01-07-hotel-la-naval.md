@@ -3,7 +3,7 @@ layout: post
 title:  "Hotel La Naval"
 description: Página web para Hotel La Naval
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/hotelLaNaval.jpg" style="width: 100%;"/>

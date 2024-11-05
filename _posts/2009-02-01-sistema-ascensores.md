@@ -3,7 +3,7 @@ layout: post
 title:  "Positivo + Group Publicidad"
 description: Backend y frontend para administración de publicidad en ascensores
 comments: true
-category: Página Web
+category: Página web
 tags: Integración CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/positivoGroup.png" style="width: 100%;"/>

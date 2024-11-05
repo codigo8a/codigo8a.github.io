@@ -3,7 +3,7 @@ layout: post
 title:  "Azimut Consultores"
 description: Página web para Azimut Consultores
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/azimutConsultores1.png" style="width: 100%;"/>

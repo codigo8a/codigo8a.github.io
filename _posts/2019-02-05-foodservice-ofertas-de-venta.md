@@ -3,7 +3,7 @@ layout: post
 title:  "Sap Business One | Ofertas de Venta"
 description: Pagina web y sistema de administración Ofertas de venta para un Callcenter integrado a SAP BUSINESS ONE
 comments: true
-category: Web
+category: Soluciones
 tags: SapBusinessOne Integración PHP Laravel
 ---
 <p>Frontend y Backend privado construido sobre Framework Laravel que permite a los empleados de un CallCenter atender a los Soicos de Negocio que tiene asigandos.</p>

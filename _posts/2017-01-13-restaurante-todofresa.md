@@ -3,7 +3,7 @@ layout: post
 title:  "Restaurante TodoFresa"
 description: Página web para el restaurante TodoFresa
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/todofresa.jpg" style="width: 100%;"/>

@@ -3,7 +3,7 @@ layout: post
 title:  "Sap Business One | Backend"
 description: Pagina web y sistema de cotización integrado a SAP BUSINESS ONE
 comments: true
-category: Web
+category: Soluciones
 tags: SapBusinessOne Integración PHP Laravel
 ---
 <p>Frontend y Backend privado construido sobre Framework Laravel que permite al area adminsitrativa gestionar usuarios del sistema, crear roles y permisos.</p>

@@ -3,7 +3,7 @@ layout: post
 title:  "Constructora Latinco S.A."
 description:  Desarrollo de infraestructura, promovemos, diseñamos y construimos proyectos
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/constructoraLatinco.jpg" style="width: 100%;"/>

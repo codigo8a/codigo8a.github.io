@@ -3,7 +3,7 @@ layout: post
 title:  "Sap Business One | Cotización Pagina Web"
 description: Pagina web y sistema de cotización integrado a SAP BUSINESS ONE
 comments: true
-category: Web
+category: Soluciones
 tags: SapBusinessOne Integración PHP Laravel
 ---
 <p>Frontend y Backend público construido sobre Framework Laravel que permite a los visitantes del sitio web crear una cotización de venta y enviarla automaticamente al sistema de gestión de prospectos, donde serán verificados los datos y papeleria del nuevo cliente y posteriormente atender su solicitud.</p>

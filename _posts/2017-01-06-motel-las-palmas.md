@@ -3,7 +3,7 @@ layout: post
 title:  "Motel Las Palmas"
 description: Página web para motel las palmas
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/motelLasPalmas.jpg" style="width: 100%;"/>

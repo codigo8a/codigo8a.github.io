@@ -12,7 +12,9 @@ layout: default
           href="javascript:void(0)"
           onclick="loadURL('{{ post.url | relative_url }}', '3')"
         >
-          {{ post.title | escape }}
+          {{ post.title | escape }} (<small
+          >{{ post.date | date_to_string }}</small
+        >)
         </a>
       </li>
       {% endfor %}
@@ -30,14 +32,16 @@ layout: default
     contains tag %} {% assign tags = tags | join:'|' | append:'|' | append:tag |
     split:'|' %} {% endunless %} {% endif %} {% endfor %}
     <div class="posts">
-      <p>
+      <div>
         {% for tag in tags %}
-        <a href="#{{ tag | slugify }}" class="codinfox-tag-mark" style="color: #999; text-decoration: none"> {{ tag }} </a>
-        &nbsp;&nbsp; {% endfor %} {% for tag in tags %}
-      </p>
-
+        <a href="#{{ tag | slugify }}" style="color: #999; text-decoration: none"> {{ tag }} </a>
+        &nbsp;&nbsp;
+        {% endfor %}
+      </div>
+      <hr>
+      {% for tag in tags %}
       <h2 id="{{ tag | slugify }}">{{ tag }}</h2>
-      <ul class="codinfox-category-list">
+      <ul>
         {% for post in site.posts %} {% if post.tags contains tag %}
         <li class="link-item">
           <i class="fa-regular fa-file-lines"></i>
@@ -67,11 +71,10 @@ layout: default
     contains cat %} {% assign cats = cats | join:'|' | append:'|' | append:cat |
     split:'|' %} {% endunless %} {% endif %} {% endfor %}
     <div class="posts">
-      <p>
+      <div>
         {% for ct in cats %}
         <a
           href="#{{ ct | slugify }}"
-          class="codinfox-category-mark"
           style="color: #999; text-decoration: none"
         >
           {{ ct }}
@@ -79,17 +82,16 @@ layout: default
         &nbsp;&nbsp; {% endfor %}
         <a
           href="#no-category"
-          class="codinfox-category-mark"
           style="color: #999; text-decoration: none"
         >
           No Category
         </a>
         &nbsp;&nbsp;
-      </p>
-
+      </div>
+      <hr>
       {% for ct in cats %}
       <h2 id="{{ ct | slugify }}">{{ ct }}</h2>
-      <ul class="link-list">
+      <ul>
         {% for post in site.posts %} {% if post.category contains ct %}
         <li class="link-item">
           <i class="fa-regular fa-file-lines"></i>

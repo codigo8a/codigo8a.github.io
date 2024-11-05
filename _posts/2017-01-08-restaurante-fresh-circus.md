@@ -3,7 +3,7 @@ layout: post
 title:  "Restaurante FreshCircus"
 description: Página web para Restaurante FreshCircus
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/freshCircus.jpg" style="width: 100%;"/>

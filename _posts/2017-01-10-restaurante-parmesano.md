@@ -3,7 +3,7 @@ layout: post
 title:  "Restaurante Parmesano"
 description: Página web para el restaurante Parmesano
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/parmesano.jpg" style="width: 100%;"/>

@@ -3,7 +3,7 @@ layout: post
 title:  "Papeleria Portafolio"
 description: Página web para la papeleria Portafolio
 comments: true
-category: Página Web
+category: Página web
 tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/portafolio.jpg" style="width: 100%;"/>
