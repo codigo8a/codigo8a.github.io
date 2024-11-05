@@ -11,24 +11,24 @@ Código paso a paso para crear dos aplicaciones (remoto y cliente) React + Vite 
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
  
-***01 Crear dos proyectos (remoto y cliente)***
+1 Crear dos proyectos (remoto y cliente)
 - npm create vite@latest
 
-***02 Instalar pnpm (PowerShell)***
+2 Instalar pnpm (PowerShell)
 ```csharp
 Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression
 ```
 
-***03 Instalar federation (cliente y remoto)***
+3 Instalar federation (cliente y remoto)
 - pnpm add @originjs/vite-plugin-federation
 
-***04 Configurar package.json (cliente y remoto)***
+4 Configurar package.json (cliente y remoto)
 ```csharp
 "preview": "vite preview --port 5001 --strictPort",
 "start": "npm run build && npm run preview"
 ```
 
-***05 Configurar vite.config (remoto)***
+5 Configurar vite.config (remoto)
 ```csharp
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
@@ -55,7 +55,7 @@ export default defineConfig({
 });
 ```
 
-***06 Configurar main.tsx (remoto)***
+6 Configurar main.tsx (remoto)
 ```csharp
 const Main = () => (
   <StrictMode>
@@ -66,7 +66,7 @@ const Main = () => (
 export default Main;
 ```
 
-***07 Configurar vite.config (cliente)***  
+7 Configurar vite.config (cliente)  
 ```csharp
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
@@ -93,13 +93,13 @@ export default defineConfig({
 });
 ```
 
-***08 Crear declares.d.ts (cliente)***  
+8 Crear declares.d.ts (cliente)  
 ```csharp
 declare module 'remoteApp/remote-app' {
     export default RemoteApp;
 }
 ```
 
-***09 Modificar app remoto***  
-***10 Importar app remoto y llamarla cómo un componente***  
-***11 npm run start (remoto y cliente)***
+9 Modificar app remoto  
+10 Importar app remoto y llamarla cómo un componente  
+11 npm run start (remoto y cliente)

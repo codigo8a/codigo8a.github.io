@@ -11,13 +11,13 @@ Codigo paso a paso para integrar Clean Arquitecture a Net Core 7.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-1. Creamos una Blank Solution
+1 Creamos una Blank Solution
 
-2. Agregamos proyecto API .Api
+2 Agregamos proyecto API .Api
 - Controllers
 - Responses
   
-3. Agregamos proyecto Class Library .Core
+3 Agregamos proyecto Class Library .Core
 - DTOs
 - Entities
 - Enumerations
@@ -26,18 +26,18 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 - QueryFilters
 - Services
   
-4. Agregamos proyecto Class Library .Infrastructure
+4 Agregamos proyecto Class Library .Infrastructure
 - Data
 - Repositories
 - Filters
 - Mappings
 - Validators
 
-5. Reference
+5 Reference
 - .API = .Core, .Infrastructure
 - .Infrastructure = .Core
 
-6. Ingresamos al appsettings:
+6 Ingresamos al appsettings:
 ```csharp
 ,
 "MongoDbSettings": {
@@ -46,13 +46,13 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 }
 ```
 
-7. Creamos MongoDbSettingsEntity:
+7 Creamos MongoDbSettingsEntity:
 ```csharp
 public string ConnectionString { get; set; } = string.Empty;
 public string DatabaseName { get; set; } = string.Empty;
 ```
 
-8. Instalamos paquetes:
+8 Instalamos paquetes:
 ```csharp
 MongoDB.Bson
 MongoDB.Driver
@@ -60,12 +60,12 @@ Microsoft.Extensions.Options
 AspNetCore.Identity.MongoDbCore
 ```
 
-9. Agregamos al program:
+9 Agregamos al program:
 ```csharp
 builder.Services.Configure<MongoDbSettingsEntity>(builder.Configuration.GetSection(nameof(MongoDbSettings)));
 ```
 
-10. Creamos el UserEntity:
+10 Creamos el UserEntity:
 ```csharp
 [BsonIgnoreExtraElements]
 public class UserEntity
@@ -79,17 +79,17 @@ public class UserEntity
 }
 ```
 
-11. Creamos IUserRepository y IUserService:
+11 Creamos IUserRepository y IUserService:
 ```csharp
 Task<List<UserEntity>> GetAll();
 ```
 
-12. Creamos IContext:
+12 Creamos IContext:
 ```csharp
 IMongoCollection<UserEntity> Users { get;  }
 ```
 
-13. Creamos Context:
+13 Creamos Context:
 ```csharp
 public class Context : IContext
 {
@@ -103,7 +103,7 @@ public class Context : IContext
 }
 ```
 
-14. Creamos UserRepository:
+14 Creamos UserRepository:
 ```csharp
 public class UserRepository : IUserRepository
 {
@@ -116,7 +116,7 @@ public class UserRepository : IUserRepository
 }
 ```
 
-15. Creamos UserService:
+15 Creamos UserService:
 ```csharp
 public class UserService : IUserService
 {
@@ -132,7 +132,7 @@ public class UserService : IUserService
 }
 ```
 
-16. Creamos UserService:
+16 Creamos UserService:
 ```csharp
 public class UserService : IUserService
 {
@@ -148,13 +148,13 @@ public class UserService : IUserService
 }
 ```
 
-17. Agregamos al program:
+17 Agregamos al program:
 ```csharp
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 ```
 
-18. Creo UserController:
+18 Creo UserController:
 ```csharp
 [Route("api/[controller]")]
 [ApiController]

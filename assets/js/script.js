@@ -7,7 +7,6 @@ var i = 0,
   id;
 
 function loadURL(url, id) {
-  openWindow(id);
   fetch(url)
     .then((response) => response.text())
     .then((data) => {
@@ -19,8 +18,14 @@ function loadURL(url, id) {
       const articleBodyContent = doc.querySelector(
         '[itemprop="articleBody"]'
       ).innerHTML;
-      document.getElementById("post-content").innerHTML = articleBodyContent;
-      document.getElementById("title4").innerHTML = title;
+      if(id === '5'){
+        document.getElementById("cv-content").innerHTML = articleBodyContent;
+        document.getElementById("title5").innerHTML = title;
+      }else{
+        document.getElementById("post-content").innerHTML = articleBodyContent;
+        document.getElementById("title3").innerHTML = title;
+        openWindow(id);
+      }
     })
     .catch((error) => console.log("Error:", error));
 }
@@ -108,13 +113,15 @@ $(document).ready(function () {
     if ($(this).hasClass("closed")) {
       $("#minimPanel" + i).addClass("closed");
     }
-    $(this).attr("id", "window" + i++);
+    
     $(this).wrapInner('<div class="wincontent"></div>');
     $(this).prepend(
       '<div class="windowHeader"><strong id="title'+ i +'">' +
         $(this).attr("data-title") +
         '</strong><span title="Minimize" class="winminimize"><span></span></span><span title="Maximize" class="winmaximize"><span></span><span></span></span><span title="Close" class="winclose">x</span></div>'
     );
+    $(this).attr("id", "window" + i++);
+    loadURL('/2009/01/01/hoja-de-vida.html', '5'); 
   });
   $("#minimPanel" + (i - 1)).addClass("activeTab");
   $("#window" + (i - 1)).addClass("activeWindow");
