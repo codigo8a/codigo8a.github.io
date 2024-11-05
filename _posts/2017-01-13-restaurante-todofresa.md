@@ -4,7 +4,7 @@ title:  "Restaurante TodoFresa"
 description: Página web para el restaurante TodoFresa
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/todofresa.jpg" style="width: 100%;"/>
 <hr>

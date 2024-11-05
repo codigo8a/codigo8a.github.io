@@ -4,7 +4,7 @@ title:  "Papeleria Portafolio"
 description: Página web para la papeleria Portafolio
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/portafolio.jpg" style="width: 100%;"/>
 <hr>

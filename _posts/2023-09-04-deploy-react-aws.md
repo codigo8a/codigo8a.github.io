@@ -3,8 +3,8 @@ layout: post
 title:  "Cómo hacer deploy de react.js en AWS"
 description: "Cómo hacer deploy de react.js en AWS"
 comments: true
-category: tutoriales
-tags: tutoriales AWS framework react
+category: Paso a paso
+tags: Tutoriales AWS Framework React
 youtube: https://youtu.be/ScwqUMKhNm4
 ---
 Código paso a paso para desplegar un proyecto React.JS en AWS Elastic Beanstalk.

@@ -3,8 +3,8 @@ layout: post
 title:  "Cómo usar EntityUser y JWT con MongoDB"
 description: "Cómo usar EntityUser y JWT con MongoDB"
 comments: true
-category: tutoriales
-tags: tutoriales framework csharp basededatos
+category: Paso a paso
+tags: Tutoriales Framework CSharp BaseDeDatos NetCore
 youtube: https://youtu.be/f1hoUoB16NI
 ---
 Codigo paso a paso para integrar EntityUser y JWT con MongoDB.

@@ -3,8 +3,8 @@ layout: post
 title:  "Colchones Fantasia"
 description: Integración con Joomla, creación de sistema de envios especiales a la medida
 comments: true
-category: Sistematizaciones
-tags: Integraciones Web E-commerce
+category: Página Web
+tags: Integración CMS Joomla E-commerce
 ---
 <img src="/assets/imgs/proyectos/colchonesFantasia.png" style="width: 100%;"/>
 

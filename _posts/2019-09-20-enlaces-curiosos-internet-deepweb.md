@@ -3,8 +3,8 @@ layout: post
 title:  "Enlaces curiosos de la Internet y la DeepWeb"
 description: Recopilación de sitios web, herramientas o simplemente cosas curiosas de la red
 comments: true
-category: La Red
-tags: web
+category: Internet
+tags: Links
 youtube: https://www.youtube.com/playlist?list=PLOvJVhg1PHH063-7vgyuy0N0c_yKpfZsG
 ---
 Recopilación de sitios web, herramientas o simplemente cosas curiosas de la red

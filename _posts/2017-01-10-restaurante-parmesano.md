@@ -4,7 +4,7 @@ title:  "Restaurante Parmesano"
 description: Página web para el restaurante Parmesano
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/parmesano.jpg" style="width: 100%;"/>
 <hr>

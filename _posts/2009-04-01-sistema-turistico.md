@@ -3,8 +3,8 @@ layout: post
 title:  "Revista Turistica PasoBueno"
 description: Sistema administrativo de sitios turisticos Santa Elena
 comments: true
-category: Sistematizaciones
-tags: Integraciones Web
+category: Página Web
+tags: Integración CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/pasoBueno.png" style="width: 100%;"/>
 

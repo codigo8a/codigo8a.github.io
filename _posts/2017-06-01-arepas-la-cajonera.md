@@ -4,6 +4,6 @@ title:  "Arepas La Cajonera"
 description: Página web para Arepas La Cajonera
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/laCajonera.jpg" style="width: 100%;"/>

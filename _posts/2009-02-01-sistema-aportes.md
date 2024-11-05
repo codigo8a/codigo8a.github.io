@@ -3,8 +3,8 @@ layout: post
 title:  "Fundación el Cinco"
 description: Sistema para administrar aportes que realizan empresas y empleados a ONG
 comments: true
-category: Sistematizaciones
-tags: Integraciones Web
+category: Página Web
+tags: Integración CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/elcinco.png" style="width: 100%;"/>
 

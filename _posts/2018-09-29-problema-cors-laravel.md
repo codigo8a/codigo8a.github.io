@@ -3,8 +3,8 @@ layout: post
 title:  "Solucionar problema CORS en Laravel 5"
 description: Cómo solucionar el problema Access-Control-Allow-Origin - CORS en Laravel 5
 comments: true
-category: Tutoriales
-tags: Tutoriales Laravel Error
+category: Paso a paso
+tags: Tutoriales Laravel Error Framework PHP
 youtube: https://youtu.be/KvldwGjCg5M
 ---
 A continuación doy una solución rápida al problema Access-Control-Allow-Origin - CORS en Laravel 5 que sucede por razones de seguridad, los exploradores restringen las solicitudes HTTP de origen cruzado iniciadas dentro de un script.

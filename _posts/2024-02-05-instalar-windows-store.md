@@ -3,8 +3,8 @@ layout: post
 title:  "Cómo instalar tienda de windows Microsoft Store"
 description: "Cómo instalar o re-instalar Microsoft Store"
 comments: true
-category: tutoriales
-tags: trucos windows herramientas
+category: Cdigo
+tags: Trucos Windows
 youtube: https://youtu.be/ScwqUMKhNm4
 ---
 Código paso a paso para instalar la tienda de windows "Microsoft Store".

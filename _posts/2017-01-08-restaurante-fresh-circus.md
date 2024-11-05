@@ -4,7 +4,7 @@ title:  "Restaurante FreshCircus"
 description: Página web para Restaurante FreshCircus
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/freshCircus.jpg" style="width: 100%;"/>
 <hr>

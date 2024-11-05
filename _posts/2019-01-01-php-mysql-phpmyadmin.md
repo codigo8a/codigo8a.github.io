@@ -3,8 +3,8 @@ layout: post
 title:  "Instalación PHP - MYSQL - PHPMYADMIN"
 description: Comandos de consola paso a paso para instalar PHP - MYSQL - PHPMYADMIN
 comments: true
-category: Tutoriales
-tags: Tutoriales Php Mysql
+category: Paso a paso
+tags: Tutoriales PHP MySql AWS
 youtube: https://bit.ly/2wSo5iD
 ---
 A continuación describo los comandos de consola SSH para instalar en menos de 5 minutos PHP - MYSQL - PHPMYADMIN en un servidor UBUNTU (AWS Amazon Web Services).

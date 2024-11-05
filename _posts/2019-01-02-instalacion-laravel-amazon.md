@@ -3,8 +3,8 @@ layout: post
 title:  "Instalación Laravel SSH Servidor UBUNTU"
 description: Comandos de consola paso a paso para instalar laravel en servidor UBUNTU
 comments: true
-category: Tutoriales
-tags: Tutoriales Laravel
+category: Paso a paso
+tags: Tutoriales Laravel PHP AWS
 youtube: https://www.youtube.com/watch?v=nExuiPqHkVA
 ---
 

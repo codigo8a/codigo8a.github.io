@@ -4,7 +4,7 @@ title:  "Restaurante Entremaderos"
 description: Página web para el restaurante Entremaderos
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla E-commerce
 ---
 <img src="/assets/imgs/proyectos/entremaderos1.jpg" style="width: 100%;"/>
 <hr>

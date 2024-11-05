@@ -3,8 +3,8 @@ layout: post
 title:  "Cómo listar contactos inactivos de facebook"
 description: Cómo listar contactos inactivos de facebook para eliminarlos
 comments: true
-category: tutoriales
-tags: web trucos
+category: Código 
+tags: Trucos Javascript
 youtube: https://youtu.be/CDEaBtEeVwM
 ---
 Codigo javascript que nos permite listar todos los contactos inactivos de facebook y despues poder borrarlos

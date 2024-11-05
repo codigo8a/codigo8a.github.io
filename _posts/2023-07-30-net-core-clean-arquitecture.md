@@ -3,8 +3,8 @@ layout: post
 title:  "Cómo integrar Clean Arquitecture a Net Core 7"
 description: "Cómo integrar Clean Arquitecture a Net Core 7"
 comments: true
-category: tutoriales
-tags: tutoriales framework csharp
+category: Paso a paso
+tags: Tutoriales Framework CSharp NetCore
 youtube: https://youtu.be/vItyn5jd-k8
 ---
 Codigo paso a paso para integrar Clean Arquitecture a Net Core 7.

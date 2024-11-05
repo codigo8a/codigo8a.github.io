@@ -4,7 +4,7 @@ title:  "Colmedicos"
 description:  IPS especializada en Salud Ocupacional que presta servicios en Medicina Preventiva y del Trabajo.
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/colmedicos.jpg" style="width: 100%;"/>
 <hr>

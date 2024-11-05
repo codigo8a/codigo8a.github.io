@@ -3,8 +3,8 @@ layout: post
 title:  "Cómo descargar e instalar drivers facil y rápido"
 description: Cómo podemos descargar todos los drivers de un computador fácil, rápido y totalmente gratis  
 comments: true
-category: tutoriales
-tags: trucos windows
+category: Paso a paso
+tags: Trucos Windows
 youtube: https://youtu.be/GJ-GbLifU2Q
 ---
 Paso a paso para bajar aplicativo que analiza nuestro equipo y automaticamente baja los drivers y los instala por nosotros. Adicional a esto tiene un paquete extenso de programas muy útiles, herramientas de administracion, seguridad y otros que pueden ser instalados al tiempo

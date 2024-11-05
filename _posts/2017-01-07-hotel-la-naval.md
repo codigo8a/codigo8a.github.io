@@ -4,7 +4,7 @@ title:  "Hotel La Naval"
 description: Página web para Hotel La Naval
 comments: true
 category: Página Web
-tags: Web
+tags: CMS Joomla
 ---
 <img src="/assets/imgs/proyectos/hotelLaNaval.jpg" style="width: 100%;"/>
 <hr>

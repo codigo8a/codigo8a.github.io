@@ -3,8 +3,8 @@ layout: post
 title:  "Instalación Sistema Wiki DOKUWIKI"
 description: Sistema de documentación WIKI facíl y sin base de datos
 comments: true
-category: Tutoriales
-tags: Tutoriales Php
+category: Paso a paso
+tags: Tutoriales PHP
 youtube: https://bit.ly/2wSo5iD
 dokuwiki: https://github.com/splitbrain/dokuwiki
 ---
