@@ -220,7 +220,7 @@ select {
 }
 
 .windowHeader {
-  background-color: #b7b7e0;
+  background-color: #aaa;
   text-align: right;
   border-bottom: 2px solid #000;
   padding: 2px;
@@ -452,6 +452,10 @@ ul {
 li {
   margin-left: 20px;
   margin-bottom: 10px;
+}
+
+h6 {
+  margin: 10px 10px 10px 0;
 }
 
 small {
