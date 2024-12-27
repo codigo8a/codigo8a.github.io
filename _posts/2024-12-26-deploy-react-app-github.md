@@ -18,7 +18,7 @@ npm create vite@latest
 
 2. Creamos un repositorio en Github
 3. Iniciamos y configuramos el git en el nuevo proyecto
-4. Agregamos package.json
+4. Agregamos al package.json
 ```react
 homepage: "https://juandavid.site/reactapp" 
 "predeploy":"npm run build"
