@@ -5,7 +5,7 @@ description: "Cómo hacer deploy de aplicación Net Core en AWS"
 comments: true
 category: Paso a paso
 tags: Tutoriales AWS Framework CSharp NetCore
-youtube: https://youtu.be/ScwqUMKhNm4
+youtube: https://youtu.be/9yIJg7i-Xxo
 ---
 Código paso a paso para desplegar un proyecto API Net Core en AWS Elastic Beanstalk.
 
