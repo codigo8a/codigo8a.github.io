@@ -5,7 +5,7 @@ description: "Cómo manejar errores en una app React"
 comments: true
 category: Paso a paso
 tags: Tutoriales React Framework
-youtube: https://youtu.be/ScwqUMKhNm4
+youtube: https://youtu.be/nm8AcpPduV0
 ---
 Código paso a paso para agregar un archivo que nos maneje los errores en un Micro-FrontEnd.
 
