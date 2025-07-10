@@ -14,12 +14,15 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 Instalar GIT
 Instalar Docker Desktop
 
-Clonar reositorio y ejecutar con PowerShell
+Ejecutar en PowerShell
 ```csharp
-https://github.com/codigo8a/evolution-api-script.git
+git clone https://github.com/codigo8a/evolution-api-script.git
+cd evolution-api-script
+& "C:\Program Files\Git\bin\bash.exe"
+./evolution.sh
 ```
 
-Ingresar key
+Usar la Authentication Api Key
 ```csharp
-asSasasaSasASasASas
+429683C4C977415CAAFCCE10F7D57E11
 ```
