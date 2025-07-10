@@ -4,7 +4,7 @@ title:  "Cómo instalar docker en Raspbian linux"
 description: Cómo instalar docker en Raspbian linux
 comments: true
 category: Paso a paso
-tags: Tutoriales Linux
+tags: Tutoriales Linux Docker
 youtube: https://youtu.be/EbKw0Dcaf6o
 ---
 Paso a paso para tener docker instalado junto con un administrador visual de contenedores en una Raspberry Pi.
