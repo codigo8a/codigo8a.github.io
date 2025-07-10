@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Cómo instalar docker en linux"
-description: Cómo instalar docker en linux
+description: Cómo instalar docker en raspbian linux
 comments: true
 category: Paso a paso
 tags: Tutoriales Linux
