@@ -11,8 +11,8 @@ Paso a paso para instalar Evolution-API con un sólo comando.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-Instalar GIT
-Instalar Docker Desktop
+1. Instalar GIT
+2. Instalar Docker Desktop
 
 Ejecutar en PowerShell
 ```csharp
