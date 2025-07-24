@@ -4,7 +4,7 @@ title:  "Cómo transmitir pantalla del celular a Windows"
 description: Cómo transmitir pantalla del celular a Windows
 comments: true
 category: Paso a paso
-tags: Tutoriales windows
+tags: Tutoriales Windows
 youtube: https://youtu.be/rSuEqJ1YvwQ
 ---
 Paso a paso para para transmitir la pantalla del celular al escitorio de windows.
