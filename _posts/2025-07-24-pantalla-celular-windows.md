@@ -17,7 +17,6 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 3. Descomprimir en una carpeta
 4. Conectar celular en modo solo carga  
 5. Ejecutar
-
 ```csharp
 adb devices
 scrcpy
