@@ -7,7 +7,7 @@ category: Paso a paso
 tags: Tutoriales Windows
 youtube: https://youtu.be/rSuEqJ1YvwQ
 ---
-Paso a paso para para transmitir la pantalla del celular al escitorio de windows.
+Paso a paso para transmitir la pantalla del celular al escitorio de windows.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
