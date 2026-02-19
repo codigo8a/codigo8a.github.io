@@ -7,6 +7,11 @@ var i = 0,
   id;
 
 function loadURL(url, id) {
+  // Actualizar la URL con el hash del post
+  if (url && id === '3') {
+    window.location.hash = 'post=' + url;
+  }
+  
   fetch(url)
     .then((response) => response.text())
     .then((data) => {
@@ -29,6 +34,25 @@ function loadURL(url, id) {
     })
     .catch((error) => console.log("Error:", error));
 }
+
+// Función para cargar post desde hash URL
+function loadPostFromHash() {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#post=')) {
+    const postUrl = hash.substring(6); // Remover '#post='
+    if (postUrl) {
+      // Pequeño delay para asegurar que las ventanas estén inicializadas
+      setTimeout(() => {
+        loadURL(postUrl, '3');
+      }, 500);
+    }
+  }
+}
+
+// Escuchar cambios en el hash
+window.addEventListener('hashchange', function() {
+  loadPostFromHash();
+});
 
 function adjustFullScreenSize() {
   $(".fullSizeWindow .wincontent").css("width", window.innerWidth - 32);
@@ -77,6 +101,10 @@ function openWindow(id) {
 function closeWindwow(id) {
   $("#window" + id).addClass("closed");
   $("#minimPanel" + id).addClass("closed");
+  // Limpiar el hash si se cierra la ventana de posts
+  if (id === '3') {
+    window.location.hash = '';
+  }
 }
 
 function openMinimized(id) {
@@ -192,4 +220,7 @@ $(document).ready(function () {
     }
   });
   adjustFullScreenSize();
+  
+  // Cargar post desde hash si existe
+  loadPostFromHash();
 });
