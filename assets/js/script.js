@@ -7,9 +7,7 @@ var i = 0,
   id;
 
 function loadURL(url, id) {
-  // Actualizar la URL con el hash del post (solo la ruta, sin #post=)
   if (url && id === '3') {
-    // Eliminar el primer '/' si existe para evitar doble slash en el hash
     var cleanUrl = url.startsWith('/') ? url.substring(1) : url;
     window.location.hash = cleanUrl;
   }
@@ -37,13 +35,11 @@ function loadURL(url, id) {
     .catch((error) => console.log("Error:", error));
 }
 
-// Función para cargar post desde hash URL (nuevo formato sin #post=)
 function loadPostFromHash() {
   const hash = window.location.hash;
   if (hash && hash.startsWith('#')) {
-    const postUrl = hash.substring(1); // Remover '#'
+    const postUrl = hash.substring(1);
     if (postUrl) {
-      // Pequeño delay para asegurar que las ventanas estén inicializadas
       setTimeout(() => {
         loadURL('/' + postUrl, '3');
       }, 500);
@@ -51,7 +47,6 @@ function loadPostFromHash() {
   }
 }
 
-// Escuchar cambios en el hash
 window.addEventListener('hashchange', function() {
   loadPostFromHash();
 });
@@ -82,7 +77,6 @@ function minimizeWindow(id) {
     },
     200,
     function () {
-      //animation complete
       $("#window" + id).addClass("minimizedWindow");
       $("#minimPanel" + id).addClass("minimizedTab");
       $("#minimPanel" + id).removeClass("activeTab");
@@ -103,7 +97,6 @@ function openWindow(id) {
 function closeWindwow(id) {
   $("#window" + id).addClass("closed");
   $("#minimPanel" + id).addClass("closed");
-  // Limpiar el hash si se cierra la ventana de posts
   if (id === '3') {
     window.location.hash = '';
   }
@@ -124,7 +117,6 @@ function openMinimized(id) {
 }
 $(document).ready(function () {
   $(".window").each(function () {
-    // window template
     $(this).css("z-index", 1000);
     $(this).attr("data-id", i);
     minimizedWidth[i] = $(this).width();
@@ -155,45 +147,36 @@ $(document).ready(function () {
   });
   $("#minimPanel" + (i - 1)).addClass("activeTab");
   $("#window" + (i - 1)).addClass("activeWindow");
-  $(".wincontent").resizable(); // resizable
+  $(".wincontent").resizable();
   $(".window").draggable({
     cancel: ".wincontent",
-  }); // draggable
+  });
   $(".window").mousedown(function () {
-    // active window on top (z-index 1000)
     makeWindowActive($(this).attr("data-id"));
   });
   $(".winclose").click(function () {
-    // close window
     closeWindwow($(this).parent().parent().attr("data-id"));
   });
   $(".winminimize").click(function () {
-    // minimize window
     minimizeWindow($(this).parent().parent().attr("data-id"));
   });
   $(".taskbarPanel").click(function () {
-    // taskbar click
     id = $(this).attr("data-id");
     if ($(this).hasClass("activeTab")) {
-      // minimize if active
       minimizeWindow($(this).attr("data-id"));
     } else {
       if ($(this).hasClass("minimizedTab")) {
-        // open if minimized
         openMinimized(id);
       } else {
-        // activate if inactive
         makeWindowActive(id);
       }
     }
   });
   $(".openWindow").click(function () {
-    // open closed window
     openWindow($(this).attr("data-id"));
   });
   $(".winmaximize").click(function () {
     if ($(this).parent().parent().hasClass("fullSizeWindow")) {
-      // minimize
       $(this).parent().parent().removeClass("fullSizeWindow");
       $(this)
         .parent()
@@ -206,7 +189,6 @@ $(document).ready(function () {
         .children(".wincontent")
         .width(minimizedWidth[$(this).parent().parent().attr("data-id")]);
     } else {
-      // maximize
       $(this).parent().parent().addClass("fullSizeWindow");
       minimizedHeight[$(this).parent().parent().attr("data-id")] = $(this)
         .parent()
@@ -222,7 +204,5 @@ $(document).ready(function () {
     }
   });
   adjustFullScreenSize();
-  
-  // Cargar post desde hash si existe
   loadPostFromHash();
 });
