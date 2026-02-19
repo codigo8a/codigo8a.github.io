@@ -4,7 +4,7 @@ title:  "Cómo desplegar una app React + Vite a Github Pages"
 description: "Cómo desplegar una app React + Vite en Github Pages"
 comments: true
 category: Youtube
-tags: Tutoriales React Framework Github
+tags: Tutoriales React Framework GitHub
 youtube: https://youtu.be/QZ7y90shOPY
 ---
 Código paso a paso para hacer un deploy de una aplicación React + Vite en Github Pages.
