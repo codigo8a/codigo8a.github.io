@@ -6,88 +6,23 @@ var i = 0,
   panel,
   id;
 
-function getPostUrlFromPath() {
-  const path = window.location.pathname;
-  // Nuevo patrón: /YYYY/MM/DD/titulo.html
-  const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(\d{2})\/([^/]+\.html)$/);
-  if (postMatch) {
-    return `/${postMatch[1]}/${postMatch[2]}/${postMatch[3]}/${postMatch[4]}`;
+function loadURL(url, id) {
+  // Actualizar la URL con el hash del post
+  if (url && id === '3') {
+    window.location.hash = 'post=' + url;
   }
-  const hash = window.location.hash;
-  if (hash && hash.startsWith('#post=')) {
-    return hash.substring(6);
-  }
-  return null;
-}
-
-function updateCleanUrl(postUrl) {
-  if (postUrl) {
-    // postUrl esperado: /YYYY/MM/DD/titulo.html
-    if (window.location.pathname !== postUrl) {
-      history.pushState({ postUrl: postUrl }, '', postUrl);
-    }
-  }
-}
-
-function adjustWindowsToViewport() {
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  const taskbarHeight = 32;
-  const minMargin = 10;
-  $('.window').each(function() {
-    const $win = $(this);
-    const winWidth = $win.outerWidth();
-    const winHeight = $win.outerHeight();
-    let currentTop = parseInt($win.css('top')) || 0;
-    let currentLeft = parseInt($win.css('left')) || 0;
-    if (currentLeft < minMargin) {
-      currentLeft = minMargin;
-    } else if (currentLeft + winWidth > viewportWidth - minMargin) {
-      if (winWidth > viewportWidth - (minMargin * 2)) {
-        currentLeft = minMargin;
-      } else {
-        currentLeft = viewportWidth - winWidth - minMargin;
-      }
-    }
-    const availableHeight = viewportHeight - taskbarHeight;
-    if (currentTop < minMargin) {
-      currentTop = minMargin;
-    } else if (currentTop + winHeight > availableHeight - minMargin) {
-      if (winHeight > availableHeight - (minMargin * 2)) {
-        currentTop = minMargin;
-      } else {
-        currentTop = availableHeight - winHeight - minMargin;
-      }
-    }
-    $win.css({
-      'top': currentTop + 'px',
-      'left': currentLeft + 'px'
-    });
-  });
-}
-
-function loadURL(url, id, skipHistoryUpdate = false) {
-  if (url && id === '3' && !skipHistoryUpdate) {
-    updateCleanUrl(url);
-  }
-  let fetchUrl = url;
-  fetch(fetchUrl)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Post no encontrado (404)');
-      }
-      return response.text();
-    })
+  
+  fetch(url)
+    .then((response) => response.text())
     .then((data) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, "text/html");
-      const titleElement = doc.querySelector('[class="post-title p-name"]');
-      const articleBodyElement = doc.querySelector('[itemprop="articleBody"]');
-      if (!titleElement || !articleBodyElement) {
-        throw new Error('Estructura del post no válida');
-      }
-      const title = titleElement.innerHTML;
-      const articleBodyContent = articleBodyElement.innerHTML;
+      const title = doc.querySelector(
+        '[class="post-title p-name"]'
+      ).innerHTML;
+      const articleBodyContent = doc.querySelector(
+        '[itemprop="articleBody"]'
+      ).innerHTML;
       if(id === '5'){
         document.getElementById("cv-content").innerHTML = articleBodyContent;
         document.getElementById("title5").innerHTML = title;
@@ -97,55 +32,26 @@ function loadURL(url, id, skipHistoryUpdate = false) {
         openWindow(id);
       }
     })
-    .catch((error) => {
-      console.log("Error:", error);
-      if (id === '3') {
-        document.getElementById("post-content").innerHTML = 
-          '<div style="padding: 20px; color: #d32f2f;">' +
-          '<h3>Error al cargar el post</h3>' +
-          '<p>' + error.message + '</p>' +
-          '</div>';
-        document.getElementById("title3").innerHTML = "Error";
-        openWindow(id);
-      }
-    });
+    .catch((error) => console.log("Error:", error));
 }
 
-function loadPostFromUrl() {
-  const postUrl = getPostUrlFromPath();
-  if (postUrl) {
-    setTimeout(() => {
-      loadURL(postUrl, '3', true);
-    }, 500);
-  }
-}
-
-window.addEventListener('popstate', function(event) {
-  if (event.state && event.state.postUrl) {
-    loadURL(event.state.postUrl, '3', true);
-  } else {
-    const postUrl = getPostUrlFromPath();
+// Función para cargar post desde hash URL
+function loadPostFromHash() {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#post=')) {
+    const postUrl = hash.substring(6); // Remover '#post='
     if (postUrl) {
-      loadURL(postUrl, '3', true);
-    } else {
-      closeWindwow('3');
+      // Pequeño delay para asegurar que las ventanas estén inicializadas
+      setTimeout(() => {
+        loadURL(postUrl, '3');
+      }, 500);
     }
   }
-});
+}
 
+// Escuchar cambios en el hash
 window.addEventListener('hashchange', function() {
-  const postUrl = getPostUrlFromPath();
-  if (postUrl) {
-    loadURL(postUrl, '3', true);
-  }
-});
-
-let resizeTimeout;
-window.addEventListener('resize', function() {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(function() {
-    adjustWindowsToViewport();
-  }, 250);
+  loadPostFromHash();
 });
 
 function adjustFullScreenSize() {
@@ -174,6 +80,7 @@ function minimizeWindow(id) {
     },
     200,
     function () {
+      //animation complete
       $("#window" + id).addClass("minimizedWindow");
       $("#minimPanel" + id).addClass("minimizedTab");
       $("#minimPanel" + id).removeClass("activeTab");
@@ -194,8 +101,9 @@ function openWindow(id) {
 function closeWindwow(id) {
   $("#window" + id).addClass("closed");
   $("#minimPanel" + id).addClass("closed");
+  // Limpiar el hash si se cierra la ventana de posts
   if (id === '3') {
-    history.pushState(null, '', '/');
+    window.location.hash = '';
   }
 }
 
@@ -214,6 +122,7 @@ function openMinimized(id) {
 }
 $(document).ready(function () {
   $(".window").each(function () {
+    // window template
     $(this).css("z-index", 1000);
     $(this).attr("data-id", i);
     minimizedWidth[i] = $(this).width();
@@ -232,6 +141,7 @@ $(document).ready(function () {
     if ($(this).hasClass("closed")) {
       $("#minimPanel" + i).addClass("closed");
     }
+    
     $(this).wrapInner('<div class="wincontent"></div>');
     $(this).prepend(
       '<div class="windowHeader"><strong id="title'+ i +'">' +
@@ -243,36 +153,45 @@ $(document).ready(function () {
   });
   $("#minimPanel" + (i - 1)).addClass("activeTab");
   $("#window" + (i - 1)).addClass("activeWindow");
-  $(".wincontent").resizable();
+  $(".wincontent").resizable(); // resizable
   $(".window").draggable({
     cancel: ".wincontent",
-  });
+  }); // draggable
   $(".window").mousedown(function () {
+    // active window on top (z-index 1000)
     makeWindowActive($(this).attr("data-id"));
   });
   $(".winclose").click(function () {
+    // close window
     closeWindwow($(this).parent().parent().attr("data-id"));
   });
   $(".winminimize").click(function () {
+    // minimize window
     minimizeWindow($(this).parent().parent().attr("data-id"));
   });
   $(".taskbarPanel").click(function () {
+    // taskbar click
     id = $(this).attr("data-id");
     if ($(this).hasClass("activeTab")) {
+      // minimize if active
       minimizeWindow($(this).attr("data-id"));
     } else {
       if ($(this).hasClass("minimizedTab")) {
+        // open if minimized
         openMinimized(id);
       } else {
+        // activate if inactive
         makeWindowActive(id);
       }
     }
   });
   $(".openWindow").click(function () {
+    // open closed window
     openWindow($(this).attr("data-id"));
   });
   $(".winmaximize").click(function () {
     if ($(this).parent().parent().hasClass("fullSizeWindow")) {
+      // minimize
       $(this).parent().parent().removeClass("fullSizeWindow");
       $(this)
         .parent()
@@ -285,6 +204,7 @@ $(document).ready(function () {
         .children(".wincontent")
         .width(minimizedWidth[$(this).parent().parent().attr("data-id")]);
     } else {
+      // maximize
       $(this).parent().parent().addClass("fullSizeWindow");
       minimizedHeight[$(this).parent().parent().attr("data-id")] = $(this)
         .parent()
@@ -300,6 +220,7 @@ $(document).ready(function () {
     }
   });
   adjustFullScreenSize();
-  adjustWindowsToViewport();
-  setTimeout(loadPostFromUrl, 100);
+  
+  // Cargar post desde hash si existe
+  loadPostFromHash();
 });
