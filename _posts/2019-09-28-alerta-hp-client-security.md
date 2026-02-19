@@ -3,7 +3,7 @@ layout: post
 title:  "Quitar | Desactivar alerta de HP Client Security"
 description: Quitar | Desactivar alerta de HP Client Security
 comments: true
-category: Youtbe
+category: Youtube
 tags: Trucos Windows
 youtube: https://youtu.be/fp5xfIOVwR8
 ---

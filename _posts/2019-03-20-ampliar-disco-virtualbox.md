@@ -3,7 +3,7 @@ layout: post
 title:  "Resize Disk - VirtualBox - Linux - Windows"
 description: Ampliar disco de virtualbox desde linux para windows
 comments: true
-category: Youtbe
+category: Youtube
 tags: Error VirtualBox Linux Windows
 youtube: https://bit.ly/2wSo5iD
 ---

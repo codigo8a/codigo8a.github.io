@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo descargar ISO windows 10 desde Microsoft"
 description: Cómo descargar el ISO de windows 10 original desde Microsoft
 comments: true
-category: Youtbe
+category: Youtube
 tags: Trucos Windows 
 youtube: https://youtu.be/SUPPpapA3lg
 ---
