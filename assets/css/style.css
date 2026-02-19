@@ -632,3 +632,11 @@ small {
     width: 5px;
   }
 }
+
+/* Encabezado de fecha pequeño y reutilizable */
+.post-date-header {
+  display: block;
+  font-size: 0.9em;
+  color: #888;
+  margin-bottom: 1em;
+}
