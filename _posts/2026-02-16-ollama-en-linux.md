@@ -14,12 +14,12 @@ Paso a paso para instalar Ollama en Linux y poder ejectar nuestros propios model
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
 1. Conectar a la consola (Putty o Cockpit).
-2. Instalar Ollama.
+2. Instalar Ollama (ollama.com).
 3. Validar instalación.
 ```csharp
 ollama -v
 ```
-4. Cargar módelo (ver ollama.com/search).
+4. Cargar módelo (ollama.com/search).
 ```csharp
 ollama pull <modeloName>
 ```
