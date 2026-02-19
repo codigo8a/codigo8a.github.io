@@ -6,23 +6,60 @@ var i = 0,
   panel,
   id;
 
-function loadURL(url, id) {
-  // Actualizar la URL con el hash del post
-  if (url && id === '3') {
-    window.location.hash = 'post=' + url;
+// Función para extraer URL del post desde pathname limpio
+function getPostUrlFromPath() {
+  const path = window.location.pathname;
+  // Verificar si la URL sigue el patrón /post/YYYY/MM/DD/titulo.html
+  const postMatch = path.match(/\/post(\/.+)$/);
+  if (postMatch) {
+    return postMatch[1]; // Retorna la parte del URL del post
+  }
+  // Fallback: verificar hash antiguo para compatibilidad
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#post=')) {
+    return hash.substring(6);
+  }
+  return null;
+}
+
+// Función para actualizar URL de forma limpia
+function updateCleanUrl(postUrl) {
+  if (postUrl) {
+    const cleanUrl = '/post' + postUrl;
+    // Solo actualizar si es diferente para evitar duplicados en history
+    if (window.location.pathname !== cleanUrl) {
+      history.pushState({ postUrl: postUrl }, '', cleanUrl);
+    }
+  }
+}
+
+function loadURL(url, id, skipHistoryUpdate = false) {
+  // Actualizar la URL limpia solo si no viene de popstate
+  if (url && id === '3' && !skipHistoryUpdate) {
+    updateCleanUrl(url);
   }
   
   fetch(url)
-    .then((response) => response.text())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Post no encontrado (404)');
+      }
+      return response.text();
+    })
     .then((data) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, "text/html");
-      const title = doc.querySelector(
-        '[class="post-title p-name"]'
-      ).innerHTML;
-      const articleBodyContent = doc.querySelector(
-        '[itemprop="articleBody"]'
-      ).innerHTML;
+      const titleElement = doc.querySelector('[class="post-title p-name"]');
+      const articleBodyElement = doc.querySelector('[itemprop="articleBody"]');
+      
+      // Verificar que los elementos existan
+      if (!titleElement || !articleBodyElement) {
+        throw new Error('Estructura del post no válida');
+      }
+      
+      const title = titleElement.innerHTML;
+      const articleBodyContent = articleBodyElement.innerHTML;
+      
       if(id === '5'){
         document.getElementById("cv-content").innerHTML = articleBodyContent;
         document.getElementById("title5").innerHTML = title;
@@ -32,26 +69,53 @@ function loadURL(url, id) {
         openWindow(id);
       }
     })
-    .catch((error) => console.log("Error:", error));
+    .catch((error) => {
+      console.log("Error:", error);
+      if (id === '3') {
+        document.getElementById("post-content").innerHTML = 
+          '<div style="padding: 20px; color: #d32f2f;">' +
+          '<h3>Error al cargar el post</h3>' +
+          '<p>' + error.message + '</p>' +
+          '</div>';
+        document.getElementById("title3").innerHTML = "Error";
+        openWindow(id);
+      }
+    });
 }
 
-// Función para cargar post desde hash URL
-function loadPostFromHash() {
-  const hash = window.location.hash;
-  if (hash && hash.startsWith('#post=')) {
-    const postUrl = hash.substring(6); // Remover '#post='
-    if (postUrl) {
-      // Pequeño delay para asegurar que las ventanas estén inicializadas
-      setTimeout(() => {
-        loadURL(postUrl, '3');
-      }, 500);
-    }
+// Función para cargar post desde URL (pathname o hash)
+function loadPostFromUrl() {
+  const postUrl = getPostUrlFromPath();
+  if (postUrl) {
+    // Pequeño delay para asegurar que las ventanas estén inicializadas
+    setTimeout(() => {
+      loadURL(postUrl, '3', true); // skipHistoryUpdate=true porque ya está en la URL
+    }, 500);
   }
 }
 
-// Escuchar cambios en el hash
+// Escuchar cambios en history (botones atrás/adelante del navegador)
+window.addEventListener('popstate', function(event) {
+  if (event.state && event.state.postUrl) {
+    loadURL(event.state.postUrl, '3', true);
+  } else {
+    // Si no hay estado, verificar si hay post en la URL actual
+    const postUrl = getPostUrlFromPath();
+    if (postUrl) {
+      loadURL(postUrl, '3', true);
+    } else {
+      // Cerrar ventana si no hay post en URL
+      closeWindwow('3');
+    }
+  }
+});
+
+// Escuchar cambios en el hash (compatibilidad hacia atrás)
 window.addEventListener('hashchange', function() {
-  loadPostFromHash();
+  const postUrl = getPostUrlFromPath();
+  if (postUrl) {
+    loadURL(postUrl, '3', true);
+  }
 });
 
 function adjustFullScreenSize() {
@@ -101,9 +165,9 @@ function openWindow(id) {
 function closeWindwow(id) {
   $("#window" + id).addClass("closed");
   $("#minimPanel" + id).addClass("closed");
-  // Limpiar el hash si se cierra la ventana de posts
+  // Limpiar la URL si se cierra la ventana de posts
   if (id === '3') {
-    window.location.hash = '';
+    history.pushState(null, '', '/');
   }
 }
 
@@ -221,6 +285,6 @@ $(document).ready(function () {
   });
   adjustFullScreenSize();
   
-  // Cargar post desde hash si existe
-  loadPostFromHash();
+  // Cargar post desde URL si existe
+  loadPostFromUrl();
 });
