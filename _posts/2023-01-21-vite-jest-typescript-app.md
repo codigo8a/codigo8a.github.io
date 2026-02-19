@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Framework React
 youtube: https://youtu.be/62yuvCMZHco
 ---
+<span class="post-date-header">Enero 21 de 2023</span>
 Paso a paso para crear una prueba unitaria basica con Jest en React con Vite y Typescript.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

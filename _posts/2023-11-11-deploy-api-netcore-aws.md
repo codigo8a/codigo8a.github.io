@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales AWS Framework CSharp NetCore
 youtube: https://youtu.be/9yIJg7i-Xxo
 ---
+<span class="post-date-header">Noviembre 11 de 2023</span>
+
 Código paso a paso para desplegar un proyecto API Net Core en AWS Elastic Beanstalk.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

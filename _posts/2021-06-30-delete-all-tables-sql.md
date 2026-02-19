@@ -7,6 +7,7 @@ category: Código
 tags: Trucos BaseDeDatos
 youtube: https://youtu.be/CDEaBtEeVwM
 ---
+<span class="post-date-header">Junio 30 de 2021</span>
 Código SQL para eliminar todas las tablas de una base de datos SQL sin eliminar la base de datos
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

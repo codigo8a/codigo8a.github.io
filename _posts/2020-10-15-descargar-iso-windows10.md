@@ -7,6 +7,7 @@ category: Youtube
 tags: Trucos Windows 
 youtube: https://youtu.be/SUPPpapA3lg
 ---
+<span class="post-date-header">Octubre 15 de 2020</span>
 Paso a paso para descargar el ISO original de windows 10 desde Microsoft
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

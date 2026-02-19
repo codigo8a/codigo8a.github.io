@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales Docker Linux
 youtube: https://youtu.be/rSuEqJ1YvwQ
 ---
+<span class="post-date-header">Julio 10 de 2025</span>
+
 Paso a paso para instalar Evolution-API con un sólo comando.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,7 @@ category: Código
 tags: Tutoriales Trucos Juegos
 youtube: https://youtu.be/EbKw0Dcaf6o
 ---
+<span class="post-date-header">Febrero 3 de 2023</span>
 Codigo para agregar un contador de balas en Roblox Studio usando el (ACS) Advanced Combat System.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

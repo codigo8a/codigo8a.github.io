@@ -8,6 +8,7 @@ tags: Tutoriales Linux Windows
 youtube: https://youtu.be/At5CpVwy-iY
 link: https://pve.proxmox.com/wiki/Windows_VirtIO_Drivers
 ---
+<span class="post-date-header">Noviembre 1 de 2022</span>
 Paso a paso para poder instalar una maquina virtual windows en Proxmox.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales AWS Framework React
 youtube: https://youtu.be/YmArl7GQqCc
 ---
+<span class="post-date-header">Septiembre 4 de 2023</span>
+
 Código paso a paso para desplegar un proyecto React.JS en AWS Elastic Beanstalk.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

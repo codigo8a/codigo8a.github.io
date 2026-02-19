@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Laravel Error Framework PHP
 youtube: https://youtu.be/KvldwGjCg5M
 ---
+<span class="post-date-header">Septiembre 9 de 2018</span>
 A continuación doy una solución rápida al problema Access-Control-Allow-Origin - CORS en Laravel 5 que sucede por razones de seguridad, los exploradores restringen las solicitudes HTTP de origen cruzado iniciadas dentro de un script.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,7 @@ category: Youtube
 tags: CSharp Framework NetCore
 youtube: https://youtu.be/EbKw0Dcaf6o
 ---
+<span class="post-date-header">Julio 1 de 2021</span>
 Paso a paso para instalar el servicio EntityUser que trae por defecto .Net Core 5 y activar JWT para el login de usuarios desde un front-end
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,7 @@ category: Internet
 tags: Links
 youtube: https://youtu.be/Sp00ZqfBnM4
 ---
+<span class="post-date-header">Septiembre 25 de 2019</span>
 Recopilación de puntos en google maps sobre sitios curiosos dentro de Chernobyl 
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,7 @@ category: Código
 tags: Trucos Linux
 youtube: https://youtu.be/x2nCjLq2KLE
 ---
+<span class="post-date-header">Noviembre 1 de 2022</span>
 Comando de consola para lograr agregar los contenedores de turnkey al administrador de maquinas virtuales Proxmox.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

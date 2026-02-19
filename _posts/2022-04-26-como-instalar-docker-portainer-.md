@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Linux Docker
 youtube: https://youtu.be/EbKw0Dcaf6o
 ---
+<span class="post-date-header">Abril 26 de 2022</span>
 Paso a paso para tener docker instalado junto con un administrador visual de contenedores en una Raspberry Pi.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

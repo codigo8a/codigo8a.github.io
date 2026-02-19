@@ -7,6 +7,7 @@ category: Código
 tags: Trucos Javascript
 youtube: https://youtu.be/CDEaBtEeVwM
 ---
+<span class="post-date-header">Junio 20 de 2021</span>
 Codigo javascript que nos permite listar todos los contactos inactivos de facebook y despues poder borrarlos
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

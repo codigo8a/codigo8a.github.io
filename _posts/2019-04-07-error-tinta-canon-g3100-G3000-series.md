@@ -7,6 +7,7 @@ category: Youtube
 tags: Error Impresora
 youtube: https://youtu.be/KvldwGjCg5M
 ---
+<span class="post-date-header">Abril 7 de 2019</span>
 A continuación doy una solución rápida al problema de aire en las mangueras de una impresora Canon G3100 o G3000 Series, que hace que algunos colores o un color no imprima correctamente.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

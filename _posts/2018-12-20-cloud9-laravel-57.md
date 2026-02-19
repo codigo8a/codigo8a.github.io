@@ -7,7 +7,7 @@ category: Youtube
 tags: Tutoriales Laravel Framework PHP
 youtube: https://bit.ly/2wSo5iD
 ---
-
+<span class="post-date-header">Diciembre 20 de 2018</span>
 A continuación describo linea a linea lo que hay que hacer en la consola para tener en menos de 10 minutos un proyecto Laravel 5.7 corriendo en Cloud9.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso: 

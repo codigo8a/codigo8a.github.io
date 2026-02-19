@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Framework CSharp NetCore
 youtube: https://youtu.be/vItyn5jd-k8
 ---
+<span class="post-date-header">Julio 30 de 2023</span>
 Codigo paso a paso para integrar Clean Arquitecture a Net Core 7.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

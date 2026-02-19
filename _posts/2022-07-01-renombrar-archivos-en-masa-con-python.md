@@ -7,6 +7,7 @@ category: Código
 tags: Python Trucos
 youtube: https://youtu.be/6fsG3UX7Cfo
 ---
+<span class="post-date-header">Julio 1 de 2022</span>
 Paso a paso para renombrar archivos MP3 en masa y poder darle un orden aleatorio para reproducir en un radio vehicular
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

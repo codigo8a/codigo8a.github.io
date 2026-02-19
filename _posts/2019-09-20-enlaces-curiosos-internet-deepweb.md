@@ -7,6 +7,7 @@ category: Internet
 tags: Links
 youtube: https://www.youtube.com/playlist?list=PLOvJVhg1PHH063-7vgyuy0N0c_yKpfZsG
 ---
+<span class="post-date-header">Septiembre 20 de 2019 | Notas</span>
 Recopilación de sitios web, herramientas o simplemente cosas curiosas de la red
 
 En <a target="_blank" href="{{ page.youtube }}">Esta lista de reproduccón</a> hay más información.

@@ -7,7 +7,7 @@ category: Página web
 tags: CMS Joomla Javascript PHP
 youtube: https://youtu.be/2NfTcPnlSpc
 ---
-
+<span class="post-date-header">Marzo 3 de 2019</span>
 Codigo javascript para manejo de menus en joomla con imagenes (Hover y Active)
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso: 

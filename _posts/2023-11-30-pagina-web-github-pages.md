@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales GitHub Servicios
 youtube: https://youtu.be/h9FvfSM9zW8
 ---
+<span class="post-date-header">Noviembre 30 de 2023</span>
+
 Código paso a paso para crear una pagina web usando el hosting gratuito de Github Pages, con dominio personalizado y certificado SSL.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

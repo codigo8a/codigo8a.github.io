@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales BaseDeDatos Trucos
 youtube: https://youtu.be/ut9QZQX2_as
 ---
+<span class="post-date-header">Abril 25 de 2020</span>
 Paso a paso para importar un archivo excel o CSV a una base de datos firestore de firebase 
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

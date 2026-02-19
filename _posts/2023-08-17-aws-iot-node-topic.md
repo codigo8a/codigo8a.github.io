@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales AWS Node
 youtube: https://youtu.be/AQay6bFg7jU
 ---
+<span class="post-date-header">Agosto 17 de 2023</span>
+
 Codigo paso a paso para conectar y enviar un topic a AWS IOT usando Node.js.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
@@ -85,4 +87,4 @@ device
     .on('error', function (topic, payload) {
         console.log('Error:', topic, payload.toString());
     });
-````
+```

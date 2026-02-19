@@ -7,6 +7,7 @@ category: Youtube
 tags: Error Video Trucos
 youtube: https://youtu.be/6sUfXk17g8g
 ---
+<span class="post-date-header">Octubre 10 de 2020</span>
 Paso a paso para solucionar el problema de pantalla negra de la aplicación OBS studio.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

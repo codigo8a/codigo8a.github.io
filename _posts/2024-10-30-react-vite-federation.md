@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales React Framework
 youtube: https://youtu.be/M2o32pzNXI8
 ---
+<span class="post-date-header">Octubre 30 de 2024</span>
+
 Código paso a paso para crear dos aplicaciones (remoto y cliente) React + Vite + Federation para Micro-FrontEnd.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,7 @@ category: Youtube
 tags: Trucos Linux
 youtube: https://youtu.be/CDEaBtEeVwM
 ---
+<span class="post-date-header">Marzo 10 de 2020</span>
 Paso a paso para instalar un certificado SSL gratis en servidor web ubuntu
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

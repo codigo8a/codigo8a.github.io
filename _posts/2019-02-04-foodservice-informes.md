@@ -6,6 +6,7 @@ comments: true
 category: Soluciones
 tags: SapBusinessOne Integración PHP Laravel
 ---
+<span class="post-date-header">Febrero 4 de 2019 | Portafolio</span>
 <p>Frontend y Backend privado construido sobre Framework Laravel que permite al los usuarios del sistema con roles y privilegios suficientes para visualizar informes (últimos cambios de precios, Alistamientos de bodega para despachos e historicos de venta de los ejecutivos de cuenta).</p>
 > Este sistema es una integración con el ERP SAP BUSINESS ONE instalado en servidor windows privado en la nube y accedido por medio del SDK DIAPI
 

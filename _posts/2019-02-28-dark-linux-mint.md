@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Linux
 youtube: https://bit.ly/2wSo5iD
 ---
+<span class="post-date-header">Febrero 28 de 2019</span>
 A continuación describo los comandos de consola SSH para instalar en menos de 5 minutos el Theme Arc-Dark para Linux Mint.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

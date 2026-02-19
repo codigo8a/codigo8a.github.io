@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales Linux IA
 youtube: https://youtu.be/rSuEqJ1YvwQ
 ---
+<span class="post-date-header">Febrero 16 de 2026</span>
+
 Paso a paso para instalar Ollama en Linux.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

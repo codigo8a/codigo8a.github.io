@@ -7,6 +7,7 @@ category: Youtube
 tags: Trucos Video
 youtube: https://youtu.be/5JCQUHk7rP4
 ---
+<span class="post-date-header">Enero 1 de 2020</span>
 Paso a paso de cómo saber el nombre de un video borrado o bloqueado en una lista de reproducción en youtube.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

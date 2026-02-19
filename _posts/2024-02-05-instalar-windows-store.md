@@ -7,6 +7,8 @@ category: Código
 tags: Trucos Windows
 youtube: https://youtu.be/-wq8jncHdPI
 ---
+<span class="post-date-header">Febrero 5 de 2024</span>
+
 Código paso a paso para instalar la tienda de windows "Microsoft Store".
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
@@ -16,4 +18,4 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 2. Ejecutar codigo
 ```csharp
 Get-AppxPackage -allusers Microsoft.WindowsStore | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-``` 
+```

@@ -7,6 +7,7 @@ category: Código
 tags: Error CSharp Framework Trucos NetCore
 youtube: https://youtu.be/EbKw0Dcaf6o
 ---
+<span class="post-date-header">Enero 14 de 2022</span>
 Paso a paso para arreglar el error "System.Text.Json.JsonException: A possible object cycle was detected. This can either be due to a cycle or if the object depth is larger than the maximum allowed depth of 32. Consider using ReferenceHandler.Preserve on JsonSerializerOptions to support cycles." para .NetCore 5
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

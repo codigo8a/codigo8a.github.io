@@ -7,6 +7,8 @@ category: Código
 tags: Tutoriales Inversiones Forex
 youtube: https://youtu.be/rcEfVyMp8XE
 ---
+<span class="post-date-header">Febrero 20 de 2024</span>
+
 Código paso a paso para crear un expert advisor que nos ayude a administrar las posiciones que vamos abriendo manualmente.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
@@ -198,4 +200,3 @@ void setStopLoss()
    trade.OrderModify(globalTicket, 0, priceOpen, newStopLoss, 0, CLR_NONE);
   }
 //+------------------------------------------------------------------+
-```

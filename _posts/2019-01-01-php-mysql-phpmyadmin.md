@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales PHP BaseDeDatos AWS
 youtube: https://bit.ly/2wSo5iD
 ---
+<span class="post-date-header">Enero 1 de 2019</span>
 A continuación describo los comandos de consola SSH para instalar en menos de 5 minutos PHP - MYSQL - PHPMYADMIN en un servidor UBUNTU (AWS Amazon Web Services).
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

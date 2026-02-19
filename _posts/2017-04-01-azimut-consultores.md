@@ -6,6 +6,7 @@ comments: true
 category: Página web
 tags: CMS Joomla
 ---
+<span class="post-date-header">Abril 1 de 2017 | Portafolio</span>
 <img src="/assets/imgs/proyectos/azimutConsultores1.png" style="width: 100%;"/>
 <hr>
 <img src="/assets/imgs/proyectos/azimutConsultores2.png" style="width: 100%;"/>

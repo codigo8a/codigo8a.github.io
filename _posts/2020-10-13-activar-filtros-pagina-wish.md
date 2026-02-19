@@ -7,6 +7,7 @@ category: Youtube
 tags: Trucos
 youtube: https://youtu.be/07tvORy7cOw
 ---
+<span class="post-date-header">Octubre 13 de 2020</span>
 Paso a paso para activar los filtros en la pagina de WISH, que por algun motivo no los tiene disponibles para filtar el historial de pedidos en la version web.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Framework CSharp BaseDeDatos NetCore
 youtube: https://youtu.be/f1hoUoB16NI
 ---
+<span class="post-date-header">Julio 29 de 2023</span>
 Codigo paso a paso para integrar EntityUser y JWT con MongoDB.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

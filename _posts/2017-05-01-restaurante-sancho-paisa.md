@@ -6,4 +6,5 @@ comments: true
 category: Página web
 tags: CMS Joomla
 ---
+<span class="post-date-header">Mayo 1 de 2017 | Portafolio</span>
 <img src="/assets/imgs/proyectos/sanchoPaisa.jpg" style="width: 100%;"/>

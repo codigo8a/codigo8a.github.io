@@ -8,7 +8,7 @@ tags: Tutoriales PHP
 youtube: https://bit.ly/2wSo5iD
 dokuwiki: https://github.com/splitbrain/dokuwiki
 ---
-
+<span class="post-date-header">Diciembre 15 de 2018</span>
 A continuación describo linea a linea lo que hay que hacer en la consola SSH para tener en menos de 5 minutos un proyecto de <a target="_blank" href="{{ page.dokuwiki }}">documentación WIKI usando DOKUWIKI</a>.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso: 

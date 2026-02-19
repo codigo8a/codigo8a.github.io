@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales React Framework
 youtube: https://youtu.be/nm8AcpPduV0
 ---
+<span class="post-date-header">Octubre 31 de 2024</span>
+
 Código paso a paso para agregar un archivo que nos maneje los errores en un Micro-FrontEnd.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

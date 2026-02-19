@@ -7,6 +7,7 @@ category: Youtube
 tags: Tutoriales Linux
 youtube: https://youtu.be/tWzzzGoNEq4
 ---
+<span class="post-date-header">Marzo 13 de 2020</span>
 Paso a paso para instalar el IDE de desarrollo VSCode y correrlo directamente en la nube desde una URL en un Servidor Linux Ubuntu alojado en Amazon AWS
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

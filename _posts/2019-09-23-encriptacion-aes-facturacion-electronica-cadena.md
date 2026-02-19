@@ -7,6 +7,7 @@ category: Código
 tags: CSharp
 youtube: https://youtu.be/Sp00ZqfBnM4
 ---
+<span class="post-date-header">Septiembre 23 de 2019</span>
 Este tutorial es un código muy simple para encriptar los números de facturas electrónicas y poderlas bajar en PDF desde la plataforma de CADENA
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

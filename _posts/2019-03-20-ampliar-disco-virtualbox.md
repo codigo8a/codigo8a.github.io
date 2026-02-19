@@ -7,7 +7,7 @@ category: Youtube
 tags: Error VirtualBox Linux Windows
 youtube: https://bit.ly/2wSo5iD
 ---
-
+<span class="post-date-header">Marzo 20 de 2019</span>
 <p>Dos sencillos pasos para ampliar el disco de virtualbox desde Linux para Windows.</p>
 <p>En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso: </p>
 

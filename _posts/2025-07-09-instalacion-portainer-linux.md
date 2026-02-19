@@ -7,6 +7,8 @@ category: Youtube
 tags: Tutoriales Linux Docker
 youtube: https://youtu.be/N1C96pBweWY
 ---
+<span class="post-date-header">Julio 9 de 2025</span>
+
 Paso a paso para tener docker instalado junto con un administrador visual de contenedores.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:

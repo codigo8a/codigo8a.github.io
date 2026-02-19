@@ -7,6 +7,7 @@ category: Youtube
 tags: Trucos Windows
 youtube: https://youtu.be/GJ-GbLifU2Q
 ---
+<span class="post-date-header">Febrero 1 de 2020</span>
 Paso a paso para bajar aplicativo que analiza nuestro equipo y automaticamente baja los drivers y los instala por nosotros. Adicional a esto tiene un paquete extenso de programas muy útiles, herramientas de administracion, seguridad y otros que pueden ser instalados al tiempo
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
