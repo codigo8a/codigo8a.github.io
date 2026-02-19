@@ -8,9 +8,10 @@ var i = 0,
 
 function getPostUrlFromPath() {
   const path = window.location.pathname;
-  const postMatch = path.match(/\/post(\/.+)$/);
+  // Nuevo patrón: /YYYY/MM/DD/titulo.html
+  const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(\d{2})\/([^/]+\.html)$/);
   if (postMatch) {
-    return postMatch[1];
+    return `/${postMatch[1]}/${postMatch[2]}/${postMatch[3]}/${postMatch[4]}`;
   }
   const hash = window.location.hash;
   if (hash && hash.startsWith('#post=')) {
@@ -21,9 +22,9 @@ function getPostUrlFromPath() {
 
 function updateCleanUrl(postUrl) {
   if (postUrl) {
-    const cleanUrl = '/post' + postUrl;
-    if (window.location.pathname !== cleanUrl) {
-      history.pushState({ postUrl: postUrl }, '', cleanUrl);
+    // postUrl esperado: /YYYY/MM/DD/titulo.html
+    if (window.location.pathname !== postUrl) {
+      history.pushState({ postUrl: postUrl }, '', postUrl);
     }
   }
 }
@@ -69,7 +70,8 @@ function loadURL(url, id, skipHistoryUpdate = false) {
   if (url && id === '3' && !skipHistoryUpdate) {
     updateCleanUrl(url);
   }
-  fetch(url)
+  let fetchUrl = url;
+  fetch(fetchUrl)
     .then((response) => {
       if (!response.ok) {
         throw new Error('Post no encontrado (404)');
