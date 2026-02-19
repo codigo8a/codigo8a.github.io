@@ -29,3 +29,16 @@ ollama list
 ollama rm
 systemctl status ollama
 ```
+6. Escuchar toda la red
+```csharp
+sudo systemctl edit ollama
+```
+```csharp
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0"
+```
+```csharp
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+```
+
