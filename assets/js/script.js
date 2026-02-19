@@ -7,9 +7,11 @@ var i = 0,
   id;
 
 function loadURL(url, id) {
-  // Actualizar la URL con el hash del post
+  // Actualizar la URL con el hash del post (solo la ruta, sin #post=)
   if (url && id === '3') {
-    window.location.hash = 'post=' + url;
+    // Eliminar el primer '/' si existe para evitar doble slash en el hash
+    var cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+    window.location.hash = cleanUrl;
   }
   
   fetch(url)
@@ -35,15 +37,15 @@ function loadURL(url, id) {
     .catch((error) => console.log("Error:", error));
 }
 
-// Función para cargar post desde hash URL
+// Función para cargar post desde hash URL (nuevo formato sin #post=)
 function loadPostFromHash() {
   const hash = window.location.hash;
-  if (hash && hash.startsWith('#post=')) {
-    const postUrl = hash.substring(6); // Remover '#post='
+  if (hash && hash.startsWith('#')) {
+    const postUrl = hash.substring(1); // Remover '#'
     if (postUrl) {
       // Pequeño delay para asegurar que las ventanas estén inicializadas
       setTimeout(() => {
-        loadURL(postUrl, '3');
+        loadURL('/' + postUrl, '3');
       }, 500);
     }
   }
