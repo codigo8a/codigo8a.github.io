@@ -301,5 +301,5 @@ $(document).ready(function () {
   });
   adjustFullScreenSize();
   adjustWindowsToViewport();
-  loadPostFromUrl();
+  setTimeout(loadPostFromUrl, 100);
 });
