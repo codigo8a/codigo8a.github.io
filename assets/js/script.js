@@ -33,6 +33,55 @@ function updateCleanUrl(postUrl) {
   }
 }
 
+// Función para ajustar ventanas dentro de los límites de la pantalla
+function adjustWindowsToViewport() {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const taskbarHeight = 32; // Altura del taskbar
+  const minMargin = 10; // Margen mínimo desde los bordes
+  
+  $('.window').each(function() {
+    const $win = $(this);
+    const winWidth = $win.outerWidth();
+    const winHeight = $win.outerHeight();
+    let currentTop = parseInt($win.css('top')) || 0;
+    let currentLeft = parseInt($win.css('left')) || 0;
+    
+    // Ajustar posición horizontal (left)
+    if (currentLeft < minMargin) {
+      currentLeft = minMargin;
+    } else if (currentLeft + winWidth > viewportWidth - minMargin) {
+      // Si la ventana se sale por la derecha, ajustar
+      if (winWidth > viewportWidth - (minMargin * 2)) {
+        // Si la ventana es más ancha que la pantalla, ponerla al inicio
+        currentLeft = minMargin;
+      } else {
+        currentLeft = viewportWidth - winWidth - minMargin;
+      }
+    }
+    
+    // Ajustar posición vertical (top)
+    const availableHeight = viewportHeight - taskbarHeight;
+    if (currentTop < minMargin) {
+      currentTop = minMargin;
+    } else if (currentTop + winHeight > availableHeight - minMargin) {
+      // Si la ventana se sale por abajo, ajustar
+      if (winHeight > availableHeight - (minMargin * 2)) {
+        // Si la ventana es más alta que la pantalla disponible, ponerla arriba
+        currentTop = minMargin;
+      } else {
+        currentTop = availableHeight - winHeight - minMargin;
+      }
+    }
+    
+    // Aplicar las nuevas posiciones
+    $win.css({
+      'top': currentTop + 'px',
+      'left': currentLeft + 'px'
+    });
+  });
+}
+
 function loadURL(url, id, skipHistoryUpdate = false) {
   // Actualizar la URL limpia solo si no viene de popstate
   if (url && id === '3' && !skipHistoryUpdate) {
@@ -116,6 +165,15 @@ window.addEventListener('hashchange', function() {
   if (postUrl) {
     loadURL(postUrl, '3', true);
   }
+});
+
+// Escuchar cambios de tamaño de ventana para reajustar si es necesario
+let resizeTimeout;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(function() {
+    adjustWindowsToViewport();
+  }, 250); // Debounce de 250ms
 });
 
 function adjustFullScreenSize() {
@@ -284,6 +342,9 @@ $(document).ready(function () {
     }
   });
   adjustFullScreenSize();
+  
+  // Ajustar ventanas a los límites de la pantalla
+  adjustWindowsToViewport();
   
   // Cargar post desde URL si existe
   loadPostFromUrl();
