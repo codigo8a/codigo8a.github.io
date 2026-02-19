@@ -8,6 +8,8 @@ tags: Integración CMS PHP
 ---
 <img src="/assets/imgs/proyectos/promesas.jpg" style="width: 100%;"/>
 
+<span class="post-date-header">Enero 1 de 2010 | Portafolio</span>
+
 Vitrina virtual para deportistas de alto rendimiento en Colombia y el mundo. Sistematización de datos antropometricos, pruebas técnicas, físicas y psicológicas para promoción de futbolistas.
 
 Tecnologias: Html, Javascript, Php, MySql, Bootstrap.

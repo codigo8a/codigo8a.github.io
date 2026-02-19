@@ -6,6 +6,7 @@ comments: true
 category: Página web
 tags: Integración CMS Joomla
 ---
+<span class="post-date-header">Febrero 1 de 2009 | Portafolio</span>
 <img src="/assets/imgs/proyectos/positivoGroup.png" style="width: 100%;"/>
 
 (Backend y Frontend) Base de datos nacional con información de ascensores disponibles para publicidad en edificios recidenciales y comerciales, todo en un mapa interactivo con geo-localización. 

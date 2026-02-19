@@ -6,9 +6,7 @@ comments: true
 category: Página web
 tags: Integración CMS Joomla
 ---
-
-<span class="post-date-header">Febrero 1 de 2009</span>
-
+<span class="post-date-header">Febrero 1 de 2009 | Portafolio</span>
 <img src="/assets/imgs/proyectos/elcinco.png" style="width: 100%;"/>
 
 Sistematización de procesos (Backend y Frontend) para el desarrollo de proyectos productivos de carácter asociativo. Se establece encadenamientos productivos, empleando para ello recursos provenientes de individuos e instituciones.

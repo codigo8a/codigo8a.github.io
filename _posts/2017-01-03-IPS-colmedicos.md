@@ -6,6 +6,7 @@ comments: true
 category: Página web
 tags: CMS Joomla
 ---
+<span class="post-date-header">Enero 3 de 2017 | Portafolio</span>
 <img src="/assets/imgs/proyectos/colmedicos.jpg" style="width: 100%;"/>
 <hr>
 <img src="/assets/imgs/proyectos/colmedicos1.jpg" style="width: 100%;"/>
