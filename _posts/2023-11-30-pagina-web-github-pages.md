@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo crear página web en Github Pages"
 description: "Cómo crear página web en Github Pages con dominio personalizado"
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales GitHub Servicios
 youtube: https://youtu.be/h9FvfSM9zW8
 ---

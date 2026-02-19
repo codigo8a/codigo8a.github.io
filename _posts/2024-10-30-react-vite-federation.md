@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo crear un Micro-FrontEnd React + Vite + Federation"
 description: "Cómo crear Micro-FrontEnd (remote - cliente)"
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales React Framework
 youtube: https://youtu.be/M2o32pzNXI8
 ---

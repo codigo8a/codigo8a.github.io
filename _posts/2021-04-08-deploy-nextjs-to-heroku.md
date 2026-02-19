@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo hacer Deploy de una app next.js en Heroku"
 description: Cómo hacer deploy de una app next.js en Heroku
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Error Trucos Next Framework GitHub
 youtube: https://youtu.be/5Kk3DcBNROE
 ---

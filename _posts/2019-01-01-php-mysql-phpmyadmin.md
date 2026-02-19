@@ -3,7 +3,7 @@ layout: post
 title:  "Instalación PHP - MYSQL - PHPMYADMIN"
 description: Comandos de consola paso a paso para instalar PHP - MYSQL - PHPMYADMIN
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales PHP BaseDeDatos AWS
 youtube: https://bit.ly/2wSo5iD
 ---

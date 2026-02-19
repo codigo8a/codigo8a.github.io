@@ -3,7 +3,7 @@ layout: post
 title:  "Instalación Cloud9 Laravel 5.7"
 description: Instalación en Cloud9 de un sistema Laravel 5.7 y php 7.1
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales Laravel Framework PHP
 youtube: https://bit.ly/2wSo5iD
 ---

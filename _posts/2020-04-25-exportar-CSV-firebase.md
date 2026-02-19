@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo importar un excel o CSV a firebase firestore"
 description: Cómo importar un excel o CSV a firebase firestore
 comments: true
-category: Paso a paso
+category: Youtbe
 tags: Tutoriales BaseDeDatos Trucos
 youtube: https://youtu.be/ut9QZQX2_as
 ---

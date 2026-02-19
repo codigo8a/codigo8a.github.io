@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo arreglar el error Memory Exhausted de WordPress en WP Engine"
 description: Cómo arreglar el error WordPress Memory Exhausted – Increase PHP Memory
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Trucos Error CMS WordPress
 youtube: https://youtu.be/CDEaBtEeVwM
 ---

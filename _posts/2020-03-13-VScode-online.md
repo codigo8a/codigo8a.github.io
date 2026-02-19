@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo instalar IDE VSCode en Ubuntu Server"
 description: Cómo instalar IDE VSCode en Ubuntu Server
 comments: true
-category: Paso a paso
+category: Youtbe
 tags: Tutoriales Linux
 youtube: https://youtu.be/tWzzzGoNEq4
 ---

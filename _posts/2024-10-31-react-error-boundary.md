@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo manejar errores en React"
 description: "Cómo manejar errores en una app React"
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales React Framework
 youtube: https://youtu.be/nm8AcpPduV0
 ---

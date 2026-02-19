@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo arreglar dependencias NPM package.json"
 description: Cómo arreglar dependencias NPM package.json
 comments: true
-category: Paso a paso
+category: Youtbe
 tags: Trucos Framework React
 youtube: https://youtu.be/ut9QZQX2_as
 ---

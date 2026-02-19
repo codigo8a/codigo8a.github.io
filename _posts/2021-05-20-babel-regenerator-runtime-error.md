@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo solucionar regenerator runtime error nodejs"
 description: Cómo solucionar ReferenceError regeneratorRuntime is not defined
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Error Trucos Node Framework
 youtube: https://youtu.be/5Kk3DcBNROE
 ---

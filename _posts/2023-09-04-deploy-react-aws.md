@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo hacer deploy de react.js en AWS"
 description: "Cómo hacer deploy de react.js en AWS"
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales AWS Framework React
 youtube: https://youtu.be/YmArl7GQqCc
 ---

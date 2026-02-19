@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo hacer deploy App Net Core en AWS"
 description: "Cómo hacer deploy de aplicación Net Core en AWS"
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales AWS Framework CSharp NetCore
 youtube: https://youtu.be/9yIJg7i-Xxo
 ---

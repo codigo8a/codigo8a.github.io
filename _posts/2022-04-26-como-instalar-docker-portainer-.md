@@ -3,7 +3,7 @@ layout: post
 title:  "Cómo instalar docker en Raspbian linux"
 description: Cómo instalar docker en Raspbian linux
 comments: true
-category: Paso a paso
+category: Youtube
 tags: Tutoriales Linux Docker
 youtube: https://youtu.be/EbKw0Dcaf6o
 ---

@@ -3,7 +3,7 @@ layout: post
 title:  "Instalación Theme Arc-Dark Linux Mint"
 description: Comandos de consola paso a paso para instalar el theme Arc-Dark en linux mint
 comments: true
-category: Paso a paso
+category: Youtbe
 tags: Tutoriales Linux
 youtube: https://bit.ly/2wSo5iD
 ---
