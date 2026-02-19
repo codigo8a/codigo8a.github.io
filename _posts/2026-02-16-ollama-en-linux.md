@@ -17,7 +17,7 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 2. Instalar Ollama (ollama.com).
 3. Validar instalación.
 ```csharp
-ollama -v
+ollama --version
 ```
 4. Cargar módelo (ollama.com/search).
 ```csharp
