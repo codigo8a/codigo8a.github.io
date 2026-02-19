@@ -1,0 +1,40 @@
+<input type="text" id="search-box" placeholder="Buscar..." style="width: 100%; padding: 8px; margin-bottom: 10px;">
+<ul id="search-results" style="list-style: none; padding: 0;"></ul>
+<div id="ventana3" style="border: 1px solid #ccc; min-height: 200px; margin-top: 20px; padding: 10px;"></div>
+<script>
+let posts = [];
+fetch('/search.json')
+  .then(res => res.json())
+  .then(data => posts = data);
+
+document.getElementById('search-box').addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  const results = posts.filter(post =>
+    post.title.toLowerCase().includes(query) ||
+    post.content.toLowerCase().includes(query)
+  );
+  const resultsList = document.getElementById('search-results');
+  resultsList.innerHTML = '';
+  results.forEach(post => {
+    const li = document.createElement('li');
+    li.textContent = post.title;
+    li.style.cursor = 'pointer';
+    li.onclick = () => loadPostInWindow3(post.url);
+    resultsList.appendChild(li);
+  });
+});
+
+function loadPostInWindow3(url) {
+  fetch(url)
+    .then(res => res.text())
+    .then(html => {
+      // Extrae solo el contenido principal del post
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      // Busca el contenido del post según el layout de Jekyll
+      let mainContent = tempDiv.querySelector('article, .post, .post-content, main');
+      if (!mainContent) mainContent = tempDiv;
+      document.getElementById('ventana3').innerHTML = mainContent.innerHTML;
+    });
+}
+</script>
