@@ -7,15 +7,9 @@ var i = 0,
   id;
 
 function loadURL(url, id) {
-  // Actualizar la URL con el hash del post (solo fecha y título)
+  // Actualizar la URL con el hash del post
   if (url && id === '3') {
-    // Extraer solo la parte de fecha y título del post
-    var match = url.match(/\/(\d{4}\/\d{2}\/\d{2}\/[^\/]+\.html)$/);
-    if (match && match[1]) {
-      window.location.hash = match[1];
-    } else {
-      window.location.hash = '';
-    }
+    window.location.hash = 'post=' + url;
   }
   
   fetch(url)
@@ -41,15 +35,15 @@ function loadURL(url, id) {
     .catch((error) => console.log("Error:", error));
 }
 
-// Función para cargar post desde hash URL (nuevo formato)
+// Función para cargar post desde hash URL
 function loadPostFromHash() {
   const hash = window.location.hash;
-  if (hash && /^#\d{4}\/\d{2}\/\d{2}\/[^\/]+\.html$/.test(hash)) {
-    const postUrl = hash.substring(1); // Remover '#'
+  if (hash && hash.startsWith('#post=')) {
+    const postUrl = hash.substring(6); // Remover '#post='
     if (postUrl) {
       // Pequeño delay para asegurar que las ventanas estén inicializadas
       setTimeout(() => {
-        loadURL('/' + postUrl, '3');
+        loadURL(postUrl, '3');
       }, 500);
     }
   }
