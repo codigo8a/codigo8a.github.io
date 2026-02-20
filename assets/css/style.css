@@ -353,6 +353,7 @@ select {
   left: 0;
   right: 0;
   background: #eee;
+  z-index: 1100;
 }
 
 #icons {
