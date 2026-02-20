@@ -11,7 +11,7 @@ function loadURL(url, id) {
     var cleanUrl = url.startsWith('/') ? url.substring(1) : url;
     window.location.hash = cleanUrl;
   }
-  
+
   fetch(url)
     .then((response) => response.text())
     .then((data) => {
@@ -23,10 +23,10 @@ function loadURL(url, id) {
       const articleBodyContent = doc.querySelector(
         '[itemprop="articleBody"]'
       ).innerHTML;
-      if(id === '5'){
+      if (id === '5') {
         document.getElementById("cv-content").innerHTML = articleBodyContent;
         document.getElementById("title5").innerHTML = title;
-      }else{
+      } else {
         document.getElementById("post-content").innerHTML = articleBodyContent;
         document.getElementById("title3").innerHTML = title;
         openWindow(id);
@@ -47,7 +47,7 @@ function loadPostFromHash() {
   }
 }
 
-window.addEventListener('hashchange', function() {
+window.addEventListener('hashchange', function () {
   loadPostFromHash();
 });
 
@@ -112,7 +112,7 @@ function openMinimized(id) {
       left: windowLeftPos[id],
     },
     200,
-    function () {}
+    function () { }
   );
 }
 function initSearch() {
@@ -164,55 +164,71 @@ function initSearch() {
 }
 
 function initMusicWidget() {
-  let totalTime = 270; // 4:30
-  let timeLeft = totalTime;
+  const songTitleElement = document.getElementById("music-song-title");
   const timerElement = document.getElementById("music-timer");
   const progressElement = document.getElementById("music-progress");
 
-  if (!timerElement || !progressElement) return;
+  if (!songTitleElement || !timerElement || !progressElement) return;
 
-  setInterval(function () {
-    if (timeLeft <= 0) {
-      timeLeft = totalTime;
-    } else {
-      timeLeft--;
+  let playlist = [];
+  let currentSongIndex = -1;
+  let timerInterval = null;
+
+  function timeToSeconds(timeStr) {
+    const parts = timeStr.split(':');
+    if (parts.length === 3) {
+      return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+    } else if (parts.length === 2) {
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
     }
-
-    var minutes = Math.floor(timeLeft / 60);
-    var seconds = timeLeft % 60;
-    timerElement.textContent =
-      (minutes < 10 ? "0" + minutes : minutes) +
-      ":" +
-      (seconds < 10 ? "0" + seconds : seconds);
-
-    var progressPercent = ((totalTime - timeLeft) / totalTime) * 100;
-    progressElement.style.width = progressPercent + "%";
-  }, 1000);
-}
-
-function initChatWidget() {
-  const input = document.getElementById("chat-input");
-  const btn = document.getElementById("chat-send");
-  const container = document.getElementById("chat-messages");
-
-  if (!input || !btn || !container) return;
-
-  function send() {
-    const text = input.value.trim();
-    if (text === "") return;
-
-    const div = document.createElement("div");
-    div.className = "chat-msg";
-    div.innerHTML = "<strong>Tú:</strong> " + text;
-    container.appendChild(div);
-    input.value = "";
-    container.scrollTop = container.scrollHeight;
+    return 0;
   }
 
-  btn.addEventListener("click", send);
-  input.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") send();
-  });
+  function formatTime(totalSeconds) {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return (mins < 10 ? "0" + mins : mins) + ":" + (secs < 10 ? "0" + secs : secs);
+  }
+
+  function playRandomSong() {
+    if (playlist.length === 0) return;
+
+    currentSongIndex = Math.floor(Math.random() * playlist.length);
+    const song = playlist[currentSongIndex];
+
+    songTitleElement.textContent = song.Artista + " - " + song.Cancion;
+
+    let totalSeconds = timeToSeconds(song.Duracion);
+    let elapsedSeconds = 0;
+
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+      elapsedSeconds++;
+      let remainingSeconds = totalSeconds - elapsedSeconds;
+
+      if (remainingSeconds < 0) {
+        clearInterval(timerInterval);
+        playRandomSong();
+        return;
+      }
+
+      timerElement.textContent = formatTime(remainingSeconds);
+      let progress = (elapsedSeconds / totalSeconds) * 100;
+      progressElement.style.width = progress + "%";
+    }, 1000);
+  }
+
+  fetch('/assets/music.json')
+    .then(response => response.json())
+    .then(data => {
+      playlist = data;
+      playRandomSong();
+    })
+    .catch(error => {
+      console.error("Error loading music:", error);
+      songTitleElement.textContent = "Error al cargar música";
+    });
 }
 
 $(document).ready(function () {
@@ -225,25 +241,25 @@ $(document).ready(function () {
     windowLeftPos[i] = $(this).css("left");
     $("#taskbar").append(
       '<div class="taskbarPanel" id="minimPanel' +
-        i +
-        '" data-id="' +
-        i +
-        '">' +
-        $(this).attr("data-title") +
-        "</div>"
+      i +
+      '" data-id="' +
+      i +
+      '">' +
+      $(this).attr("data-title") +
+      "</div>"
     );
     if ($(this).hasClass("closed")) {
       $("#minimPanel" + i).addClass("closed");
     }
-    
+
     $(this).wrapInner('<div class="wincontent"></div>');
     $(this).prepend(
-      '<div class="windowHeader"><strong id="title'+ i +'">' +
-        $(this).attr("data-title") +
-        '</strong><span title="Minimize" class="winminimize"><span></span></span><span title="Maximize" class="winmaximize"><span></span><span></span></span><span title="Close" class="winclose">x</span></div>'
+      '<div class="windowHeader"><strong id="title' + i + '">' +
+      $(this).attr("data-title") +
+      '</strong><span title="Minimize" class="winminimize"><span></span></span><span title="Maximize" class="winmaximize"><span></span><span></span></span><span title="Close" class="winclose">x</span></div>'
     );
     $(this).attr("id", "window" + i++);
-    loadURL('/2009/01/01/hoja-de-vida.html', '5'); 
+    loadURL('/2009/01/01/hoja-de-vida.html', '5');
   });
   $("#minimPanel" + (i - 1)).addClass("activeTab");
   $("#window" + (i - 1)).addClass("activeWindow");
@@ -310,5 +326,4 @@ $(document).ready(function () {
   loadPostFromHash();
   initSearch();
   initMusicWidget();
-  initChatWidget();
 });
