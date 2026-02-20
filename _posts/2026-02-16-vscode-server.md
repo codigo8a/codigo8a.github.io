@@ -30,6 +30,7 @@ bind-addr: 0.0.0.0:8080
 ```csharp
 sudo systemctl enable code-server@$USER
 sudo systemctl start code-server@$USER
+sudo systemctl status code-server@$USER
 ```
 5. Saber contraseña
 ```csharp
