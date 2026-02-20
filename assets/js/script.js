@@ -150,6 +150,9 @@ $(document).ready(function () {
   $(".wincontent").resizable();
   $(".window").draggable({
     cancel: ".wincontent",
+    start: function () {
+      $(this).css("transform", "none");
+    },
   });
   $(".window").mousedown(function () {
     makeWindowActive($(this).attr("data-id"));
