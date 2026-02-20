@@ -406,7 +406,7 @@ select {
 
 #search-bar {
   position: absolute;
-  z-index: 10;
+  z-index: 10000;
   top: 120px;
   left: 50%;
   transform: translateX(-50%);
