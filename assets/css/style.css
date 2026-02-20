@@ -816,3 +816,147 @@ small {
   color: #888;
   margin-bottom: 1em;
 }
+
+/* Sidebar Right Styles */
+#sidebar-right {
+  position: absolute;
+  right: 20px;
+  top: 80px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 500;
+}
+
+.sidebar-widget {
+  background: #eee;
+  border: 2px solid #000;
+  border-radius: 5px;
+  padding: 12px;
+  box-shadow: 4px 4px 0px #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-header {
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 2px solid #000;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.music-info {
+  text-align: center;
+}
+
+.now-playing-label {
+  font-size: 11px;
+  color: #666;
+  margin: 0 0 6px 0;
+  font-style: italic;
+}
+
+.song-title {
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.playback-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.playback-bar {
+  background: #ccc;
+  height: 6px;
+  width: 100%;
+  border: 1px solid #000;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.music-progress {
+  background: #8888d6;
+  height: 100%;
+  transition: width 1s linear;
+}
+
+.timer {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  font-weight: bold;
+  background: #000;
+  color: #0f0;
+  padding: 2px 8px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Chat Styles */
+.chat-messages {
+  height: 180px;
+  overflow-y: auto;
+  border: 1px solid #000;
+  padding: 8px;
+  background: #fff;
+  margin-bottom: 10px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-msg {
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+.chat-msg strong {
+  color: #8888d6;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 6px;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+}
+
+#chat-send {
+  background: #8888d6;
+  border: 2px solid #000;
+  color: #fff;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+#chat-send:active {
+  box-shadow: inset 2px 2px 0px #000;
+  transform: translate(1px, 1px);
+}
+
+@media screen and (max-width: 1200px) {
+  #sidebar-right {
+    display: none;
+  }
+}

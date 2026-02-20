@@ -163,6 +163,58 @@ function initSearch() {
   });
 }
 
+function initMusicWidget() {
+  let totalTime = 270; // 4:30
+  let timeLeft = totalTime;
+  const timerElement = document.getElementById("music-timer");
+  const progressElement = document.getElementById("music-progress");
+
+  if (!timerElement || !progressElement) return;
+
+  setInterval(function () {
+    if (timeLeft <= 0) {
+      timeLeft = totalTime;
+    } else {
+      timeLeft--;
+    }
+
+    var minutes = Math.floor(timeLeft / 60);
+    var seconds = timeLeft % 60;
+    timerElement.textContent =
+      (minutes < 10 ? "0" + minutes : minutes) +
+      ":" +
+      (seconds < 10 ? "0" + seconds : seconds);
+
+    var progressPercent = ((totalTime - timeLeft) / totalTime) * 100;
+    progressElement.style.width = progressPercent + "%";
+  }, 1000);
+}
+
+function initChatWidget() {
+  const input = document.getElementById("chat-input");
+  const btn = document.getElementById("chat-send");
+  const container = document.getElementById("chat-messages");
+
+  if (!input || !btn || !container) return;
+
+  function send() {
+    const text = input.value.trim();
+    if (text === "") return;
+
+    const div = document.createElement("div");
+    div.className = "chat-msg";
+    div.innerHTML = "<strong>Tú:</strong> " + text;
+    container.appendChild(div);
+    input.value = "";
+    container.scrollTop = container.scrollHeight;
+  }
+
+  btn.addEventListener("click", send);
+  input.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") send();
+  });
+}
+
 $(document).ready(function () {
   $(".window").each(function () {
     $(this).css("z-index", 1000);
@@ -257,4 +309,6 @@ $(document).ready(function () {
   adjustFullScreenSize();
   loadPostFromHash();
   initSearch();
+  initMusicWidget();
+  initChatWidget();
 });
