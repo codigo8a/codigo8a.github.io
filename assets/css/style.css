@@ -816,3 +816,114 @@ small {
   color: #888;
   margin-bottom: 1em;
 }
+
+/* Sidebar Right Styles */
+#sidebar-right {
+  position: absolute;
+  right: 20px;
+  top: 80px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 500;
+}
+
+.sidebar-widget {
+  background: #eee;
+  border: 2px solid #000;
+  border-radius: 5px;
+  padding: 12px;
+  box-shadow: 4px 4px 0px #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-header {
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 2px solid #000;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.music-info {
+  text-align: center;
+}
+
+.now-playing-label {
+  font-size: 11px;
+  color: #666;
+  margin: 0 0 6px 0;
+  font-style: italic;
+}
+
+.song-title {
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.playback-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.playback-bar {
+  background: #ccc;
+  height: 6px;
+  width: 100%;
+  border: 1px solid #000;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.music-progress {
+  background: #8888d6;
+  height: 100%;
+  transition: width 1s linear;
+}
+
+.timer {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  font-weight: bold;
+  background: #000;
+  color: #0f0;
+  padding: 2px 8px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+@media screen and (max-width: 1200px) {
+  #sidebar-right {
+    display: none;
+  }
+}
+
+/* Local Server Window Styles */
+#window6 {
+  top: 50px;
+  left: 250px;
+}
+
+#window6 .wincontent {
+  width: 900px;
+  height: 600px;
+  padding: 0;
+  overflow: hidden;
+}
+
+#window6 iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
