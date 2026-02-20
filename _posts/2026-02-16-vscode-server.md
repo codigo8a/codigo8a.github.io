@@ -26,12 +26,16 @@ code-server --version
 nano .config/code-server/config.yaml
 bind-addr: 0.0.0.0:8080
 ```
-4. Saber contraseña
+4. Activar servicio
+```csharp
+sudo systemctl enable code-server@$USER
+sudo systemctl start code-server@$USER
+```
+5. Saber contraseña
 ```csharp
 cat ~/.config/code-server/config.yaml
 ```
-5. Ejecutar ip con puerto
+6. Ejecutar ip con puerto
 ```csharp
 http://IP_DEL_SERVIDOR:8080
 ```
-
