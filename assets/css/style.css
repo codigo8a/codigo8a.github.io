@@ -421,7 +421,7 @@ select {
 /*Demo styles BEGIN*/
 
 #window0 {
-  top: 20px;
+  top: 120px;
   left: 240px;
 }
 
@@ -436,17 +436,17 @@ select {
 }
 
 #window3 {
-  top: 60px;
+  top: 120px;
   left: 600px;
 }
 
 #window4 {
-  top: 150px;
+  top: 120px;
   left: 420px;
 }
 
 #window5 {
-  top: 60px;
+  top: 120px;
   left: 520px;
 }
 
@@ -598,7 +598,7 @@ small {
 
 @media screen and (max-width: 540px) {
   #window0 {
-    top: 110px;
+    top: 120px;
     left: 0px;
   }
 
@@ -613,7 +613,7 @@ small {
   }
 
   #window3 {
-    top: 0px;
+    top: 120px;
     left: 0px;
   }
 
@@ -623,7 +623,7 @@ small {
   }
 
   #window5 {
-    top: 0px;
+    top: 120px;
     left: 0px;
   }
 
