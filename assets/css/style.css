@@ -712,22 +712,22 @@ small {
 
 @media screen and (max-width: 540px) {
   #window0 {
-    top: 120px;
+    top: 160px;
     left: 0px;
   }
 
   #window1 {
-    top: 180px;
+    top: 210px;
     left: 0px;
   }
 
   #window2 {
-    top: 240px;
+    top: 260px;
     left: 0px;
   }
 
   #window3 {
-    top: 120px;
+    top: 60px;
     left: 0px;
   }
 
@@ -738,7 +738,7 @@ small {
   }
 
   #window5 {
-    top: 120px;
+    top: 60px;
     left: 0px;
   }
 
