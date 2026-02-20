@@ -213,6 +213,7 @@ select {
   left: 0 !important;
   border-radius: 0;
   bottom: 32px !important;
+  z-index: 10001 !important;
 }
 
 .fullSizeWindow .ui-resizable-handle {
