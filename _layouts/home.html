@@ -200,6 +200,20 @@ layout: default
 
 <div id="search-bar">
   <i class="fas fa-search"></i>
-  <input type="text" placeholder="Search..." readonly />
+  <input id="search-input" type="text" placeholder="Search..." autocomplete="off" />
+  <ul id="search-results"></ul>
 </div>
+
+<script>
+  var postsData = [
+    {% for post in site.posts %}{
+      "title": {{ post.title | jsonify }},
+      "url": "{{ post.url | relative_url }}",
+      "date": "{{ post.date | date_to_string }}",
+      "tags": {{ post.tags | jsonify }},
+      "category": {{ post.category | jsonify }}
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ];
+</script>
 
