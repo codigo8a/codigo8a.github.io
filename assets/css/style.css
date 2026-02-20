@@ -234,7 +234,7 @@ select {
   background-color: #8888d6;
 }
 
-.windowHeader > span {
+.windowHeader>span {
   display: inline-block;
   cursor: pointer;
   border: 2px solid #000;
@@ -250,15 +250,15 @@ select {
   overflow: hidden;
 }
 
-.windowHeader > span:hover {
+.windowHeader>span:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.windowHeader > span.winclose:hover {
+.windowHeader>span.winclose:hover {
   background: #f15454;
 }
 
-.windowHeader > span > span {
+.windowHeader>span>span {
   display: inline-block;
   height: 8px;
   width: 10px;
@@ -267,24 +267,24 @@ select {
   left: 10px;
 }
 
-.winminimize > span {
+.winminimize>span {
   border-bottom: 3px solid #000;
 }
 
-.winmaximize > span {
+.winmaximize>span {
   border: 2px solid #000;
   border-top: 3px solid #000;
 }
 
-.winmaximize > span:nth-child(2) {
+.winmaximize>span:nth-child(2) {
   display: none;
 }
 
-.fullSizeWindow .winmaximize > span:nth-child(1) {
+.fullSizeWindow .winmaximize>span:nth-child(1) {
   margin: 2px 0 0 -4px;
 }
 
-.fullSizeWindow .winmaximize > span:nth-child(2) {
+.fullSizeWindow .winmaximize>span:nth-child(2) {
   display: inline-block;
   top: 3px;
   left: 12px;
@@ -590,9 +590,12 @@ small {
 }
 
 .highlight pre {
-  overflow-x: auto; /* Enable horizontal scrolling */
-  white-space: pre-wrap; /* Allow breaking lines to fit the container */
-  word-wrap: break-word; /* Break long words to fit within the container */
+  overflow-x: auto;
+  /* Enable horizontal scrolling */
+  white-space: pre-wrap;
+  /* Allow breaking lines to fit the container */
+  word-wrap: break-word;
+  /* Break long words to fit within the container */
 }
 
 /*icons welcome page*/
@@ -602,7 +605,8 @@ small {
   justify-content: center;
   width: 100%;
   margin: 0 auto;
-  gap: 20px; /* Ajustar el espacio entre los iconos según sea necesario */
+  gap: 20px;
+  /* Ajustar el espacio entre los iconos según sea necesario */
 }
 
 .icon-item {
@@ -619,9 +623,12 @@ small {
 
 .icon-item p {
   margin-top: 5px;
-  font-size: 12px; /* Ajustar el tamaño de la fuente según sea necesario */
-  text-align: center; /* Asegurarse de que el texto esté centrado */
+  font-size: 12px;
+  /* Ajustar el tamaño de la fuente según sea necesario */
+  text-align: center;
+  /* Asegurarse de que el texto esté centrado */
 }
+
 .icon-text {
   margin-top: 10px;
   font-size: 8px;
@@ -668,12 +675,15 @@ small {
   #window0 {
     left: 2vw;
   }
+
   #window1 {
     left: 10vw;
   }
+
   #window2 {
     left: 18vw;
   }
+
   #window3 {
     left: 50px;
     width: 100%;
@@ -684,13 +694,16 @@ small {
   #window0 .wincontent {
     width: 460px;
   }
+
   #window0 {
     left: 1vw;
   }
+
   #window1 {
     top: 240px;
     left: 6vw;
   }
+
   #window2 {
     top: 360px;
     left: 11vw;
@@ -758,11 +771,40 @@ small {
     width: auto;
     height: 600px;
   }
+
   .windowHeader strong {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 5px;
+  }
+
+  #search-bar {
+    width: 90%;
+    max-width: 350px;
+    top: 10px;
+  }
+
+  #icons {
+    top: 75px;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 95%;
+  }
+
+  #icons a.icon-shortcut {
+    min-width: 80px;
+    padding: 8px 5px;
+  }
+
+  #icons a.icon-shortcut i {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+  }
+
+  #icons a.icon-shortcut span {
+    font-size: 11px;
   }
 }
 
