@@ -550,32 +550,32 @@ select {
 
 #window0 .wincontent {
   width: 680px;
-  height: 400px;
+  height: 40vh;
 }
 
 #window1 .wincontent {
   width: 700px;
-  height: 300px;
+  height: 40vh;
 }
 
 #window2 .wincontent {
   width: 700px;
-  height: 300px;
+  height: 40vh;
 }
 
 #window3 .wincontent {
   width: 800px;
-  height: 590px;
+  height: 40vh;
 }
 
 #window4 .wincontent {
   width: 450px;
-  height: 300px;
+  height: 40vh;
 }
 
 #window5 .wincontent {
   width: 800px;
-  height: 600px;
+  height: 40vh;
 }
 
 ul {
@@ -751,32 +751,32 @@ small {
 
   #window0 .wincontent {
     width: auto;
-    height: 400px;
+    height: 40vh;
   }
 
   #window1 .wincontent {
     width: auto;
-    height: 300px;
+    height: 40vh;
   }
 
   #window2 .wincontent {
     width: auto;
-    height: 300px;
+    height: 40vh;
   }
 
   #window3 .wincontent {
     width: auto;
-    height: 590px;
+    height: 40vh;
   }
 
   #window4 .wincontent {
     width: auto;
-    height: 300px;
+    height: 40vh;
   }
 
   #window5 .wincontent {
     width: auto;
-    height: 600px;
+    height: 40vh;
   }
 
   .windowHeader strong {
