@@ -208,7 +208,7 @@ select {
 }
 
 .window.fullSizeWindow {
-  top: 0 !important;
+  top: 60px !important;
   right: 0 !important;
   left: 0 !important;
   border-radius: 0;
@@ -777,6 +777,10 @@ small {
     overflow: hidden;
     text-overflow: ellipsis;
     width: 5px;
+  }
+
+  .window.fullSizeWindow {
+    top: 50px !important;
   }
 
   #search-bar {
