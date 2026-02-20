@@ -358,7 +358,7 @@ select {
 #icons {
   position: absolute;
   z-index: 10;
-  top: 20px;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -407,7 +407,7 @@ select {
 #search-bar {
   position: absolute;
   z-index: 10000;
-  top: 120px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
