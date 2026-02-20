@@ -7,7 +7,7 @@ category: Youtube
 tags: Tutoriales Linux IA
 youtube: https://youtu.be/rSuEqJ1YvwQ
 ---
-<span class="post-date-header">Febrero 16 de 2026</span>
+<span class="post-date-header">Febrero 15 de 2026</span>
 
 Paso a paso para instalar Ollama en Linux y poder ejectar nuestros propios modelos localmente.
 
