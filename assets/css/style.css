@@ -787,14 +787,14 @@ small {
 
   #icons {
     top: 75px;
-    flex-wrap: wrap;
-    gap: 4px;
-    width: 95%;
+    flex-wrap: nowrap;
+    gap: 2px;
+    width: 100%;
   }
 
   #icons a.icon-shortcut {
-    min-width: 80px;
-    padding: 8px 5px;
+    min-width: 0;
+    padding: 8px 2px;
   }
 
   #icons a.icon-shortcut i {
