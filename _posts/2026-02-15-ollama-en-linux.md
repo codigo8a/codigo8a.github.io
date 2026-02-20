@@ -5,7 +5,7 @@ description: Cómo instalar ollama en linux
 comments: true
 category: Youtube
 tags: Tutoriales Linux IA
-youtube: https://youtu.be/rSuEqJ1YvwQ
+youtube: https://youtu.be/HJKoVXKV3Oc
 ---
 <span class="post-date-header">Febrero 15 de 2026</span>
 
