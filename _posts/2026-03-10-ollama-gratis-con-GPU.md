@@ -13,6 +13,6 @@ googlecolab: https://colab.research.google.com/gist/codigo8a/40938587307acba8f0d
 Paso a paso para correr un ollama local gratuitamente y con acceso a GPU.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
-
-
+<br>
 1. Ejecuta <a target="_blank" href="{{ page.googlecolab }}">setup_and_query_a_ollama_server.ipynb</a> en Google Colab.
+2. Obtener un APIKEY de Ngrok
