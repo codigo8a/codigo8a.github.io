@@ -14,4 +14,5 @@ Paso a paso para correr un ollama local gratuitamente y con acceso a GPU.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
+
 1. Ejecuta <a target="_blank" href="{{ page.googlecolab }}">setup_and_query_a_ollama_server.ipynb</a> en Google Colab.
