@@ -5,7 +5,7 @@ description: Cómo instalar sistema gráfico Linux
 comments: true
 category: Youtube
 tags: Tutoriales Linux
-youtube: https://youtu.be/rSuEqJ1YvwQ
+youtube: https://youtu.be/bZnSi0pwkxI
 ---
 <span class="post-date-header">Febrero 17 de 2026</span>
 Paso a paso para instalar un sistema grafico liviano a Linux server.
