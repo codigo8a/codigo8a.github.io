@@ -5,7 +5,7 @@ description: Cómo instalar VS Code en Linux
 comments: true
 category: Youtube
 tags: Tutoriales Linux
-youtube: https://youtu.be/WRT0RgIEXus
+youtube: https://youtu.be/kN0RcPp5W7Y
 ---
 <span class="post-date-header">Febrero 16 de 2026</span>
 
