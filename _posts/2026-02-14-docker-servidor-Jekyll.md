@@ -7,7 +7,7 @@ category: Youtube
 tags: Tutoriales Linux
 youtube: https://youtu.be/WRT0RgIEXus
 ---
-<span class="post-date-header">Febrero 16 de 2026</span>
+<span class="post-date-header">Febrero 14 de 2026</span>
 
 Paso a paso para correr un proyecto Jeckyll localmente y poder editarlo.
 
