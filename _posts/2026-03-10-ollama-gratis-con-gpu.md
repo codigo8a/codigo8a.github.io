@@ -16,3 +16,10 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 
 1. Obtener un APIKEY de Ngrok.
 2. Ejecuta <a target="_blank" href="{{ page.googlecolab }}">setup_and_query_a_ollama_server.ipynb</a> en Google Colab
+3. Configura ollama en Claude Code:
+```csharp
+$env:ANTHROPIC_AUTH_TOKEN="ollama"
+$env:ANTHROPIC_BASE_URL="https://unbequeathed-electrophonically-billy.ngrok-free.dev"
+$env:ANTHROPIC_API_KEY=""
+claude --model qwen3-coder
+```
