@@ -13,7 +13,7 @@ Paso a paso para correr un proyecto Jeckyll localmente y poder editarlo.
 
 En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un video del paso a paso:
 
-1. Crear archivo docker-compose-yaml
+1. Crear archivo docker-compose.yaml
 ```csharp
 services:
   jekyll:
