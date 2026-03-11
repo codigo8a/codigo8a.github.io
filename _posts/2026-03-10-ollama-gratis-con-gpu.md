@@ -19,7 +19,7 @@ En <a target="_blank" href="{{ page.youtube }}">mi canal de youtube</a> hay un v
 3. Configura ollama en Claude Code:
 ```csharp
 $env:ANTHROPIC_AUTH_TOKEN="ollama"
-$env:ANTHROPIC_BASE_URL="https://unbequeathed-electrophonically-billy.ngrok-free.dev"
+$env:ANTHROPIC_BASE_URL="tu-url-de-ngrok"
 $env:ANTHROPIC_API_KEY=""
 claude --model qwen3-coder
 ```
