@@ -20,7 +20,7 @@ services:
     image: jekyll/jekyll
     command: jekyll serve --watch --host 0.0.0.0
     ports:
-"4000:4000"
+      - "4000:4000"
     volumes:
-.:/srv/jekyll
+      - .:/srv/jekyll
 ```
