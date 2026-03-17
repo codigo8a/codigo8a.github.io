@@ -98,7 +98,9 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     const newZIndex = zIndexCounter + 1;
     setZIndexCounter(newZIndex);
     
-    const offset = Math.floor((newZIndex - 10) / 2) * 20;
+    // Calculate offset based on number of windows instead of zIndex to prevent "drifting"
+    const windowCount = windows.length;
+    const offset = (windowCount % 10) * 20;
     
     const defaultWidth = windowConfig.initialSize?.width || 400;
     const defaultHeight = windowConfig.initialSize?.height || 300;
@@ -110,8 +112,13 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     const finalWidth = Math.min(defaultWidth, maxWidth - 40);
     const finalHeight = Math.min(defaultHeight, maxHeight - 40);
     
-    const initialX = windowConfig.initialPosition?.x ?? (100 + offset);
-    const initialY = windowConfig.initialPosition?.y ?? (100 + offset);
+    let initialX = windowConfig.initialPosition?.x ?? (100 + offset);
+    let initialY = windowConfig.initialPosition?.y ?? (100 + offset);
+
+    if (windowConfig.centered) {
+      initialX = (maxWidth - finalWidth) / 2;
+      initialY = (maxHeight - finalHeight) / 2;
+    }
     
     // Constrain position to keep window visible
     const finalX = Math.max(0, Math.min(initialX, maxWidth - finalWidth));
@@ -134,7 +141,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     };
     setWindows(prev => [...prev, newWindow]);
     setActiveWindowId(newWindow.id);
-  }, [zIndexCounter]);
+  }, [zIndexCounter, windows.length]);
 
   const openApp = useCallback((appId: string, appData: any = null) => {
     const app = getAppById(appId);

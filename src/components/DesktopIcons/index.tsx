@@ -9,9 +9,8 @@ interface DesktopIcon {
 }
 
 const DESKTOP_ICONS: DesktopIcon[] = [
-  { id: 'myComputer', icon: '💻', label: 'My Computer' },
-  { id: 'recycleBin', icon: '🗑️', label: 'Recycle Bin' },
   { id: 'myDocuments', icon: '📁', label: 'My Documents' },
+  { id: 'find', icon: '🔍', label: 'Find' },
 ];
 
 export const DesktopIcons: React.FC = () => {
@@ -20,6 +19,8 @@ export const DesktopIcons: React.FC = () => {
   const handleIconClick = (iconId: string) => {
     if (iconId === 'myDocuments') {
       openApp('fileExplorer');
+    } else if (iconId === 'find') {
+      openApp('search');
     }
   };
 
