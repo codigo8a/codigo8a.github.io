@@ -14,7 +14,7 @@
 
 1. Leer el README.md para entender el proyecto
 2. Hacer cambios en el código
-3. Si el usuario escribe "push", hacer commit + push automáticamente
+3. Si el usuario escribe "push", hacer commit + push una unica vez y despues preguntar de nuevo
 
 ## Excepciones
 
