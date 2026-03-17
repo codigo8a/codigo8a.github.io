@@ -29,12 +29,12 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
     en: "Source"
   },
   welcomeTip: {
-    es: "¿Sabías que...?",
-    en: "Did you know...?"
+    es: "¿Sabías esto de mí?",
+    en: "Did you know this about me?"
   },
   didYouKnow: {
-    es: "¿Sabías que...?",
-    en: "Did you know...?"
+    es: "¿Sabías esto de mí?",
+    en: "Did you know this about me?"
   },
   nextTip: {
     es: "Siguiente Tip",
