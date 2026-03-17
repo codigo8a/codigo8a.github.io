@@ -1,10 +1,18 @@
 # react-desktop
 
-Entorno de escritorio estilo Windows 98 construido con React.
+Entorno de escritorio estilo Windows 98 construido con React. Desplegado en [https://juandavid.site](https://juandavid.site).
 
 ## Overview
 
-Entorno de escritorio estilo Windows 98 construido con React. Simula un sistema de ventanas con barra de tareas, menú Start, explorador de archivos y visor de markdown.
+Entorno de escritorio estilo Windows 98 construido con React. Simula un sistema de ventanas con barra de tareas, menú Start, explorador de archivos, buscador y visor de markdown.
+
+## Despliegue y Dominio
+
+Este proyecto está configurado para desplegarse automáticamente en **GitHub Pages** utilizando **GitHub Actions**.
+
+- **Dominio Personalizado**: `https://juandavid.site`
+- **Configuración de Redirección**: Utiliza un archivo `404.html` generado automáticamente para soportar el enrutamiento de Single Page Application (SPA) en GitHub Pages.
+- **Base URL**: Configurada como `/` en `vite.config.js` para soportar rutas anidadas.
 
 ## Tecnologías
 
@@ -25,30 +33,38 @@ src/
 │   ├── FileExplorerApp/        # Explorador de archivos
 │   ├── FileViewerApp/          # Visor de markdown
 │   ├── SearchApp/              # Buscador de archivos
-│   └── apps.js                 # Registro de apps
+│   └── apps.ts                 # Registro de apps
 ├── components/                  # Componentes (Diseño Atómico)
-│   ├── atoms/
 │   ├── molecules/
 │   ├── organisms/
 │   └── DesktopIcons/           # Iconos del escritorio
 ├── context/                     # Contextos de React
-│   ├── DesktopContext.jsx
-│   ├── WindowContext.jsx
-│   └── LanguageContext.jsx
+│   ├── DesktopContext.tsx
+│   ├── WindowContext.tsx
+│   └── LanguageContext.tsx
 ├── hooks/                       # Hooks personalizados
-│   ├── useFileSystem.js
-│   ├── useWindow.js
-│   ├── useLanguage.js
-│   └── useWindowHook.js
+│   ├── useFileSystem.ts
+│   ├── useWindow.ts
+│   ├── useLanguage.ts
+│   └── useUrlRouting.ts        # Manejo de rutas profundas
 ├── i18n/                        # Traducciones
-│   └── translations.js
+│   └── translations.ts
 ├── data/files/                  # Archivos markdown
 ├── public/
+│   ├── CNAME                    # Configuración de dominio personalizado
 │   └── images/                  # Imágenes para archivos markdown
-├── App.jsx
+├── App.tsx
 ├── index.css
-└── main.jsx
+└── main.tsx
 ```
+
+## Características Recientes
+
+- **Enrutamiento por URL**: Soporte para abrir archivos específicos directamente desde la URL (ej: `/folder/file`).
+- **Sistema de Ventanas Mejorado**: Lógica de posicionamiento inteligente que evita el desplazamiento errático al reabrir ventanas.
+- **Escritorio Personalizado**: Iconos de acceso directo a Documentos y Búsqueda.
+- **CI/CD**: Despliegue automático mediante GitHub Actions al hacer push a `main`.
+
 
 ## Patrones y Principios
 
