@@ -1,0 +1,109 @@
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 11px;
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+}
+
+.welcome-header-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.welcome-header-title {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.welcome-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.welcome-tip-box {
+  background: #fffff0;
+  border: 1px solid #000000;
+  padding: 12px;
+  min-height: 60px;
+}
+
+.welcome-tip-number {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.welcome-tip-text {
+  line-height: 1.4;
+}
+
+.welcome-tip-nav {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.welcome-tip-button {
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 11px;
+  padding: 2px 12px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  cursor: pointer;
+}
+
+.welcome-tip-button:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.welcome-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.welcome-checkbox input {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+}
+
+.welcome-checkbox label {
+  cursor: pointer;
+}
+
+.welcome-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px 16px;
+}
+
+.welcome-close-button {
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 11px;
+  padding: 4px 24px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset 1px 1px #dfdfdf;
+  cursor: pointer;
+}
+
+.welcome-close-button:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: none;
+}

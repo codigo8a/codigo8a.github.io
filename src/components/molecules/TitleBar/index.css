@@ -1,0 +1,22 @@
+.title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 3px;
+  height: 20px;
+}
+
+.title-bar-text {
+  font-weight: bold;
+  font-size: 12px;
+  margin-left: 2px;
+  pointer-events: none;
+}
+
+.title-bar.inactive {
+  background: #808080;
+}
+
+.title-bar.inactive .title-bar-text {
+  color: #c0c0c0;
+}

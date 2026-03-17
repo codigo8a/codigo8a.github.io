@@ -1,0 +1,19 @@
+.fileexplorer-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #c0c0c0;
+}
+
+.fileexplorer-folder {
+  cursor: pointer;
+  user-select: none;
+}
+
+.fileexplorer-file {
+  cursor: pointer;
+}
+
+.fileexplorer-folder ul {
+  margin-left: 20px;
+}

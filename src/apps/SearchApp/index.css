@@ -1,0 +1,30 @@
+.search-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #c0c0c0;
+  overflow: hidden;
+}
+
+.search-input-area {
+  padding: 8px;
+}
+
+.search-input-row {
+  margin-bottom: 8px;
+}
+
+.search-input-row input {
+  flex: 1;
+}
+
+.search-results {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+}
+
+.search-empty {
+  padding: 16px;
+  color: #666;
+}

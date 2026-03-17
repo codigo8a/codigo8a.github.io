@@ -1,0 +1,51 @@
+.taskbar {
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+}
+
+.start-button.active {
+  background: #dfdfdf;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+}
+
+.taskbar-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.taskbar-button img {
+  width: 16px;
+  height: 16px;
+}
+
+.taskbar-divider {
+  border-left: 2px solid #808080;
+  border-right: 2px solid #fff;
+  height: 20px;
+}
+
+.taskbar-windows {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.taskbar-windows button {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.taskbar-windows button.active {
+  background: #dfdfdf;
+}
+
+.taskbar-clock {
+  font-size: 12px;
+  margin-left: 8px;
+}

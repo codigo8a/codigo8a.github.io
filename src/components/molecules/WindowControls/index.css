@@ -1,0 +1,21 @@
+.title-bar-controls {
+  display: flex;
+}
+
+.title-bar-controls button {
+  width: 16px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  background: #c0c0c0;
+  margin-left: 2px;
+}
+
+.title-bar-controls button:active {
+  background: #808080;
+}
+
+.title-bar-controls button:focus {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}

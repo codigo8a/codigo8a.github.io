@@ -1,0 +1,22 @@
+.notepad-container {
+  height: 100%;
+  display: flex;
+  flexDirection: column;
+}
+
+.notepad-textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 5px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.notepad-statusbar {
+  border-top: 2px solid #c0c0c0;
+  padding: 2px 8px;
+  font-size: 12px;
+}

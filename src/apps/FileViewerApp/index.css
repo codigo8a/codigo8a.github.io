@@ -1,0 +1,98 @@
+.fileviewer-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #c0c0c0;
+}
+
+.fileviewer-markdown {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000;
+}
+
+.fileviewer-markdown h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  margin-top: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #c0c0c0;
+}
+
+.fileviewer-markdown h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  margin-top: 18px;
+  color: #000080;
+}
+
+.fileviewer-markdown h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  margin-top: 14px;
+}
+
+.fileviewer-markdown p {
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+
+.fileviewer-markdown ul {
+  margin-left: 24px;
+  margin-bottom: 12px;
+  list-style-type: disc;
+}
+
+.fileviewer-markdown ol {
+  margin-left: 24px;
+  margin-bottom: 12px;
+  list-style-type: decimal;
+}
+
+.fileviewer-markdown li {
+  margin-bottom: 4px;
+}
+
+.fileviewer-markdown code {
+  background-color: #ffffcc;
+  padding: 2px 6px;
+  font-family: monospace;
+  font-size: 13px;
+  border: 1px solid #c0c0c0;
+}
+
+.fileviewer-markdown pre {
+  background-color: #ffffcc;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 13px;
+  overflow: auto;
+  border: 2px inset #fff;
+  margin-bottom: 12px;
+}
+
+.fileviewer-markdown blockquote {
+  border-left: 4px solid #c0c0c0;
+  padding-left: 16px;
+  margin-left: 0;
+  font-style: italic;
+  color: #404040;
+}
+
+.fileviewer-markdown img {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid #000;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.fileviewer-source {
+  font-family: monospace;
+  font-size: 13px;
+  color: #000;
+}

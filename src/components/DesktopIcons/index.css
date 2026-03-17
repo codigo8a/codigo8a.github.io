@@ -1,0 +1,30 @@
+.desktop-icons {
+  position: absolute;
+  top: 34px;
+  left: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1;
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 64px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.desktop-icon-image {
+  font-size: 32px;
+}
+
+.desktop-icon-label {
+  color: #fff;
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 1px 1px 1px #000;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}

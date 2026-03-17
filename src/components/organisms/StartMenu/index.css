@@ -1,0 +1,105 @@
+.start-menu {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  display: flex;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  min-width: 200px;
+}
+
+.start-menu-sidebar {
+  background: linear-gradient(to bottom, #000080, #1084d0);
+  color: white;
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+  width: 30px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.start-menu-sidebar span {
+  white-space: nowrap;
+}
+
+.start-menu-items {
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  min-width: 170px;
+}
+
+.start-menu-items button {
+  text-align: left;
+  padding: 5px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #000;
+}
+
+.start-menu-items button .icon {
+  color: #000;
+}
+
+.start-menu-items button:not(:disabled):hover {
+  background: #000080;
+  color: white;
+}
+
+.start-menu-items button:disabled {
+  color: #808080;
+  cursor: default;
+}
+
+.start-menu-divider {
+  height: 1px;
+  background: #808080;
+  border-bottom: 1px solid #fff;
+  margin: 2px 2px;
+}
+
+.menu-item-with-submenu {
+  position: relative;
+}
+
+.menu-item-with-submenu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.submenu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+.submenu button {
+  padding: 5px 10px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #000;
+}
+
+.submenu button:hover {
+  background: #000080;
+  color: white;
+}

@@ -1,0 +1,59 @@
+.settings-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #c0c0c0;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+}
+
+.settings-content {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-language-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-language-label {
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.settings-language-select {
+  width: 100%;
+  min-width: 120px;
+}
+
+.settings-info {
+  margin-top: 8px;
+  padding: 8px;
+  background: #fffff0;
+  border: 1px solid #000;
+  font-size: 10px;
+  color: #444;
+}
+
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 16px 16px;
+}
+
+.settings-button {
+  padding: 4px 20px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  box-shadow: 1px 1px 0px #000;
+  cursor: pointer;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+  min-width: 75px;
+}
