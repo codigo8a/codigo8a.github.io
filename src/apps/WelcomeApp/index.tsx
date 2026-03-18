@@ -58,7 +58,7 @@ export const WelcomeApp: React.FC = () => {
     en: [
       "Full Stack Developer expert in Cloud Process Automation, PaintBall, Softcombat and Roller derby Player, Robotics, Electronics and Technology Lover.",
       <div>
-        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>About me</p>
+        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>More info</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <div 
             onClick={handleOpenResume}
@@ -82,7 +82,7 @@ export const WelcomeApp: React.FC = () => {
     es: [
       "Desarrollador Full Stack experto en Automatización de Procesos en la Nube, jugador de PaintBall, Softcombat y Roller derby, Gomoso de la Robótica, Electrónica y Tecnología.",
       <div>
-        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Sobre mí</p>
+        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Más info</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <div 
             onClick={handleOpenResume}
