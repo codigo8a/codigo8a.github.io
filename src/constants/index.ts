@@ -27,5 +27,6 @@ export const LOCAL_STORAGE_KEYS = {
   LANGUAGE: 'language',
   SHOW_WELCOME: 'show_welcome',
   WELCOME_HIDDEN_AT: 'welcome_hidden_at',
-  WALLPAPER: 'wallpaper'
+  WALLPAPER: 'wallpaper',
+  CLIPPY_ENABLED: 'clippy_enabled'
 };

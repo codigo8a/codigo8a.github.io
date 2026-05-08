@@ -7,11 +7,11 @@ import './index.css';
 
 export const SettingsApp: React.FC = () => {
   const { language, changeLanguage } = useLanguage();
-  const { wallpaper, setWallpaper } = useDesktop();
+  const { wallpaper, setWallpaper, clippyEnabled, setClippyEnabled } = useDesktop();
   const windowContext = useWindow();
   const onClose = windowContext?.onClose;
   const { t } = useTranslation();
-  
+
   const [selectedLanguage, setSelectedLanguage] = useState(language);
   const [selectedWallpaper, setSelectedWallpaper] = useState<WallpaperId>(wallpaper);
 
@@ -60,7 +60,7 @@ export const SettingsApp: React.FC = () => {
                   className={`settings-wallpaper-item ${selectedWallpaper === wp.id ? 'selected' : ''}`}
                   onClick={() => setSelectedWallpaper(wp.id)}
                 >
-                  <div 
+                  <div
                     className="settings-wallpaper-preview"
                     style={{ backgroundImage: `url(${wp.path})` }}
                   />
@@ -68,6 +68,18 @@ export const SettingsApp: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="settings-clippy-row">
+            <label className="settings-clippy-label">
+              <input
+                type="checkbox"
+                checked={clippyEnabled}
+                onChange={(e) => setClippyEnabled(e.target.checked)}
+                className="settings-checkbox"
+              />
+              {t('showClippy')}
+            </label>
           </div>
         </fieldset>
 
@@ -81,6 +93,7 @@ export const SettingsApp: React.FC = () => {
       <div className="settings-footer">
         <button 
           className="settings-button"
+          type="button"
           onClick={handleApply}
         >
           {t('apply')}

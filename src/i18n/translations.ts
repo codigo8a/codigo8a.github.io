@@ -6,7 +6,7 @@ type TranslationKeys =
   | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder'
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
-  | 'desktop' | 'wallpaper';
+  | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -152,6 +152,14 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   wallpaper: {
     es: "Fondo de escritorio",
     en: "Wallpaper"
+  },
+  clippy: {
+    es: "Asistente",
+    en: "Assistant"
+  },
+  showClippy: {
+    es: "Mostrar asistente (Clippy)",
+    en: "Show assistant (Clippy)"
   }
 };
 

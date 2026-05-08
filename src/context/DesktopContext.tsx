@@ -26,6 +26,8 @@ interface DesktopContextType {
   activeWindowId: string | null;
   wallpaper: WallpaperId;
   setWallpaper: (wallpaper: WallpaperId) => void;
+  clippyEnabled: boolean;
+  setClippyEnabled: (enabled: boolean) => void;
   handleWindowFocus: (id: string) => void;
   handleMinimize: (id: string) => void;
   handleRestore: (id: string) => void;
@@ -54,6 +56,18 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   const setWallpaper = useCallback((newWallpaper: WallpaperId) => {
     setWallpaperState(newWallpaper);
     localStorage.setItem(LOCAL_STORAGE_KEYS.WALLPAPER, newWallpaper);
+  }, []);
+
+  // Load clippy state from localStorage
+  const [clippyEnabled, setClippyEnabledState] = useState<boolean>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.CLIPPY_ENABLED);
+    return saved === null ? true : saved === 'true';
+  });
+
+  // Persist clippy state
+  const setClippyEnabled = useCallback((enabled: boolean) => {
+    setClippyEnabledState(enabled);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CLIPPY_ENABLED, String(enabled));
   }, []);
 
   // Normalizar z-index cuando el contador crece demasiado
@@ -273,6 +287,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     activeWindowId,
     wallpaper,
     setWallpaper,
+    clippyEnabled,
+    setClippyEnabled,
     handleWindowFocus,
     handleMinimize,
     handleRestore,

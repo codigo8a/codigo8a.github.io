@@ -123,3 +123,24 @@
   border: 2px inset #ffffff;
   box-shadow: none;
 }
+
+.settings-clippy-row {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #808080;
+}
+
+.settings-clippy-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.settings-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}

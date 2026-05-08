@@ -3,6 +3,7 @@ import { Window } from './organisms/Window';
 import { TaskBar } from './organisms/TaskBar';
 import { StartMenu } from './organisms/StartMenu';
 import { DesktopIcons } from './DesktopIcons';
+import { Clippy } from './Clippy';
 import { useDesktop, WALLPAPERS } from '../context/DesktopContext';
 import { useStartMenu } from '../hooks/useWindow';
 import { useUrlRouting } from '../hooks/useUrlRouting';
@@ -13,6 +14,8 @@ export const Desktop: React.FC = () => {
     windows,
     activeWindowId,
     wallpaper,
+    clippyEnabled,
+    setClippyEnabled,
     handleWindowFocus,
     handleMinimize,
     handleRestore,
@@ -87,6 +90,8 @@ export const Desktop: React.FC = () => {
           {win.content}
         </Window>
       ))}
+
+      <Clippy enabled={clippyEnabled} onClose={() => setClippyEnabled(false)} />
     </div>
   );
 };
