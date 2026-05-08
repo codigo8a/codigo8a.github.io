@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useClock } from '../../../hooks/useWindow';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
 import { useTranslation } from '../../../i18n/translations';
@@ -16,6 +16,11 @@ interface TaskBarProps {
   onClippyClick?: () => void;
 }
 
+// Button widths in pixels
+const BUTTON_WIDTH = 80;
+const MORE_BUTTON_WIDTH = 30;
+const MIN_RESERVED_SPACE = 120; // Space for Start, dividers, clock, Clippy
+
 export const TaskBar: React.FC<TaskBarProps> = ({
   windows,
   activeWindowId,
@@ -31,33 +36,80 @@ export const TaskBar: React.FC<TaskBarProps> = ({
   const { t } = useTranslation();
   const [showWindowMenu, setShowWindowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const MAX_VISIBLE_BUTTONS = isMobile ? 1 : 10;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(0);
 
-  // Close window menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowWindowMenu(false);
+  // Calculate how many buttons fit
+  useLayoutEffect(() => {
+    const calculateVisible = () => {
+      if (!containerRef.current) return;
+      
+      const availableWidth = containerRef.current.clientWidth;
+      
+      if (windows.length === 0) {
+        setVisibleCount(0);
+        return;
+      }
+
+      // Try to fit as many buttons as possible
+      let count = 0;
+      let usedWidth = 0;
+
+      for (let i = 0; i < windows.length; i++) {
+        // Check if we can fit this button plus the "..." button (if needed)
+        const needsMoreButton = i < windows.length - 1;
+        const widthNeeded = BUTTON_WIDTH + (needsMoreButton ? MORE_BUTTON_WIDTH + 4 : 0);
+        
+        if (usedWidth + widthNeeded <= availableWidth) {
+          count++;
+          usedWidth += BUTTON_WIDTH + 4; // +4 for gap
+        } else {
+          break;
+        }
+      }
+
+      // If we couldn't fit any buttons but there's space for just "..."
+      if (count === 0 && windows.length > 0 && availableWidth >= MORE_BUTTON_WIDTH) {
+        setVisibleCount(0); // Show only "..."
+      } else {
+        setVisibleCount(count);
       }
     };
 
-    if (showWindowMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    calculateVisible();
+    
+    // Recalculate on resize
+    window.addEventListener('resize', calculateVisible);
+    return () => window.removeEventListener('resize', calculateVisible);
+  }, [windows.length]);
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+  // Close window menu when clicking outside
+  useEffect(() => {
+    if (!showWindowMenu) return;
+    
+    const timeoutId = setTimeout(() => {
+      const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+        const target = event.target as Node;
+        if (menuRef.current && !menuRef.current.contains(target)) {
+          setShowWindowMenu(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('touchstart', handleClickOutside);
+      };
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [showWindowMenu]);
 
-  const handleWindowSelect = (win: WindowConfig) => {
-    setShowWindowMenu(false);
-    if (win.isMinimized) {
-      onRestore(win.id);
-    } else {
-      onWindowClick(win.id);
-    }
-  };
+  const showMoreButton = windows.length > visibleCount;
+  const visibleWindows = windows.slice(0, visibleCount);
+  const menuWindows = showMoreButton ? windows : [];
 
   return (
     <div className="taskbar" style={{
@@ -80,7 +132,8 @@ export const TaskBar: React.FC<TaskBarProps> = ({
           alignItems: 'center', 
           gap: '4px',
           fontWeight: 'bold',
-          marginRight: '8px'
+          marginRight: '8px',
+          flexShrink: 0
         }}
         onClick={onStartClick}
       >
@@ -92,64 +145,68 @@ export const TaskBar: React.FC<TaskBarProps> = ({
         borderLeft: '2px solid #808080', 
         borderRight: '2px solid #fff',
         height: '20px',
-        marginRight: '8px'
+        marginRight: '8px',
+        flexShrink: 0
       }} />
       
-      <div style={{ display: 'flex', gap: '4px', flex: 1, position: 'relative' }}>
-        {/* Show limited buttons on mobile */}
-        {windows.slice(0, MAX_VISIBLE_BUTTONS).map(win => (
+      <div ref={containerRef} style={{ display: 'flex', gap: '4px', flex: 1, position: 'relative', minWidth: 0 }}>
+        {/* Show visible window buttons */}
+        {visibleWindows.map(win => (
           <button
             key={win.id}
             className={activeWindowId === win.id && !win.isMinimized ? 'active' : ''}
             style={{
-              maxWidth: isMobile ? '80px' : '150px',
+              width: `${BUTTON_WIDTH}px`,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
               textAlign: 'left',
-              flex: isMobile ? '1' : undefined,
               flexShrink: 0
             }}
             onClick={() => win.isMinimized ? onRestore(win.id) : onWindowClick(win.id)}
           >
-            {isMobile && win.title.length > 8 ? win.title.substring(0, 8) + '...' : win.title}
+            {isMobile && win.title.length > 10 ? win.title.substring(0, 10) + '...' : win.title}
           </button>
         ))}
         
-        {/* Show "..." button if there are more windows on mobile */}
-        {isMobile && windows.length > MAX_VISIBLE_BUTTONS && (
+        {/* Show "..." button if there are more windows */}
+        {showMoreButton && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowWindowMenu(!showWindowMenu);
             }}
             style={{
-              minWidth: '30px',
+              width: `${MORE_BUTTON_WIDTH}px`,
               padding: '2px 6px',
               fontWeight: 'bold',
-              flexShrink: 0
+              flexShrink: 0,
+              background: showWindowMenu ? '#dfdfdf' : '#c0c0c0',
+              border: '2px outset #ffffff'
             }}
+            type="button"
           >
             ⋯
           </button>
         )}
         
-        {/* Window selection dropdown for mobile */}
-        {isMobile && showWindowMenu && (
+        {/* Window selection dropdown */}
+        {showMoreButton && showWindowMenu && (
           <div 
             ref={menuRef}
             className="window-menu"
+            onClick={(e) => e.stopPropagation()}
             style={{
-              position: 'absolute',
-              bottom: '36px',
-              left: '0',
+              position: 'fixed',
+              top: '36px',
+              left: '110px',
               background: '#c0c0c0',
               border: '2px solid',
               borderColor: '#fff #808080 #808080 #fff',
               boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-              zIndex: 1100,
-              minWidth: '200px',
-              maxHeight: '300px',
+              zIndex: 9999,
+              minWidth: '220px',
+              maxHeight: '70vh',
               overflowY: 'auto'
             }}
           >
@@ -163,19 +220,28 @@ export const TaskBar: React.FC<TaskBarProps> = ({
             }}>
               {t('openWindows')}
             </div>
-            {windows.map(win => (
+            {menuWindows.map(win => (
               <div
                 key={win.id}
-                onClick={() => handleWindowSelect(win)}
+                onClick={() => {
+                  setShowWindowMenu(false);
+                  if (win.isMinimized) {
+                    onRestore(win.id);
+                  } else {
+                    onWindowClick(win.id);
+                  }
+                }}
                 style={{
-                  padding: '6px 10px',
+                  padding: '10px 12px',
                   cursor: 'pointer',
                   borderBottom: '1px solid #dfdfdf',
                   background: activeWindowId === win.id && !win.isMinimized ? '#000080' : 'transparent',
                   color: activeWindowId === win.id && !win.isMinimized ? '#fff' : '#000',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '10px',
+                  fontSize: '13px',
+                  minHeight: '40px'
                 }}
               >
                 <span>{win.isMinimized ? '−' : '□'}</span>
@@ -193,7 +259,8 @@ export const TaskBar: React.FC<TaskBarProps> = ({
         borderLeft: '2px solid #808080',
         borderRight: '2px solid #fff',
         height: '20px',
-        marginLeft: '8px'
+        marginLeft: '8px',
+        flexShrink: 0
       }} />
 
       <div style={{ 
