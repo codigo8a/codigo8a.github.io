@@ -59,18 +59,38 @@ export const Window: React.FC<WindowProps> = ({
   const dragStart = useRef({ x: 0, y: 0, posX: 0, posY: 0, width: 0, height: 0 });
   const isMobile = useIsMobile();
 
-  // Ajustar tamaño en móviles
+
+
+  // Reposicionar ventana si queda fuera de pantalla al hacer resize
   useEffect(() => {
-    if (isMobile && !isMaximized) {
-      const mobileWidth = Math.min(initialSize.width, window.innerWidth - 16);
-      const mobileHeight = Math.min(initialSize.height, window.innerHeight - 80);
-      setSize({ width: mobileWidth, height: mobileHeight });
-      setPosition({
-        x: (window.innerWidth - mobileWidth) / 2,
-        y: 40
-      });
-    }
-  }, [isMobile, isMaximized, initialSize.width, initialSize.height]);
+    const handleResize = () => {
+      if (isMaximized) return;
+      
+      const maxWidth = window.innerWidth;
+      const maxHeight = window.innerHeight - 30; // taskbar
+      
+      // Asegurar que la ventana no quede fuera de los límites
+      const newX = Math.max(0, Math.min(position.x, maxWidth - Math.min(size.width, maxWidth - 20)));
+      const newY = Math.max(30, Math.min(position.y, maxHeight - Math.min(size.height, maxHeight - 20)));
+      
+      if (newX !== position.x || newY !== position.y) {
+        setPosition({ x: newX, y: newY });
+        onMove?.(id, { x: newX, y: newY });
+      }
+      
+      // Si la ventana es más grande que la pantalla, ajustar tamaño
+      const newWidth = Math.min(size.width, maxWidth - 20);
+      const newHeight = Math.min(size.height, maxHeight - 20);
+      
+      if (newWidth !== size.width || newHeight !== size.height) {
+        setSize({ width: newWidth, height: newHeight });
+        onResize?.(id, { width: newWidth, height: newHeight });
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [position, size, isMaximized, id, onMove, onResize]);
 
   const handleMinimize = () => {
     onMinimize?.(id);
@@ -157,23 +177,26 @@ export const Window: React.FC<WindowProps> = ({
     return null;
   }
 
+  // En móviles, siempre tratamos la ventana como maximizada
+  const effectiveMaximized = isMaximized || isMobile;
+
   const renderContent = () => (
     <WindowProvider id={id} onClose={handleClose}>
       <TitleBar 
         title={title}
         onMinimize={handleMinimize}
-        onMaximize={() => onMaximize?.(id)}
+        onMaximize={isMobile ? () => {} : () => onMaximize?.(id)}
         onClose={handleClose}
         active={isActive}
       />
       <div className="window-body">
         {children}
       </div>
-      {!isMaximized && !isMobile && <div className="window-resize-handle" onMouseDown={handleResizeMouseDown} />}
+      {!effectiveMaximized && <div className="window-resize-handle" onMouseDown={handleResizeMouseDown} />}
     </WindowProvider>
   );
 
-  if (isMaximized) {
+  if (effectiveMaximized) {
     return (
       <div 
         className={`window ${isActive ? 'active' : ''}`}
@@ -197,16 +220,15 @@ export const Window: React.FC<WindowProps> = ({
       className={`window ${isActive ? 'active' : ''}`}
       style={{
         position: 'absolute',
-        width: isMobile ? 'calc(100% - 16px)' : size.width,
-        height: isMobile ? 'auto' : size.height,
-        maxHeight: isMobile ? 'calc(100% - 60px)' : undefined,
+        width: size.width,
+        height: size.height,
         zIndex,
-        left: isMobile ? '8px' : position.x,
-        top: isMobile ? '40px' : position.y,
-        cursor: isDragging && !isMobile ? 'move' : 'default',
+        left: position.x,
+        top: position.y,
+        cursor: isDragging ? 'move' : 'default',
         userSelect: isDragging || isResizing ? 'none' : 'auto'
       }}
-      onMouseDown={isMobile ? undefined : handleMouseDown}
+      onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}

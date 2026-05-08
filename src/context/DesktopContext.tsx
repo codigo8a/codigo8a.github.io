@@ -24,7 +24,27 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   const [activeWindowId, setActiveWindowId] = useState<string | null>(initialWindows[0]?.id || null);
   const [zIndexCounter, setZIndexCounter] = useState(10);
 
+  // Normalizar z-index cuando el contador crece demasiado
+  const normalizeZIndexes = useCallback(() => {
+    setWindows(currentWindows => {
+      // Ordenar ventanas por z-index actual
+      const sortedWindows = [...currentWindows].sort((a, b) => a.zIndex - b.zIndex);
+      // Asignar nuevos z-index secuenciales desde 10
+      const normalizedWindows = sortedWindows.map((win, index) => ({
+        ...win,
+        zIndex: 10 + index
+      }));
+      setZIndexCounter(10 + normalizedWindows.length);
+      return normalizedWindows;
+    });
+  }, []);
+
   const bringToFront = useCallback((id: string) => {
+    // Normalizar si el contador está creciendo demasiado
+    if (zIndexCounter > 1000) {
+      normalizeZIndexes();
+    }
+    
     const newZIndex = zIndexCounter + 1;
     setZIndexCounter(newZIndex);
     
@@ -34,7 +54,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       isActive: win.id === id,
       zIndex: win.id === id ? newZIndex : win.zIndex
     })));
-  }, [zIndexCounter]);
+  }, [zIndexCounter, normalizeZIndexes]);
 
   const handleWindowFocus = useCallback((id: string) => {
     bringToFront(id);
