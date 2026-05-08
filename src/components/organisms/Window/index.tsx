@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { TitleBar } from '../../molecules/TitleBar';
 import { WindowProvider } from '../../../context/WindowContext';
+import { useIsMobile } from '../../../hooks/useMediaQuery';
 import './index.css';
 
 interface WindowProps {
@@ -56,6 +57,20 @@ export const Window: React.FC<WindowProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, posX: 0, posY: 0, width: 0, height: 0 });
+  const isMobile = useIsMobile();
+
+  // Ajustar tamaño en móviles
+  useEffect(() => {
+    if (isMobile && !isMaximized) {
+      const mobileWidth = Math.min(initialSize.width, window.innerWidth - 16);
+      const mobileHeight = Math.min(initialSize.height, window.innerHeight - 80);
+      setSize({ width: mobileWidth, height: mobileHeight });
+      setPosition({
+        x: (window.innerWidth - mobileWidth) / 2,
+        y: 40
+      });
+    }
+  }, [isMobile, isMaximized, initialSize.width, initialSize.height]);
 
   const handleMinimize = () => {
     onMinimize?.(id);
@@ -154,7 +169,7 @@ export const Window: React.FC<WindowProps> = ({
       <div className="window-body">
         {children}
       </div>
-      {!isMaximized && <div className="window-resize-handle" onMouseDown={handleResizeMouseDown} />}
+      {!isMaximized && !isMobile && <div className="window-resize-handle" onMouseDown={handleResizeMouseDown} />}
     </WindowProvider>
   );
 
@@ -178,19 +193,20 @@ export const Window: React.FC<WindowProps> = ({
   }
 
   return (
-    <div 
+    <div
       className={`window ${isActive ? 'active' : ''}`}
       style={{
         position: 'absolute',
-        width: size.width,
-        height: size.height,
+        width: isMobile ? 'calc(100% - 16px)' : size.width,
+        height: isMobile ? 'auto' : size.height,
+        maxHeight: isMobile ? 'calc(100% - 60px)' : undefined,
         zIndex,
-        left: position.x,
-        top: position.y,
-        cursor: isDragging ? 'move' : 'default',
+        left: isMobile ? '8px' : position.x,
+        top: isMobile ? '40px' : position.y,
+        cursor: isDragging && !isMobile ? 'move' : 'default',
         userSelect: isDragging || isResizing ? 'none' : 'auto'
       }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={isMobile ? undefined : handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
