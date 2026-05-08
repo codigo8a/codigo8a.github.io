@@ -13,6 +13,18 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
+}
+
+.settings-section {
+  border: 2px groove #ffffff;
+  padding: 12px;
+  margin: 0;
+}
+
+.settings-section legend {
+  font-weight: bold;
+  padding: 0 8px;
 }
 
 .settings-language-row {
@@ -23,12 +35,61 @@
 
 .settings-language-label {
   font-weight: bold;
-  min-width: 80px;
+  min-width: 100px;
 }
 
 .settings-language-select {
   width: 100%;
   min-width: 120px;
+}
+
+.settings-wallpaper-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-wallpaper-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.settings-wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.settings-wallpaper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.settings-wallpaper-item:hover {
+  background: #e0e0e0;
+}
+
+.settings-wallpaper-item.selected {
+  border: 2px solid #000080;
+  background: #e0e8ff;
+}
+
+.settings-wallpaper-preview {
+  width: 64px;
+  height: 48px;
+  border: 1px solid #808080;
+  background-size: cover;
+  background-position: center;
+}
+
+.settings-wallpaper-name {
+  font-size: 10px;
+  text-align: center;
 }
 
 .settings-info {
@@ -56,4 +117,9 @@
   font-family: "MS Sans Serif", Arial, sans-serif;
   font-size: 11px;
   min-width: 75px;
+}
+
+.settings-button:active {
+  border: 2px inset #ffffff;
+  box-shadow: none;
 }

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <pattern id="grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#808080"/>
+      <rect x="0" y="0" width="30" height="30" fill="#a0a0a0"/>
+      <rect x="0" y="0" width="30" height="2" fill="#404040"/>
+      <rect x="0" y="0" width="2" height="30" fill="#404040"/>
+      <rect x="30" y="0" width="2" height="32" fill="#c0c0c0"/>
+      <rect x="0" y="30" width="32" height="2" fill="#c0c0c0"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+</svg>

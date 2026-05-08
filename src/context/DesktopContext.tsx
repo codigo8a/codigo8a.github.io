@@ -1,11 +1,31 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { getAppById } from '../apps/apps';
 import { WindowConfig } from '../types';
+import { LOCAL_STORAGE_KEYS } from '../constants';
+
+export type WallpaperId = 'teal' | 'brick' | 'marble' | 'ocean' | 'grid' | 'purple';
+
+export interface WallpaperOption {
+  id: WallpaperId;
+  name: string;
+  path: string;
+}
+
+export const WALLPAPERS: WallpaperOption[] = [
+  { id: 'teal', name: 'Teal', path: '/wallpapers/teal.svg' },
+  { id: 'brick', name: 'Brick', path: '/wallpapers/brick.svg' },
+  { id: 'marble', name: 'Green Marble', path: '/wallpapers/marble.svg' },
+  { id: 'ocean', name: 'Ocean', path: '/wallpapers/ocean.svg' },
+  { id: 'grid', name: 'Gray Grid', path: '/wallpapers/grid.svg' },
+  { id: 'purple', name: 'Purple Stone', path: '/wallpapers/purple.svg' },
+];
 
 interface DesktopContextType {
   windows: WindowConfig[];
   activeWindowId: string | null;
+  wallpaper: WallpaperId;
+  setWallpaper: (wallpaper: WallpaperId) => void;
   handleWindowFocus: (id: string) => void;
   handleMinimize: (id: string) => void;
   handleRestore: (id: string) => void;
@@ -23,6 +43,18 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   const [windows, setWindows] = useState<WindowConfig[]>(initialWindows);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(initialWindows[0]?.id || null);
   const [zIndexCounter, setZIndexCounter] = useState(10);
+  
+  // Load wallpaper from localStorage on mount
+  const [wallpaper, setWallpaperState] = useState<WallpaperId>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
+    return (saved as WallpaperId) || 'teal';
+  });
+
+  // Persist wallpaper to localStorage
+  const setWallpaper = useCallback((newWallpaper: WallpaperId) => {
+    setWallpaperState(newWallpaper);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.WALLPAPER, newWallpaper);
+  }, []);
 
   // Normalizar z-index cuando el contador crece demasiado
   const normalizeZIndexes = useCallback(() => {
@@ -207,6 +239,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   const value = {
     windows,
     activeWindowId,
+    wallpaper,
+    setWallpaper,
     handleWindowFocus,
     handleMinimize,
     handleRestore,

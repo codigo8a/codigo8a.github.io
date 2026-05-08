@@ -3,7 +3,7 @@ import { Window } from './organisms/Window';
 import { TaskBar } from './organisms/TaskBar';
 import { StartMenu } from './organisms/StartMenu';
 import { DesktopIcons } from './DesktopIcons';
-import { useDesktop } from '../context/DesktopContext';
+import { useDesktop, WALLPAPERS } from '../context/DesktopContext';
 import { useStartMenu } from '../hooks/useWindow';
 import { useUrlRouting } from '../hooks/useUrlRouting';
 import { WindowConfig } from '../types';
@@ -12,6 +12,7 @@ export const Desktop: React.FC = () => {
   const {
     windows,
     activeWindowId,
+    wallpaper,
     handleWindowFocus,
     handleMinimize,
     handleRestore,
@@ -31,12 +32,17 @@ export const Desktop: React.FC = () => {
     toggleStart();
   };
 
+  const currentWallpaper = WALLPAPERS.find(w => w.id === wallpaper) || WALLPAPERS[0];
+
   return (
     <div className="desktop" style={{
       width: '100vw',
       height: '100dvh',
       minHeight: '100dvh',
-      background: '#008080',
+      backgroundImage: `url(${currentWallpaper.path})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'repeat',
       overflow: 'hidden',
       position: 'relative'
     }}>

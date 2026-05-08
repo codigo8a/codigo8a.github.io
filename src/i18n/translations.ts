@@ -1,11 +1,12 @@
 import { useLanguage } from '../context/LanguageContext';
 
-type TranslationKeys = 
-  | 'welcome' | 'welcomeTip' | 'nextTip' | 'whatsNew' | 'onlineRegistration' 
-  | 'close' | 'showWelcomeScreen' | 'settings' | 'language' | 'selectLanguage' 
-  | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder' 
-  | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type' 
-  | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders';
+type TranslationKeys =
+  | 'welcome' | 'welcomeTip' | 'nextTip' | 'whatsNew' | 'onlineRegistration'
+  | 'close' | 'showWelcomeScreen' | 'settings' | 'language' | 'selectLanguage'
+  | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder'
+  | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
+  | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
+  | 'desktop' | 'wallpaper';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -143,6 +144,14 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   treeView: {
     es: "Vista de Árbol",
     en: "Tree View"
+  },
+  desktop: {
+    es: "Escritorio",
+    en: "Desktop"
+  },
+  wallpaper: {
+    es: "Fondo de escritorio",
+    en: "Wallpaper"
   }
 };
 

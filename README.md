@@ -94,7 +94,7 @@ npm run deploy # Despliegue a GitHub Pages
 | **FileExplorer** | Explorador con vista Tabla (ordenada por fecha) y vista Árbol | 600x350 | ✅ Sí |
 | **FileViewer** | Visor markdown con tabs Preview/Source | 1000x800 | ❌ No (por archivo) |
 | **Search** | Buscador por nombre y contenido de archivos | 500x350 | ✅ Sí |
-| **Settings** | Configuración de idioma con persistencia | 350x250 | ✅ Sí |
+| **Settings** | Configuración de idioma y wallpaper con persistencia | 400x420 | ✅ Sí |
 
 ## Características Principales
 
@@ -116,7 +116,7 @@ npm run deploy # Despliegue a GitHub Pages
 - Idiomas: Español e Inglés
 - Hook `useTranslation()` para todas las apps
 - Persistencia en localStorage
-- ~40 claves de traducción
+- ~42 claves de traducción
 
 ### Explorador de Archivos
 - **Vista Tabla**: Lista todos los archivos ordenados por fecha
@@ -131,6 +131,12 @@ npm run deploy # Despliegue a GitHub Pages
 - Lista de ventanas abiertas
 - Reloj en tiempo real (actualiza cada segundo)
 - Indicador de ventana activa
+
+### Wallpapers
+- 6 fondos de escritorio estilo Windows 98
+- Selector visual en Settings con previsualización
+- Persistencia en localStorage
+- Opciones: Teal, Brick, Green Marble, Ocean, Gray Grid, Purple Stone
 
 ## Patrones de Arquitectura
 
@@ -283,6 +289,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - **Hooks**: 6 personalizados
 - **Contextos**: 3
 - **Archivos markdown**: ~70
+- **Wallpapers**: 6
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
 
@@ -297,6 +304,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional
 - ✅ Iconos de escritorio
+- ✅ Wallpapers cambiables (6 opciones)
 - ✅ Responsive
 - ✅ ErrorBoundary
 - ✅ CI/CD automático
