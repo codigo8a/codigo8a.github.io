@@ -154,7 +154,7 @@ npm run deploy # Despliegue a GitHub Pages
 - Parpadeo de ojos cada 4 segundos
 - Se puede desactivar en Settings
 - **Icono en la TaskBar** cuando está cerrado - clic para reabrir
-- Oculto en móviles (< 768px)
+- Funciona en móviles con tamaño reducido
 - Persistencia en localStorage
 
 ## Patrones de Arquitectura

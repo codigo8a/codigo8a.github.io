@@ -178,25 +178,26 @@ export const WelcomeApp: React.FC = () => {
 
         {/* Column 2: Buttons */}
         <div className="welcome-buttons" style={{
-          width: isMobile ? '100%' : '140px',
+          width: isMobile ? '100%' : '200px',
           display: 'flex',
           flexDirection: isMobile ? 'row' : 'column',
           flexWrap: isMobile ? 'wrap' : undefined,
-          gap: isMobile ? '8px' : '10px',
+          gap: isMobile ? '8px' : '6px',
           alignItems: isMobile ? 'stretch' : undefined
         }}>
           <button
             onClick={handleNextTip}
             style={{
-              padding: isMobile ? '10px 16px' : '6px 12px',
+              padding: isMobile ? '10px 16px' : '4px 8px',
               background: '#c0c0c0',
               border: '2px outset #ffffff',
               boxShadow: '1px 1px 0px #000',
               cursor: 'pointer',
               textAlign: 'left',
               width: isMobile ? 'calc(50% - 4px)' : '100%',
-              fontSize: isMobile ? '12px' : '11px',
-              minHeight: isMobile ? '44px' : undefined
+              fontSize: isMobile ? '12px' : '10px',
+              minHeight: isMobile ? '44px' : undefined,
+              whiteSpace: 'nowrap'
             }}
           >
             {t('nextTip')}
@@ -204,15 +205,16 @@ export const WelcomeApp: React.FC = () => {
           <button
             onClick={handleWhatsNew}
             style={{
-              padding: isMobile ? '10px 16px' : '6px 12px',
+              padding: isMobile ? '10px 16px' : '4px 8px',
               background: '#c0c0c0',
               border: '2px outset #ffffff',
               boxShadow: '1px 1px 0px #000',
               cursor: 'pointer',
               textAlign: 'left',
               width: isMobile ? 'calc(50% - 4px)' : '100%',
-              fontSize: isMobile ? '12px' : '11px',
-              minHeight: isMobile ? '44px' : undefined
+              fontSize: isMobile ? '12px' : '10px',
+              minHeight: isMobile ? '44px' : undefined,
+              whiteSpace: 'nowrap'
             }}
           >
             {t('whatsNew')}
@@ -220,16 +222,17 @@ export const WelcomeApp: React.FC = () => {
           <button
             disabled
             style={{
-              padding: isMobile ? '10px 16px' : '6px 12px',
+              padding: isMobile ? '10px 16px' : '4px 8px',
               background: '#c0c0c0',
               border: '2px outset #ffffff',
               boxShadow: '1px 1px 0px #000',
               cursor: 'not-allowed',
               textAlign: 'left',
               width: isMobile ? 'calc(50% - 4px)' : '100%',
-              fontSize: isMobile ? '12px' : '11px',
+              fontSize: isMobile ? '12px' : '10px',
               minHeight: isMobile ? '44px' : undefined,
-              opacity: '0.6'
+              opacity: '0.6',
+              whiteSpace: 'nowrap'
             }}
           >
             {t('onlineRegistration')}
@@ -237,16 +240,17 @@ export const WelcomeApp: React.FC = () => {
           <button
             onClick={handleClose}
             style={{
-              padding: isMobile ? '10px 16px' : '6px 12px',
+              padding: isMobile ? '10px 16px' : '4px 8px',
               background: '#c0c0c0',
               border: '2px outset #ffffff',
               boxShadow: '1px 1px 0px #000',
               cursor: 'pointer',
               textAlign: 'left',
               width: isMobile ? 'calc(50% - 4px)' : '100%',
-              marginTop: isMobile ? '0' : '10px',
-              fontSize: isMobile ? '12px' : '11px',
-              minHeight: isMobile ? '44px' : undefined
+              marginTop: isMobile ? '0' : '6px',
+              fontSize: isMobile ? '12px' : '10px',
+              minHeight: isMobile ? '44px' : undefined,
+              whiteSpace: 'nowrap'
             }}
           >
             {t('close')}

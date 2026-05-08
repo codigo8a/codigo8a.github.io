@@ -89,22 +89,20 @@ export const TaskBar: React.FC<TaskBarProps> = ({
       }} />
 
       {!clippyEnabled && onClippyClick && (
-        <button
-          className="clippy-taskbar-icon"
+        <div
           onClick={onClippyClick}
           title="Show Clippy"
           style={{
-            marginLeft: '8px',
-            padding: '2px',
-            background: '#c0c0c0',
-            border: '2px outset #fff',
+            marginLeft: '4px',
+            width: '18px',
+            height: '22px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+          <svg width="16" height="20" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="clipGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#e8e8e8" />
@@ -123,7 +121,7 @@ export const TaskBar: React.FC<TaskBarProps> = ({
             <ellipse cx="57" cy="50" rx="4" ry="6" fill="#fff" stroke="#666" strokeWidth="1" />
             <ellipse cx="58" cy="50" rx="1.5" ry="2.5" fill="#000" />
           </svg>
-        </button>
+        </div>
       )}
 
       <div style={{ marginLeft: '8px', fontSize: '12px' }}>
