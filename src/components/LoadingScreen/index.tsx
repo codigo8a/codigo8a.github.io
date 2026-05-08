@@ -9,17 +9,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate loading progress
+    // Simulate loading progress - faster experience
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(onLoadingComplete, 500);
+          setTimeout(onLoadingComplete, 300);
           return 100;
         }
-        return prev + Math.random() * 15;
+        return prev + (10 + Math.random() * 10);
       });
-    }, 200);
+    }, 150);
 
     return () => clearInterval(interval);
   }, [onLoadingComplete]);
