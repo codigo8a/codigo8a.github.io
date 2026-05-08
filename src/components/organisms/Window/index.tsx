@@ -199,11 +199,12 @@ export const Window: React.FC<WindowProps> = ({
   if (effectiveMaximized) {
     return (
       <div 
-        className={`window ${isActive ? 'active' : ''}`}
+        className={`window ${isActive ? 'active' : ''} window-maximized`}
         style={{
-          position: 'absolute',
+          position: 'fixed',
           width: '100%',
-          height: 'calc(100% - 30px)',
+          height: '100dvh',
+          maxHeight: 'calc(100dvh - 30px)',
           zIndex,
           left: '0px',
           top: '30px',

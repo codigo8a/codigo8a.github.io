@@ -34,7 +34,8 @@ export const Desktop: React.FC = () => {
   return (
     <div className="desktop" style={{
       width: '100vw',
-      height: '100vh',
+      height: '100dvh',
+      minHeight: '100dvh',
       background: '#008080',
       overflow: 'hidden',
       position: 'relative'
