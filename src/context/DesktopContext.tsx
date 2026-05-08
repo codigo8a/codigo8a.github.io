@@ -93,32 +93,56 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   }, [bringToFront]);
 
   const handleMinimize = useCallback((id: string) => {
-    setWindows(prev => prev.map(win => 
-      win.id === id ? { ...win, isMinimized: true } : win
+    // Start minimize animation
+    setWindows(prev => prev.map(win =>
+      win.id === id ? { ...win, animationState: 'minimizing' as const } : win
     ));
-    const visibleWindows = windows.filter(w => !w.isMinimized && w.id !== id);
-    if (visibleWindows.length > 0) {
-      setActiveWindowId(visibleWindows[0].id);
-    }
+
+    // After animation completes, actually minimize
+    setTimeout(() => {
+      setWindows(prev => prev.map(win =>
+        win.id === id ? { ...win, isMinimized: true, animationState: null } : win
+      ));
+      const visibleWindows = windows.filter(w => !w.isMinimized && w.id !== id);
+      if (visibleWindows.length > 0) {
+        setActiveWindowId(visibleWindows[0].id);
+      }
+    }, 200);
   }, [windows]);
 
   const handleRestore = useCallback((id: string) => {
     bringToFront(id);
-    
-    setWindows(prev => prev.map(win => 
-      win.id === id ? { ...win, isMinimized: false, isActive: true } : { ...win, isActive: false }
+
+    // Start restoring animation
+    setWindows(prev => prev.map(win =>
+      win.id === id ? { ...win, isMinimized: false, animationState: 'restoring' as const } : { ...win, isActive: false }
     ));
     setActiveWindowId(id);
+
+    // Clear animation state after it completes
+    setTimeout(() => {
+      setWindows(prev => prev.map(win =>
+        win.id === id ? { ...win, animationState: null, isActive: true } : win
+      ));
+    }, 200);
   }, [bringToFront]);
 
   const handleClose = useCallback((id: string) => {
-    setWindows(prev => {
-      const remaining = prev.filter(win => win.id !== id);
-      if (remaining.length > 0) {
-        setActiveWindowId(remaining[remaining.length - 1].id);
-      }
-      return remaining;
-    });
+    // Start closing animation
+    setWindows(prev => prev.map(win =>
+      win.id === id ? { ...win, animationState: 'closing' as const } : win
+    ));
+
+    // After animation completes, actually remove
+    setTimeout(() => {
+      setWindows(prev => {
+        const remaining = prev.filter(win => win.id !== id);
+        if (remaining.length > 0) {
+          setActiveWindowId(remaining[remaining.length - 1].id);
+        }
+        return remaining;
+      });
+    }, 150);
   }, []);
 
   const handleMaximize = useCallback((id: string) => {
@@ -189,10 +213,18 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       centered: windowConfig.centered || false,
       zIndex: newZIndex,
       content: windowConfig.content,
-      windowKey: windowConfig.windowKey
+      windowKey: windowConfig.windowKey,
+      animationState: 'opening'
     };
     setWindows(prev => [...prev, newWindow]);
     setActiveWindowId(newWindow.id);
+
+    // Clear opening animation after it completes
+    setTimeout(() => {
+      setWindows(prev => prev.map(win =>
+        win.id === newWindow.id ? { ...win, animationState: null } : win
+      ));
+    }, 200);
   }, [zIndexCounter, windows.length]);
 
   const openApp = useCallback((appId: string, appData: any = null) => {

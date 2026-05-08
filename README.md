@@ -105,6 +105,7 @@ npm run deploy # Despliegue a GitHub Pages
 - **Z-index dinámico**: Ventana activa siempre al frente
 - **Prevención de duplicados**: Por archivo con `windowKey`
 - **Responsive**: En móviles se maximizan automáticamente
+- **Animaciones**: Abrir, cerrar, minimizar y restaurar con transiciones suaves
 
 ### Enrutamiento por URL
 - Soporte para rutas tipo `/folder/file`
@@ -292,6 +293,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - **Wallpapers**: 6
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
+- **Animaciones**: 4 tipos (abrir, cerrar, minimizar, restaurar)
 
 ## Estado Actual
 
@@ -305,6 +307,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Menú Start funcional
 - ✅ Iconos de escritorio
 - ✅ Wallpapers cambiables (6 opciones)
+- ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ Responsive
 - ✅ ErrorBoundary
 - ✅ CI/CD automático

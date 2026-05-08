@@ -7,19 +7,20 @@ export interface File {
 }
 
 export interface WindowConfig {
-  appId: string;
   id: string;
+  appId: string;
   title: string;
+  content: React.ReactNode;
   isMinimized: boolean;
-  isActive: boolean;
   isMaximized: boolean;
-  currentPosition: { x: number; y: number } | null;
+  isActive: boolean;
   initialPosition: { x: number; y: number };
   initialSize: { width: number; height: number };
+  currentPosition: { x: number; y: number } | null;
   centered: boolean;
   zIndex: number;
-  content: React.ReactNode;
   windowKey?: string;
+  animationState?: 'opening' | 'closing' | 'minimizing' | 'restoring' | null;
 }
 
 export interface AppDefinition {

@@ -16,6 +16,7 @@ interface WindowProps {
   zIndex?: number;
   isMaximized?: boolean;
   currentPosition?: { x: number; y: number } | null;
+  animationState?: 'opening' | 'closing' | 'minimizing' | 'restoring' | null;
   onFocus?: (id: string) => void;
   onMinimize?: (id: string) => void;
   onMaximize?: (id: string) => void;
@@ -24,10 +25,10 @@ interface WindowProps {
   onResize?: (id: string, size: { width: number; height: number }) => void;
 }
 
-export const Window: React.FC<WindowProps> = ({ 
-  id, 
-  title, 
-  children, 
+export const Window: React.FC<WindowProps> = ({
+  id,
+  title,
+  children,
   initialPosition = { x: 50, y: 50 },
   initialSize = { width: 400, height: 300 },
   isActive = false,
@@ -36,6 +37,7 @@ export const Window: React.FC<WindowProps> = ({
   zIndex = 10,
   isMaximized = false,
   currentPosition = null,
+  animationState = null,
   onFocus,
   onMinimize,
   onMaximize,
@@ -196,10 +198,18 @@ export const Window: React.FC<WindowProps> = ({
     </WindowProvider>
   );
 
+  const getAnimationClass = () => {
+    if (animationState === 'opening') return 'window-opening';
+    if (animationState === 'closing') return 'window-closing';
+    if (animationState === 'minimizing') return 'window-minimizing';
+    if (animationState === 'restoring') return 'window-restoring';
+    return '';
+  };
+
   if (effectiveMaximized) {
     return (
-      <div 
-        className={`window ${isActive ? 'active' : ''} window-maximized`}
+      <div
+        className={`window ${isActive ? 'active' : ''} window-maximized ${getAnimationClass()}`}
         style={{
           position: 'fixed',
           width: '100%',
@@ -218,7 +228,7 @@ export const Window: React.FC<WindowProps> = ({
 
   return (
     <div
-      className={`window ${isActive ? 'active' : ''}`}
+      className={`window ${isActive ? 'active' : ''} ${getAnimationClass()}`}
       style={{
         position: 'absolute',
         width: size.width,

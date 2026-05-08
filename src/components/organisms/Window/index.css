@@ -4,6 +4,72 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transform-origin: center center;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+/* Opening animation - scale up from 0.95 with fade */
+.window-opening {
+  animation: window-open 0.2s ease-out forwards;
+}
+
+@keyframes window-open {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Closing animation - fade out and scale down */
+.window-closing {
+  animation: window-close 0.15s ease-in forwards;
+}
+
+@keyframes window-close {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Minimizing animation - shrink and fade */
+.window-minimizing {
+  animation: window-minimize 0.2s ease-in forwards;
+}
+
+@keyframes window-minimize {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+}
+
+/* Restoring animation - grow from minimized */
+.window-restoring {
+  animation: window-restore 0.2s ease-out forwards;
+}
+
+@keyframes window-restore {
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .window-body {

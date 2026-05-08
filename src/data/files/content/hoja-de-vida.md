@@ -11,7 +11,7 @@ Experto en Sistematización de Procesos en la Nube (Test-driven development (TDD
 
 ### Full Stack Developer en Sophos Solutions S.A.S.
 2021 – Presente<br>
-<b>Clientes:</b> Tuya, Sistecredito, Comfama, Bolsa de Valores de Colombia<br>
+<b>Clientes:</b> Bancolombia, Tuya, Sistecredito, Comfama, Bolsa de Valores de Colombia<br>
 (Flutter, .Net Core, React, Next, Swagger)
 <hr/>
 

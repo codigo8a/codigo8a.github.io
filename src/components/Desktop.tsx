@@ -77,6 +77,7 @@ export const Desktop: React.FC = () => {
           zIndex={win.zIndex}
           isMaximized={win.isMaximized}
           currentPosition={win.currentPosition}
+          animationState={win.animationState}
           onFocus={handleWindowFocus}
           onMinimize={handleMinimize}
           onMaximize={handleMaximize}
