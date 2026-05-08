@@ -10,9 +10,10 @@ export const COLORS = {
 
 export const Z_INDEX = {
   DESKTOP: 1,
+  CLIPPY: 5,
+  WINDOW_BASE: 10,
   TASKBAR: 1000,
-  START_MENU: 1100,
-  WINDOW_BASE: 10
+  START_MENU: 1100
 };
 
 export const WINDOW_DEFAULTS = {

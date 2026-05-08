@@ -2,7 +2,7 @@
   position: fixed;
   bottom: 40px;
   right: 20px;
-  z-index: 1200;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -127,7 +127,7 @@
   .clippy-container {
     bottom: 80px;
     right: 10px;
-    z-index: 2000;
+    z-index: 5;
   }
 
   .clippy-character {

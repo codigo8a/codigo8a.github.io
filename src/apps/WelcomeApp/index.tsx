@@ -83,7 +83,7 @@ export const WelcomeApp: React.FC = () => {
         <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Contact Info</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <a href="mailto:juandavid8a@gmail.com" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📧 juandavid8a@gmail.com</a>
-          <a href="tel:+573052370311" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📞 (+57) 3052370311</a>
+          <a href="https://wa.me/573052370311" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>💬 WhatsApp (+57) 3052370311</a>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Medellín - Colombia</div>
         </div>
       </div>,
@@ -107,7 +107,7 @@ export const WelcomeApp: React.FC = () => {
         <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Datos de contacto</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <a href="mailto:juandavid8a@gmail.com" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📧 juandavid8a@gmail.com</a>
-          <a href="tel:+573052370311" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📞 (+57) 3052370311</a>
+          <a href="https://wa.me/573052370311" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>💬 WhatsApp (+57) 3052370311</a>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Medellín - Colombia</div>
         </div>
       </div>,

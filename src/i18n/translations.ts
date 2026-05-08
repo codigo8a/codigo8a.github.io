@@ -7,7 +7,7 @@ type TranslationKeys =
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
-  | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown';
+  | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -197,6 +197,10 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   shutDown: {
     es: "Apagar",
     en: "Shut Down"
+  },
+  openWindows: {
+    es: "Ventanas abiertas",
+    en: "Open windows"
   }
 };
 
