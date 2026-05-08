@@ -34,6 +34,7 @@ interface DesktopContextType {
   handleClose: (id: string) => void;
   handleMaximize: (id: string) => void;
   handleWindowMove: (id: string, position: { x: number; y: number }) => void;
+  handleWindowResize: (id: string, size: { width: number; height: number }) => void;
   addWindow: (windowConfig: Partial<WindowConfig> & { appId: string; content: ReactNode }) => void;
   openApp: (appId: string, appData?: any) => void;
   isWindowOpen: (appId: string) => boolean;
@@ -68,6 +69,41 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   const setClippyEnabled = useCallback((enabled: boolean) => {
     setClippyEnabledState(enabled);
     localStorage.setItem(LOCAL_STORAGE_KEYS.CLIPPY_ENABLED, String(enabled));
+  }, []);
+
+  // Guardar estado de ventana (posición y tamaño) en localStorage
+  const saveWindowState = useCallback((appId: string, position: { x: number; y: number }, size: { width: number; height: number }) => {
+    try {
+      const savedStates = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.WINDOW_STATES) || '{}');
+      savedStates[appId] = { position, size, timestamp: Date.now() };
+      localStorage.setItem(LOCAL_STORAGE_KEYS.WINDOW_STATES, JSON.stringify(savedStates));
+    } catch (e) {
+      console.error('Error saving window state:', e);
+    }
+  }, []);
+
+  // Cargar estado de ventana desde localStorage
+  const loadWindowState = useCallback((appId: string) => {
+    try {
+      const savedStates = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.WINDOW_STATES) || '{}');
+      const state = savedStates[appId];
+      if (state) {
+        // Verificar que la posición esté dentro de la pantalla visible
+        const maxWidth = window.innerWidth;
+        const maxHeight = window.innerHeight - 30; // taskbar
+        
+        const x = Math.max(0, Math.min(state.position.x, maxWidth - 100));
+        const y = Math.max(30, Math.min(state.position.y, maxHeight - 100));
+        
+        return {
+          position: { x, y },
+          size: state.size
+        };
+      }
+    } catch (e) {
+      console.error('Error loading window state:', e);
+    }
+    return null;
   }, []);
 
   // Normalizar z-index cuando el contador crece demasiado
@@ -179,10 +215,30 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   }, [zIndexCounter]);
 
   const handleWindowMove = useCallback((id: string, position: { x: number; y: number }) => {
-    setWindows(prev => prev.map(win => 
-      win.id === id ? { ...win, currentPosition: position } : win
-    ));
-  }, []);
+    setWindows(prev => {
+      const win = prev.find(w => w.id === id);
+      if (win) {
+        // Guardar estado de posición
+        saveWindowState(win.appId, position, win.initialSize);
+      }
+      return prev.map(w =>
+        w.id === id ? { ...w, currentPosition: position } : w
+      );
+    });
+  }, [saveWindowState]);
+
+  const handleWindowResize = useCallback((id: string, size: { width: number; height: number }) => {
+    setWindows(prev => {
+      const win = prev.find(w => w.id === id);
+      if (win && win.currentPosition) {
+        // Guardar estado de tamaño
+        saveWindowState(win.appId, win.currentPosition, size);
+      }
+      return prev.map(w =>
+        w.id === id ? { ...w, initialSize: size } : w
+      );
+    });
+  }, [saveWindowState]);
 
   const addWindow = useCallback((windowConfig: Partial<WindowConfig> & { appId: string; content: ReactNode }) => {
     const newZIndex = zIndexCounter + 1;
@@ -267,16 +323,21 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       setActiveWindowId(existingWindow.id);
     } else {
       const AppComponent = app.component;
+      
+      // Cargar estado guardado si existe
+      const savedState = loadWindowState(app.id);
+      
       addWindow({
         appId: app.id,
         windowKey: windowKey,
         title: appData?.title || app.title,
-        initialSize: app.defaultSize,
-        centered: app.centered,
+        initialSize: savedState?.size || app.defaultSize,
+        initialPosition: savedState?.position,
+        centered: savedState ? false : app.centered, // Si hay estado guardado, no centrar
         content: <AppComponent file={appData?.file} />
       });
     }
-  }, [windows, zIndexCounter, addWindow]);
+  }, [windows, zIndexCounter, addWindow, loadWindowState]);
 
   const isWindowOpen = useCallback((appId: string) => {
     return windows.some(w => w.appId === appId);
@@ -295,6 +356,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     handleClose,
     handleMaximize,
     handleWindowMove,
+    handleWindowResize,
     addWindow,
     openApp,
     isWindowOpen

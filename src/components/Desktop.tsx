@@ -22,6 +22,7 @@ export const Desktop: React.FC = () => {
     handleClose,
     handleMaximize,
     handleWindowMove,
+    handleWindowResize,
     openApp
   } = useDesktop();
 
@@ -88,6 +89,7 @@ export const Desktop: React.FC = () => {
           onMaximize={handleMaximize}
           onClose={handleClose}
           onMove={handleWindowMove}
+          onResize={handleWindowResize}
         >
           {win.content}
         </Window>

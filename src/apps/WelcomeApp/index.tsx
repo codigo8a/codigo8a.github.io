@@ -218,16 +218,18 @@ export const WelcomeApp: React.FC = () => {
             {t('whatsNew')}
           </button>
           <button
+            disabled
             style={{
               padding: isMobile ? '10px 16px' : '6px 12px',
               background: '#c0c0c0',
               border: '2px outset #ffffff',
               boxShadow: '1px 1px 0px #000',
-              cursor: 'pointer',
+              cursor: 'not-allowed',
               textAlign: 'left',
               width: isMobile ? 'calc(50% - 4px)' : '100%',
               fontSize: isMobile ? '12px' : '11px',
-              minHeight: isMobile ? '44px' : undefined
+              minHeight: isMobile ? '44px' : undefined,
+              opacity: '0.6'
             }}
           >
             {t('onlineRegistration')}

@@ -106,6 +106,7 @@ npm run deploy # Despliegue a GitHub Pages
 - **Prevención de duplicados**: Por archivo con `windowKey`
 - **Responsive**: En móviles se maximizan automáticamente
 - **Animaciones**: Abrir, cerrar, minimizar y restaurar con transiciones suaves
+- **Persistencia de posición**: Las ventanas recuerdan su posición y tamaño al cerrarse y reabrirse
 
 ### Enrutamiento por URL
 - Soporte para rutas tipo `/folder/file`
@@ -311,6 +312,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
 - **Animaciones**: 4 tipos (abrir, cerrar, minimizar, restaurar)
+- **Persistencia**: Posición y tamaño de ventanas guardados en localStorage
 
 ## Estado Actual
 
@@ -325,6 +327,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Iconos de escritorio
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
+- ✅ Persistencia de posición y tamaño de ventanas
 - ✅ Clippy - Asistente virtual con tips interactivos
 - ✅ Responsive
 - ✅ ErrorBoundary
