@@ -49,13 +49,15 @@ export const Desktop: React.FC = () => {
       overflow: 'hidden',
       position: 'relative'
     }}>
-      <TaskBar 
+      <TaskBar
         windows={windows}
         activeWindowId={activeWindowId}
         onWindowClick={handleWindowFocus}
         onRestore={handleRestore}
         isStartOpen={isStartOpen}
         onStartClick={handleStartClick}
+        clippyEnabled={clippyEnabled}
+        onClippyClick={() => setClippyEnabled(true)}
       />
       
       <DesktopIcons />

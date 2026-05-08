@@ -53,7 +53,7 @@ export const APPS: Record<string, AppDefinition> = {
     title: 'Settings',
     icon: '⚙️',
     component: SettingsApp,
-    defaultSize: { width: 400, height: 420 },
+    defaultSize: { width: 450, height: 480 },
     centered: true
   }
 };

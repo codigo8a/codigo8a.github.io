@@ -7,6 +7,24 @@
   font-size: 11px;
 }
 
+/* Tabs - 98.css ya los estiliza, solo necesitamos ajustes menores */
+.settings-tablist {
+  margin: 0;
+  padding: 6px 4px 0 4px;
+}
+
+.settings-tab-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .settings-content {
   padding: 16px;
   flex: 1;
@@ -28,19 +46,15 @@
 }
 
 .settings-language-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  padding: 8px 0;
 }
 
-.settings-language-label {
-  font-weight: bold;
-  min-width: 100px;
+.settings-language-row .field-row {
+  margin-bottom: 8px;
 }
 
-.settings-language-select {
-  width: 100%;
-  min-width: 120px;
+.settings-language-row .field-row:last-child {
+  margin-bottom: 0;
 }
 
 .settings-wallpaper-section {
@@ -125,22 +139,15 @@
 }
 
 .settings-clippy-row {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid #808080;
+  padding: 8px 0;
 }
 
-.settings-clippy-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 11px;
+.settings-clippy-row .field-row {
+  margin-bottom: 8px;
 }
 
-.settings-checkbox {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  cursor: pointer;
+.settings-clippy-row .field-row:last-child {
+  margin-bottom: 0;
 }
+
+

@@ -6,7 +6,7 @@ type TranslationKeys =
   | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder'
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
-  | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy';
+  | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -154,12 +154,24 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
     en: "Wallpaper"
   },
   clippy: {
-    es: "Asistente",
-    en: "Assistant"
+    es: "Clippy",
+    en: "Clippy"
   },
   showClippy: {
     es: "Mostrar asistente (Clippy)",
     en: "Show assistant (Clippy)"
+  },
+  general: {
+    es: "General",
+    en: "General"
+  },
+  enable: {
+    es: "Activar",
+    en: "Enable"
+  },
+  disable: {
+    es: "Desactivar",
+    en: "Disable"
   }
 };
 

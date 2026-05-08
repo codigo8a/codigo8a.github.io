@@ -94,7 +94,7 @@ npm run deploy # Despliegue a GitHub Pages
 | **FileExplorer** | Explorador con vista Tabla (ordenada por fecha) y vista Árbol | 600x350 | ✅ Sí |
 | **FileViewer** | Visor markdown con tabs Preview/Source | 1000x800 | ❌ No (por archivo) |
 | **Search** | Buscador por nombre y contenido de archivos | 500x350 | ✅ Sí |
-| **Settings** | Configuración de idioma y wallpaper con persistencia | 400x420 | ✅ Sí |
+| **Settings** | Configuración con tabs: General (idioma, Clippy) y Desktop (wallpapers) | 450x480 | ✅ Sí |
 
 ## Características Principales
 
@@ -133,6 +133,11 @@ npm run deploy # Despliegue a GitHub Pages
 - Reloj en tiempo real (actualiza cada segundo)
 - Indicador de ventana activa
 
+### Settings con Tabs
+- **Tab General**: Idioma (ES/EN) + Clippy (activar/desactivar)
+- **Tab Desktop**: Selector de wallpapers con previsualización
+- Interfaz tipo Windows 98 con tabs
+
 ### Wallpapers
 - 6 fondos de escritorio estilo Windows 98
 - Selector visual en Settings con previsualización
@@ -146,6 +151,7 @@ npm run deploy # Despliegue a GitHub Pages
 - Botones "Siguiente Tip" y "Cerrar"
 - Parpadeo de ojos cada 4 segundos
 - Se puede desactivar en Settings
+- **Icono en la TaskBar** cuando está cerrado - clic para reabrir
 - Oculto en móviles (< 768px)
 - Persistencia en localStorage
 
