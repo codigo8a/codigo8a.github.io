@@ -4,6 +4,7 @@ import { FileExplorerApp } from './FileExplorerApp';
 import { FileViewerApp } from './FileViewerApp';
 import { SearchApp } from './SearchApp';
 import { SettingsApp } from './SettingsApp';
+import { NetscapeApp } from './NetscapeApp';
 import { AppDefinition } from '../types';
 
 export const APPS: Record<string, AppDefinition> = {
@@ -54,6 +55,14 @@ export const APPS: Record<string, AppDefinition> = {
     icon: '⚙️',
     component: SettingsApp,
     defaultSize: { width: 450, height: 480 },
+    centered: true
+  },
+  netscape: {
+    id: 'netscape',
+    title: 'Browser',
+    icon: '🌐',
+    component: NetscapeApp,
+    defaultSize: { width: 900, height: 650 },
     centered: true
   }
 };

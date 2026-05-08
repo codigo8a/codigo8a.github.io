@@ -68,6 +68,17 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
           </span>
           {t("documents" as any)}
         </button>
+        <button
+          onClick={() => {
+            onOpenApp("netscape");
+            onClose();
+          }}
+        >
+          <span className="icon" style={{ marginRight: "8px" }}>
+            {APPS.netscape.icon}
+          </span>
+          {APPS.netscape.title}
+        </button>
         <div className="start-menu-divider" />
          <button
           onClick={() => {

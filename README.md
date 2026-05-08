@@ -95,6 +95,7 @@ npm run deploy # Despliegue a GitHub Pages
 | **FileViewer** | Visor markdown con tabs Preview/Source | 1000x800 | ❌ No (por archivo) |
 | **Search** | Buscador por nombre y contenido de archivos | 500x350 | ✅ Sí |
 | **Settings** | Configuración con tabs: General (idioma, Clippy) y Desktop (wallpapers) | 450x480 | ✅ Sí |
+| **Browser** | Navegador web estilo retro | 900x650 | ✅ Sí |
 
 ## Características Principales
 
@@ -302,7 +303,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 
 ## Estadísticas
 
-- **Aplicaciones**: 6
+- **Aplicaciones**: 7
 - **Componentes**: 12 principales
 - **Hooks**: 6 personalizados
 - **Contextos**: 3
@@ -329,6 +330,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ Persistencia de posición y tamaño de ventanas
 - ✅ Clippy - Asistente virtual con tips interactivos
+- ✅ Browser - Navegador web estilo retro con soporte para sitios web
 - ✅ Responsive
 - ✅ ErrorBoundary
 - ✅ CI/CD automático

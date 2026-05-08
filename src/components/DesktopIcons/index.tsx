@@ -11,6 +11,7 @@ interface DesktopIcon {
 const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'myDocuments', icon: '📁', label: 'My Documents' },
   { id: 'find', icon: '🔍', label: 'Find' },
+  { id: 'browser', icon: '🌐', label: 'Browser' },
 ];
 
 export const DesktopIcons: React.FC = () => {
@@ -21,6 +22,8 @@ export const DesktopIcons: React.FC = () => {
       openApp('fileExplorer');
     } else if (iconId === 'find') {
       openApp('search');
+    } else if (iconId === 'browser') {
+      openApp('netscape');
     }
   };
 

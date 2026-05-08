@@ -6,7 +6,8 @@ type TranslationKeys =
   | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder'
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
-  | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable';
+  | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
+  | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -172,6 +173,30 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   disable: {
     es: "Desactivar",
     en: "Disable"
+  },
+  programs: {
+    es: "Programas",
+    en: "Programs"
+  },
+  find: {
+    es: "Buscar",
+    en: "Find"
+  },
+  documents: {
+    es: "Documentos",
+    en: "Documents"
+  },
+  help: {
+    es: "Ayuda",
+    en: "Help"
+  },
+  run: {
+    es: "Ejecutar",
+    en: "Run"
+  },
+  shutDown: {
+    es: "Apagar",
+    en: "Shut Down"
   }
 };
 

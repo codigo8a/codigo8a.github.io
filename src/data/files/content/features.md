@@ -56,13 +56,14 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 - **Clippy Assistant**: Enable or disable the virtual assistant with radio buttons.
 - **Internationalization (i18n)**: App texts, buttons, and menus update dynamically when changing the language.
 
-## 🤖 Clippy - Virtual Assistant
-- **Interactive Help**: Paper clip assistant with 10 useful tips about the portfolio.
-- **Floating Animation**: Gentle up and down movement with eye blinking every 4 seconds.
-- **Speech Bubble**: Classic Windows 98 yellow dialog bubble.
-- **Navigation**: "Next Tip" and "Close" buttons.
-- **Taskbar Integration**: Icon appears on Taskbar when closed for easy reopening.
-- **Mobile Hidden**: Automatically hidden on mobile devices (< 768px).
+## 🌐 Browser
+- **Retro Web Browser**: Web browser styled like classic browsers from the 90s.
+- **Navigation Controls**: Back, Forward, Reload, and Home buttons.
+- **Address Bar**: Enter any URL to navigate.
+- **Smart Loading**: Sites that allow iframes load inside the app; blocked sites show an error with option to open in new tab.
+- **Loading Indicator**: Progress bar shown while pages load.
+- **Status Bar**: Displays connection status and security information.
+- **New Tab Fallback**: When a site cannot be embedded, click "Open in New Tab" to view it in your default browser.
 
 ## 🔗 URL Routing
 - **Deep Linking**: The system can open specific files directly from the URL (e.g., `/youtube/ollama-en-linux`).
