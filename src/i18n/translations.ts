@@ -55,8 +55,8 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
     en: "Close"
   },
   showWelcomeScreen: {
-    es: "Mostrar esta pantalla de bienvenida al iniciar Windows",
-    en: "Show this Welcome Screen next time you start Windows"
+    es: "Mostrar esta pantalla de bienvenida al iniciar el sistema",
+    en: "Show this Welcome Screen next time you start the system"
   },
   settings: {
     es: "Configuración",

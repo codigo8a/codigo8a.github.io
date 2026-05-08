@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from '../../i18n/translations';
 import { useLanguage } from '../../context/LanguageContext';
 import './index.css';
@@ -10,39 +10,80 @@ interface ClippyProps {
 
 const TIPS = {
   es: [
-    "¡Parece que estás explorando mi portfolio! ¿Necesitas ayuda?",
-    "¿Sabías que puedes arrastrar las ventanas?",
-    "Prueba cambiar el wallpaper en Configuración.",
-    "Haz doble clic en los iconos del escritorio para abrir apps.",
-    "Usa el buscador para encontrar archivos rápidamente.",
-    "Las ventanas tienen animaciones al abrirse y cerrarse.",
-    "Puedes cambiar el idioma entre Español e Inglés.",
-    "El Explorador de Archivos tiene vista de tabla y árbol.",
-    "¿Sabías que este portfolio está hecho con React 19?",
-    "Puedes maximizar ventanas haciendo doble clic en la barra de título.",
+    "¡Hola! Soy Clippy, tu asistente virtual. ¿Necesitas ayuda con algo?",
+    "¿Sabías que puedes arrastrar las ventanas por la barra de título?",
+    "Personaliza tu escritorio cambiando el wallpaper en Configuración.",
+    "Haz doble clic en los iconos del escritorio para abrir aplicaciones.",
+    "Usa el buscador (Find) para encontrar archivos por nombre o contenido.",
+    "Las ventanas tienen animaciones suaves al abrirse, cerrarse y minimizarse.",
+    "Cambia el idioma completo entre Español e Inglés desde Configuración.",
+    "El Explorador de Archivos tiene dos vistas: tabla y árbol de carpetas.",
+    "Este portfolio está construido con React 19, TypeScript y Vite.",
+    "Maximiza ventanas haciendo doble clic en la barra de título.",
+    "Las ventanas recuerdan su posición y tamaño cuando las cierras y reabres.",
+    "El Navegador (Browser) te permite visitar sitios web con estilo retro.",
+    "Los documentos se abren en un visor con pestañas de Preview y Código.",
+    "Puedes hacer clic derecho en el escritorio para más opciones (próximamente).",
+    "El menú Start te da acceso rápido a todas las aplicaciones del sistema.",
+    "El reloj en la barra de tareas muestra la hora en tiempo real.",
+    "Prueba diferentes wallpapers: Teal, Brick, Marble, Ocean, Grid y Purple.",
+    "Clippy tiene 20 tips diferentes que aparecen en orden aleatorio.",
+    "Si cierras Clippy, puedes reabrirlo desde Configuración o el icono en la barra.",
+    "Las apps se pueden minimizar, maximizar, redimensionar y cerrar como en Windows 98.",
   ],
   en: [
-    "Looks like you're exploring my portfolio! Need help?",
-    "Did you know you can drag the windows around?",
-    "Try changing the wallpaper in Settings.",
-    "Double-click desktop icons to open apps.",
-    "Use the search to find files quickly.",
-    "Windows have animations when opening and closing.",
-    "You can switch between Spanish and English.",
-    "File Explorer has both table and tree views.",
-    "Did you know this portfolio is built with React 19?",
-    "You can maximize windows by double-clicking the title bar.",
+    "Hi! I'm Clippy, your virtual assistant. Need help with something?",
+    "Did you know you can drag windows around by the title bar?",
+    "Customize your desktop by changing the wallpaper in Settings.",
+    "Double-click desktop icons to open applications.",
+    "Use the search (Find) to locate files by name or content.",
+    "Windows have smooth animations when opening, closing, and minimizing.",
+    "Switch the entire interface between Spanish and English in Settings.",
+    "File Explorer has two views: table and tree folder structure.",
+    "This portfolio is built with React 19, TypeScript, and Vite.",
+    "Maximize windows by double-clicking the title bar.",
+    "Windows remember their position and size when you close and reopen them.",
+    "The Browser app lets you visit websites with a retro style.",
+    "Documents open in a viewer with Preview and Source code tabs.",
+    "Right-click on the desktop for more options (coming soon).",
+    "The Start Menu gives you quick access to all system applications.",
+    "The clock in the taskbar shows real-time updates every second.",
+    "Try different wallpapers: Teal, Brick, Marble, Ocean, Grid, and Purple.",
+    "Clippy has 20 different tips that appear in random order.",
+    "If you close Clippy, you can reopen it from Settings or the taskbar icon.",
+    "Apps can be minimized, maximized, resized, and closed just like Windows 98.",
   ]
+};
+
+// Función para mezclar array (Fisher-Yates shuffle)
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
 };
 
 export const Clippy: React.FC<ClippyProps> = ({ enabled, onClose }) => {
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const [currentTip, setCurrentTip] = useState(0);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [showSpeech, setShowSpeech] = useState(false);
-
-  const tips = TIPS[language as 'es' | 'en'] || TIPS.en;
+  
+  // Guardar el orden aleatorio de tips entre renders
+  const shuffledTipsRef = useRef<string[]>([]);
+  
+  const allTips = TIPS[language as 'es' | 'en'] || TIPS.en;
+  
+  // Inicializar el orden aleatorio solo una vez por sesión
+  if (shuffledTipsRef.current.length === 0) {
+    // El primer tip siempre es el de bienvenida (índice 0)
+    const otherTips = allTips.slice(1);
+    const shuffledOthers = shuffleArray(otherTips);
+    shuffledTipsRef.current = [allTips[0], ...shuffledOthers];
+  }
 
   // Simple effect: show when enabled, hide when disabled
   useEffect(() => {
@@ -59,10 +100,10 @@ export const Clippy: React.FC<ClippyProps> = ({ enabled, onClose }) => {
   const nextTip = useCallback(() => {
     setShowSpeech(false);
     setTimeout(() => {
-      setCurrentTip((prev) => (prev + 1) % tips.length);
+      setCurrentTipIndex((prev) => (prev + 1) % shuffledTipsRef.current.length);
       setShowSpeech(true);
     }, 300);
-  }, [tips.length]);
+  }, []);
 
   const handleClose = () => {
     setShowSpeech(false);
@@ -79,7 +120,7 @@ export const Clippy: React.FC<ClippyProps> = ({ enabled, onClose }) => {
       {/* Speech Bubble */}
       <div className={`clippy-speech-bubble ${showSpeech ? 'show' : ''}`}>
         <div className="clippy-speech-content">
-          <p>{tips[currentTip]}</p>
+          <p>{shuffledTipsRef.current[currentTipIndex]}</p>
           <div className="clippy-actions">
             <button className="clippy-button" onClick={nextTip}>
               {t('nextTip')}

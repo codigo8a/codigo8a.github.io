@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Desktop } from './components/Desktop';
 import { DesktopProvider } from './context/DesktopContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LoadingScreen } from './components/LoadingScreen';
 import { APPS } from './apps/apps';
 import { LOCAL_STORAGE_KEYS } from './constants';
 import { WindowConfig } from './types';
@@ -46,15 +48,24 @@ const getInitialWindows = (): WindowConfig[] => {
 };
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const initialWindows = getInitialWindows();
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
 
   return (
     <ErrorBoundary>
-      <LanguageProvider>
-        <DesktopProvider initialWindows={initialWindows}>
-          <Desktop />
-        </DesktopProvider>
-      </LanguageProvider>
+      {isLoading ? (
+        <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+      ) : (
+        <LanguageProvider>
+          <DesktopProvider initialWindows={initialWindows}>
+            <Desktop />
+          </DesktopProvider>
+        </LanguageProvider>
+      )}
     </ErrorBoundary>
   );
 }

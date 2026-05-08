@@ -1,7 +1,14 @@
-Date: 17/03/2026
+Date: 08/05/2026
 # Project Features
 
 This project is a Windows 95/98 style desktop environment built with React. Below are the main features available to the user:
+
+## 🚀 Loading Screen
+- **Retro Boot Experience**: Authentic Windows 98 loading screen with animated hourglass
+- **Animated Hourglass**: Classic sand animation that rotates and fills
+- **Progress Indicator**: Segmented progress bar with percentage display
+- **Authentic Styling**: Windows 98 teal background with gray dialog box
+- **Smooth Transition**: Fades out gracefully when loading completes
 
 ## 🖥️ Desktop and Window Management
 - **Multitasking**: Open multiple applications simultaneously in independent windows.
@@ -24,11 +31,19 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
   - Purple Stone
 - **Wallpaper Selector**: Visual grid with thumbnails in Settings.
 
+## 🤖 Clippy - Virtual Assistant
+- **Interactive Help**: Paper clip assistant with **20 useful tips** about the portfolio.
+- **Random Order**: Tips appear in random order (except the welcome tip), so you see different information each time.
+- **Floating Animation**: Gentle up and down movement with eye blinking every 4 seconds.
+- **Speech Bubble**: Classic Windows 98 yellow dialog bubble with "Next Tip" and "Close" buttons.
+- **Taskbar Integration**: Simple paper clip icon appears on Taskbar when closed - click to reopen.
+- **Mobile Support**: Fully functional on mobile devices with adjusted sizing.
+- **Disable Option**: Can be turned off in Settings, and re-enabled at any time.
+
 ## 🚀 Start Menu and Taskbar
-- **Start Menu**: Quick access to all installed applications (`Programs`, `Documents`, `Settings`).
+- **Start Menu**: Quick access to all installed applications (`Programs`, `Documents`, `Settings`, `Browser`).
 - **Taskbar**: View open applications, allowing you to switch between them quickly.
 - **System Clock**: Real-time display of the current time in the bottom right corner.
-- **Clippy Icon**: When Clippy is closed, an icon appears on the Taskbar to reopen it.
 
 ## 📂 Document Explorer (Documents)
 - **Folder Navigation**: View the file structure organized by categories (`YouTube`, `Systems`, `Pages`, `Internet`).
@@ -50,10 +65,9 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 
 ## ⚙️ Settings (Settings)
 - **Tabbed Interface**: Organized in two tabs:
-  - **General Tab**: Language and Clippy settings.
-  - **Desktop Tab**: Wallpaper selection.
-- **Language Change**: Switch between **English** and **Spanish** using radio buttons.
-- **Clippy Assistant**: Enable or disable the virtual assistant with radio buttons.
+  - **General Tab**: Language selection (English/Spanish) and Clippy toggle.
+  - **Desktop Tab**: Wallpaper selection with visual thumbnails.
+- **Radio Button Controls**: Settings use authentic Windows 98 radio buttons for selection.
 - **Internationalization (i18n)**: App texts, buttons, and menus update dynamically when changing the language.
 
 ## 🌐 Browser
@@ -74,8 +88,8 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 - **Startup Settings**: Option to decide whether to see the screen when loading the project.
 
 ## 💾 Persistence
-All user preferences are saved to localStorage:
-- Selected language
+All user preferences are automatically saved to localStorage:
+- Selected language (ES/EN)
 - Selected wallpaper
 - Clippy enabled/disabled state
-- Window positions and sizes for each application
+- Window positions and sizes for each application (remembered when reopened)

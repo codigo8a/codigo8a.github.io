@@ -148,7 +148,8 @@ npm run deploy # Despliegue a GitHub Pages
 
 ### Clippy - Asistente Virtual
 - Aparece después de 2 segundos con animación flotante
-- 10 tips sobre el portfolio (arrastrar ventanas, cambiar wallpaper, etc.)
+- **20 tips** sobre el portfolio (navegador, wallpapers, persistencia, etc.)
+- Tips mostrados en **orden aleatorio** (excepto el primero de bienvenida)
 - Burbuja de diálogo estilo Windows 98 (amarilla)
 - Botones "Siguiente Tip" y "Cerrar"
 - Parpadeo de ojos cada 4 segundos
@@ -304,15 +305,15 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 ## Estadísticas
 
 - **Aplicaciones**: 7
-- **Componentes**: 12 principales
+- **Componentes**: 13 principales (incluyendo LoadingScreen)
 - **Hooks**: 6 personalizados
 - **Contextos**: 3
 - **Archivos markdown**: ~70
 - **Wallpapers**: 6
-- **Asistente virtual**: Clippy con 10 tips
+- **Asistente virtual**: Clippy con 20 tips
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
-- **Animaciones**: 4 tipos (abrir, cerrar, minimizar, restaurar)
+- **Animaciones**: 5 tipos (loading, abrir, cerrar, minimizar, restaurar)
 - **Persistencia**: Posición y tamaño de ventanas guardados en localStorage
 
 ## Estado Actual
@@ -328,6 +329,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Iconos de escritorio
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
+- ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98
 - ✅ Persistencia de posición y tamaño de ventanas
 - ✅ Clippy - Asistente virtual con tips interactivos
 - ✅ Browser - Navegador web estilo retro con soporte para sitios web
