@@ -25,5 +25,6 @@ export const WINDOW_DEFAULTS = {
 
 export const LOCAL_STORAGE_KEYS = {
   LANGUAGE: 'language',
-  SHOW_WELCOME: 'show_welcome'
+  SHOW_WELCOME: 'show_welcome',
+  WELCOME_HIDDEN_AT: 'welcome_hidden_at'
 };

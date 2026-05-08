@@ -16,6 +16,14 @@ export const WelcomeApp: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEYS.SHOW_WELCOME, String(showAtStartup));
+    
+    // Si se desmarca el checkbox, guardar el timestamp para el cooldown de 6 horas
+    if (!showAtStartup) {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.WELCOME_HIDDEN_AT, String(Date.now()));
+    } else {
+      // Si se marca de nuevo, limpiar el timestamp
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME_HIDDEN_AT);
+    }
   }, [showAtStartup]);
 
   const [currentTip, setCurrentTip] = useState(0);

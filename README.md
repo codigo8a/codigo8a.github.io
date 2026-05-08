@@ -4,190 +4,300 @@ Entorno de escritorio estilo Windows 98 construido con React. Desplegado en [htt
 
 ## Overview
 
-Entorno de escritorio estilo Windows 98 construido con React. Simula un sistema de ventanas con barra de tareas, menú Start, explorador de archivos, buscador y visor de markdown.
+Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos con doble vista, buscador de contenido y visor de markdown. Construido con React 19, TypeScript y Vite.
 
 ## Despliegue y Dominio
 
-Este proyecto está configurado para desplegarse automáticamente en **GitHub Pages** utilizando **GitHub Actions**.
-
+- **Plataforma**: GitHub Pages
 - **Dominio Personalizado**: `https://juandavid.site`
-- **Configuración de Redirección**: Utiliza un archivo `404.html` generado automáticamente para soportar el enrutamiento de Single Page Application (SPA) en GitHub Pages.
-- **Base URL**: Configurada como `/` en `vite.config.js` para soportar rutas anidadas.
+- **CI/CD**: Despliegue automático mediante GitHub Actions al hacer push a `main`
+- **SPA Support**: Archivo `404.html` generado automáticamente para enrutamiento
 
 ## Tecnologías
 
-- **React 19** - Framework principal
-- **Vite** - Build tool
-- **98.css** - Librería de estilos para Windows 98
-- **react-markdown** - Renderizado de archivos markdown
-- **rehype-raw** - Renderizado de HTML en markdown
+| Tecnología | Versión | Uso |
+|------------|---------|-----|
+| React | ^19.2.4 | Framework principal |
+| TypeScript | ^5.9.3 | Tipado estático |
+| Vite | ^8.0.0 | Build tool y dev server |
+| 98.css | ^0.1.21 | Estilos auténticos Windows 98 |
+| react-markdown | ^10.1.0 | Renderizado de markdown |
+| rehype-raw | ^7.0.0 | Soporte HTML en markdown |
+| ESLint | ^9.39.4 | Linting con plugins React |
 
 ## Estructura del Proyecto
 
 ```
 src/
-├── apps/                         # Aplicaciones del sistema
-│   ├── WelcomeApp/              # Pantalla de bienvenida
-│   ├── SettingsApp/             # Configuración
-│   ├── NotepadApp/             # Bloc de notas
-│   ├── FileExplorerApp/        # Explorador de archivos
-│   ├── FileViewerApp/          # Visor de markdown
-│   ├── SearchApp/              # Buscador de archivos
-│   └── apps.ts                 # Registro de apps
-├── components/                  # Componentes (Diseño Atómico)
-│   ├── molecules/
-│   ├── organisms/
-│   └── DesktopIcons/           # Iconos del escritorio
-├── context/                     # Contextos de React
-│   ├── DesktopContext.tsx
-│   ├── WindowContext.tsx
-│   └── LanguageContext.tsx
-├── hooks/                       # Hooks personalizados
-│   ├── useFileSystem.ts
-│   ├── useWindow.ts
-│   ├── useLanguage.ts
-│   └── useUrlRouting.ts        # Manejo de rutas profundas
-├── i18n/                        # Traducciones
-│   └── translations.ts
-├── data/files/                  # Archivos markdown
-├── public/
-│   ├── CNAME                    # Configuración de dominio personalizado
-│   └── images/                  # Imágenes para archivos markdown
-├── App.tsx
-├── index.css
-└── main.tsx
+├── apps/                          # Aplicaciones del sistema
+│   ├── WelcomeApp/               # Pantalla de bienvenida
+│   ├── NotepadApp/              # Bloc de notas
+│   ├── FileExplorerApp/         # Explorador de archivos
+│   ├── FileViewerApp/           # Visor de markdown
+│   ├── SearchApp/               # Buscador de archivos
+│   ├── SettingsApp/             # Configuración del sistema
+│   └── apps.ts                  # Registro central de apps
+├── components/                    # Componentes (Diseño Atómico)
+│   ├── molecules/               # Componentes simples
+│   │   ├── TitleBar/           # Barra de título
+│   │   └── WindowControls/     # Botones min/max/close
+│   ├── organisms/              # Componentes complejos
+│   │   ├── Window/            # Ventana arrastrable
+│   │   ├── TaskBar/           # Barra de tareas
+│   │   └── StartMenu/         # Menú Start
+│   ├── Desktop.tsx            # Escritorio principal
+│   ├── DesktopIcons/          # Iconos del escritorio
+│   ├── ErrorBoundary.tsx      # Manejo de errores
+│   └── ErrorWindow.tsx        # Ventana de error
+├── context/                      # Contextos de React
+│   ├── DesktopContext.tsx     # Estado global del escritorio
+│   ├── WindowContext.tsx      # Estado local de ventana
+│   └── LanguageContext.tsx    # Estado de idioma
+├── hooks/                        # Hooks personalizados
+│   ├── useFileSystem.ts       # Acceso al sistema de archivos
+│   ├── useWindow.ts           # Lógica de ventana y reloj
+│   ├── useUrlRouting.ts       # Enrutamiento por URL
+│   ├── useMediaQuery.ts       # Media queries responsive
+│   └── useTranslation.ts      # Hook de traducciones
+├── i18n/                        # Internacionalización
+│   └── translations.ts        # Traducciones ES/EN
+├── data/files/                  # Archivos markdown (~70 archivos)
+│   ├── content/                # Contenido principal
+│   ├── youtube/                # ~50 tutoriales
+│   ├── system/                 # Sistemas desarrollados
+│   ├── internet/               # Recursos de internet
+│   └── web/                    # Proyectos web
+├── types/                       # Tipos TypeScript
+├── constants/                   # Constantes del sistema
+├── utils/                       # Utilidades
+├── App.tsx                     # Componente raíz
+└── main.tsx                    # Punto de entrada
 ```
 
-## Características Recientes
-
-- **Enrutamiento por URL**: Soporte para abrir archivos específicos directamente desde la URL (ej: `/folder/file`).
-- **Sistema de Ventanas Mejorado**: Lógica de posicionamiento inteligente que evita el desplazamiento errático al reabrir ventanas.
-- **Escritorio Personalizado**: Iconos de acceso directo a Documentos y Búsqueda.
-- **CI/CD**: Despliegue automático mediante GitHub Actions al hacer push a `main`.
-
-
-## Patrones y Principios
-
-### Diseño Atómico
-
-- **Moléculas**: Composición simple de átomos (TitleBar, WindowControls)
-- **Organismos**: Componentes complejos (Window, TaskBar, StartMenu)
-
-### Responsabilidad Única
-
-- Cada componente tiene una única responsabilidad
-- La lógica de negocio se extrae a hooks
-- El estado global se maneja en Context
-
-### Context (DesktopContext)
-
-Gestiona el estado global de todas las ventanas:
-
-- `windows` - Lista de ventanas abiertas
-- `activeWindowId` - Ventana activa
-- `openApp(appId, data)` - Abre una aplicación
-- `handleWindowFocus(id)` - Enfoca una ventana
-- `handleMinimize(id)` - Minimiza ventana
-- `handleMaximize(id)` - Maximiza/restaurar ventana
-- `handleClose(id)` - Cierra ventana
-- `handleWindowMove(id, position)` - Actualiza posición
-- `handleResize(id, size)` - Actualiza tamaño
-
-### Context (WindowContext)
-
-Gestiona el estado local de cada ventana individual:
-
-- `id` - ID de la ventana
-- `onClose` - Función para cerrar la ventana
-
-### Context (LanguageContext)
-
-Gestiona el idioma de la interfaz:
-
-- `language` - Idioma actual ('es' | 'en')
-- `changeLanguage(lang)` - Cambia el idioma
-- Persistencia en localStorage
-
-### Hooks Personalizados
-
-- **useFileSystem**: Lee archivos markdown de `data/files/`, extrae fechas del contenido
-- **useWindow**: Lógica de manejo de ventanas (integrado en Window)
-- **useLanguage**: Acceso al contexto de idioma
-- **useTranslation**: Función `t(key)` para traducciones
-
-### Sistema de Traducciones (i18n)
-
-- Todas las apps y componentes usan el hook `useTranslation()`
-- Traducciones en `src/i18n/translations.js`
-- Idiomas disponibles: Español e Inglés
-
-### Aplicaciones
-
-| App | Descripción | Instancia única |
-|-----|-------------|-----------------|
-| Welcome | Pantalla de bienvenida con tips de Windows 95 y selector de idioma | Sí |
-| Settings | Configuración del sistema (idioma) | Sí |
-| Notepad | Bloc de notas | Sí |
-| FileExplorer | Explorador de archivos con tabs (Tabla/Arbol) | Sí |
-| FileViewer | Visor markdown con tabs (Preview/Source) | No (por archivo) |
-| Search | Buscador de archivos | Sí |
-
-### Explorador de Archivos
-
-- **Tab Tabla**: Muestra todos los archivos en formato tabla con columnas Nombre, Ubicación, Fecha
-- **Tab Arbol**: Muestra estructura de carpetas expandible estilo Windows 98
-- Las fechas se leen directamente del archivo markdown (línea `Fecha: DD/MM/AAAA`)
-
-### Características de las Ventanas
-
-- **Drag**: Arrastrar desde la barra de título
-- **Resize**: Arrastrar desde la esquina inferior derecha
-- **Minimize**: Minimiza a la barra de tareas
-- **Maximize**: Ocupa toda el área de trabajo
-- **Close**: Cierra la ventana
-- **Enfoque**: Al hacer clic se trae al frente (z-index)
-- **Centrado**: Se abren centradas en pantalla
-
-### Barra de Tareas
-
-- Muestra botón Start y lista de ventanas abiertas
-- Reloj en tiempo real con hora, minutos y segundos
-- Click en ventana minimizada la restaura
-
-### Prevención de Ventanas Duplicadas
-
-- Cada archivo tiene un `windowKey` único (`folder/filename`)
-- Al abrir un archivo ya existente, se enfoca esa ventana
-- FileViewer permite múltiples instancias (por archivo)
-
-## Comandos
+## Scripts Disponibles
 
 ```bash
 npm install    # Instalar dependencias
-npm run dev    # Iniciar servidor de desarrollo
+npm run dev    # Servidor de desarrollo
 npm run build  # Build de producción
-npm run lint   # Linting
+npm run lint   # Linting con ESLint
+npm run preview # Preview del build
+npm run deploy # Despliegue a GitHub Pages
 ```
+
+## Aplicaciones del Sistema
+
+| App | Descripción | Tamaño | Instancia Única |
+|-----|-------------|--------|-----------------|
+| **Welcome** | Pantalla de bienvenida con tips, selector de idioma y enlaces sociales | 700x420 | ✅ Sí |
+| **Notepad** | Bloc de notas con barra de estado | 450x350 | ✅ Sí |
+| **FileExplorer** | Explorador con vista Tabla (ordenada por fecha) y vista Árbol | 600x350 | ✅ Sí |
+| **FileViewer** | Visor markdown con tabs Preview/Source | 1000x800 | ❌ No (por archivo) |
+| **Search** | Buscador por nombre y contenido de archivos | 500x350 | ✅ Sí |
+| **Settings** | Configuración de idioma con persistencia | 350x250 | ✅ Sí |
+
+## Características Principales
+
+### Sistema de Ventanas
+- **Drag**: Arrastrar desde la barra de título
+- **Resize**: Redimensionar desde esquina inferior derecha
+- **Minimize/Maximize/Close**: Controles estándar
+- **Z-index dinámico**: Ventana activa siempre al frente
+- **Prevención de duplicados**: Por archivo con `windowKey`
+- **Responsive**: En móviles se maximizan automáticamente
+
+### Enrutamiento por URL
+- Soporte para rutas tipo `/folder/file`
+- Abre archivos automáticamente desde URL
+- Limpia URL cuando no hay ventanas de archivo
+- Case-insensitive para carpetas y archivos
+
+### Sistema de Traducciones (i18n)
+- Idiomas: Español e Inglés
+- Hook `useTranslation()` para todas las apps
+- Persistencia en localStorage
+- ~40 claves de traducción
+
+### Explorador de Archivos
+- **Vista Tabla**: Lista todos los archivos ordenados por fecha
+  - Columnas: Nombre, Ubicación, Fecha
+  - Ordenados por fecha descendente
+- **Vista Árbol**: Estructura de carpetas expandible
+  - Carpetas inician contraídas
+  - Click para expandir/colapsar
+
+### Barra de Tareas
+- Botón Start con menú funcional
+- Lista de ventanas abiertas
+- Reloj en tiempo real (actualiza cada segundo)
+- Indicador de ventana activa
+
+## Patrones de Arquitectura
+
+### 1. Diseño Atómico
+- **Moléculas**: Composición simple (TitleBar, WindowControls)
+- **Organismos**: Componentes complejos (Window, TaskBar, StartMenu)
+
+### 2. Context Pattern
+- `DesktopContext`: Estado global del escritorio (ventanas, z-index)
+- `WindowContext`: Estado local por ventana
+- `LanguageContext`: Estado de internacionalización
+
+### 3. Custom Hooks
+- Extracción de lógica reutilizable
+- Separación de concerns
+- Testing más sencillo
+
+### 4. Registry Pattern
+- `apps.ts`: Registro central de aplicaciones
+- Metadatos: icono, tamaño, componente
+- Fácil extensión
+
+### 5. Factory Pattern
+- `addWindow` crea ventanas con configuración por defecto
+- Cálculo automático de posición y z-index
+
+## Hooks Personalizados
+
+| Hook | Propósito |
+|------|-----------|
+| `useFileSystem()` | Lee archivos markdown, extrae fechas, estructura de carpetas |
+| `useWindow()` | Estado del menú Start y reloj en tiempo real |
+| `useUrlRouting()` | Enrutamiento por URL, abre archivos desde path |
+| `useMediaQuery()` | Media queries responsive |
+| `useTranslation()` | Función `t(key)` para traducciones |
+| `useLanguage()` | Acceso al contexto de idioma |
+
+## Sistema de Archivos Markdown
+
+### Estructura
+```
+src/data/files/
+├── content/              # Contenido principal (CV, features)
+├── youtube/             # ~50 tutoriales en video
+├── system/              # Sistemas desarrollados
+├── internet/            # Recursos de internet
+└── web/                 # Proyectos web realizados
+```
+
+### Formato
+```markdown
+Fecha: 31-12-2023
+# Título
+
+Contenido markdown...
+```
+
+### Características
+- Fecha extraída de la primera línea
+- Imágenes desde `/images/`
+- Soporte HTML embebido (rehype-raw)
+- Búsqueda por nombre y contenido
+
+## Contextos
+
+### DesktopContext
+```typescript
+{
+  windows: WindowConfig[],        // Ventanas abiertas
+  activeWindowId: string | null,  // Ventana activa
+  handleWindowFocus(id),          // Traer al frente
+  handleMinimize(id),             // Minimizar
+  handleClose(id),                // Cerrar
+  openApp(appId, data?),          // Abrir aplicación
+  isWindowOpen(appId)             // Verificar si está abierta
+}
+```
+
+### WindowContext
+```typescript
+{
+  id: string,           // ID único
+  onClose: () => void   // Cerrar ventana
+}
+```
+
+### LanguageContext
+```typescript
+{
+  language: 'es' | 'en',
+  changeLanguage(lang)
+}
+```
+
+## Constantes del Sistema
+
+```typescript
+// Colores Windows 98
+COLORS.DESKTOP_BG = '#008080'  // Teal
+COLORS.WINDOW_BG = '#c0c0c0'   // Gray
+
+// Z-index
+Z_INDEX.TASKBAR = 1000
+Z_INDEX.START_MENU = 1100
+Z_INDEX.WINDOW_BASE = 10
+
+// LocalStorage
+LOCAL_STORAGE_KEYS.LANGUAGE = 'language'
+LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
+```
+
+## Configuración
+
+### Vite (vite.config.js)
+```javascript
+{
+  base: "/",           // Para dominio personalizado
+  css: { devSourcemap: true }
+}
+```
+
+### TypeScript (tsconfig.json)
+- Target: ESNext
+- Strict mode: ✅
+- JSX: react-jsx
+
+### ESLint (eslint.config.js)
+- Configuración flat config
+- Plugins: react-hooks, react-refresh
+- Regla personalizada: variables en mayúsculas ignoradas
+
+### GitHub Actions (.github/workflows/deploy.yml)
+- Trigger: Push a `main`
+- Node 20
+- Genera `404.html` para SPA routing
+- Deploy automático a GitHub Pages
+
+## Responsive
+
+- **Desktop**: Ventanas arrastrables y redimensionables
+- **Móvil** (< 768px):
+  - Ventanas siempre maximizadas
+  - Layout adaptable
+  - Touch-friendly
+
+## Estadísticas
+
+- **Aplicaciones**: 6
+- **Componentes**: 11 principales
+- **Hooks**: 6 personalizados
+- **Contextos**: 3
+- **Archivos markdown**: ~70
+- **Idiomas**: 2 (ES/EN)
+- **Dependencias**: 4 runtime + 9 dev
 
 ## Estado Actual
 
-- Ventanas funcionales con drag, resize, minimize, maximize
-- Explorador de archivos con dos vistas: Tabla y Arbol
-- Vista Tabla: muestra archivos con columnas Nombre, Ubicación, Fecha
-- Vista Tabla: archivos ordenados por fecha (más reciente primero)
-- Vista Tabla: fechas en formato legible (ej: "17 mar 2026")
-- Vista Arbol: estructura de carpetas expandible
-- Vista Arbol: carpetas inicián contraídas
-- Visor de markdown con tabs (Preview / Source)
-- Visor de markdown renderiza imágenes desde `/images/`
-- Visor de markdown muestra contenido original (con línea Fecha:)
-- Menú Start y barra de tareas
-- Reloj en tiempo real en la barra de tareas
-- Prevención de ventanas duplicadas por archivo
-- Archivos markdown con fecha de creación en formato `Fecha: DD/MM/AAAA`
-- Ventana Welcome con tips interactivos estilo Windows 95
-- Buscador de archivos (SearchApp)
-- WindowContext para estado local de ventanas
-- Iconos de escritorio (My Computer, Recycle Bin, My Documents)
-- Sistema de traducciones ES/EN con Settings
-- Cambiador de idioma en ventana Welcome
+- ✅ Sistema de ventanas completo
+- ✅ Enrutamiento por URL
+- ✅ Soporte multilenguaje
+- ✅ Explorador de archivos (tabla/árbol)
+- ✅ Visor de markdown con tabs
+- ✅ Buscador de archivos
+- ✅ Barra de tareas con reloj
+- ✅ Menú Start funcional
+- ✅ Iconos de escritorio
+- ✅ Responsive
+- ✅ ErrorBoundary
+- ✅ CI/CD automático
+- ✅ Estilo Windows 98 auténtico
