@@ -19,7 +19,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
   };
 
   return (
-    <div className="start-menu" onClick={(e) => e.stopPropagation()}>
+    <div className="start-menu outset-deep" onClick={(e) => e.stopPropagation()}>
       <div className="start-menu-sidebar">
         <span>Desktop</span>
       </div>
@@ -30,7 +30,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
               🗃️
             </span>
             {t("programs" as any)}
-            <span style={{ marginLeft: "auto" }}>▶</span>
+            <span className="submenu-arrow">▶</span>
           </button>
           {openSubmenu === "programs" && (
             <div className="submenu">

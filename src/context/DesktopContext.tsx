@@ -92,10 +92,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       if (state) {
         // Verificar que la posición esté dentro de la pantalla visible
         const maxWidth = window.innerWidth;
-        const maxHeight = window.innerHeight - 30; // taskbar
+        const maxHeight = window.innerHeight - 27; // taskbar
         
         const x = Math.max(0, Math.min(state.position.x, maxWidth - 100));
-        const y = Math.max(30, Math.min(state.position.y, maxHeight - 100));
+        const y = Math.max(27, Math.min(state.position.y, maxHeight - 100));
         
         return {
           position: { x, y },
@@ -255,7 +255,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     
     // Ensure window fits within the screen (subtracting taskbar height)
     const maxWidth = window.innerWidth;
-    const maxHeight = window.innerHeight - 30; // 30 is taskbar height
+    const maxHeight = window.innerHeight - 27; // 27 is taskbar height
     
     const finalWidth = Math.min(defaultWidth, maxWidth - 40);
     const finalHeight = Math.min(defaultHeight, maxHeight - 40);
@@ -270,7 +270,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     
     // Constrain position to keep window visible
     const finalX = Math.max(0, Math.min(initialX, maxWidth - finalWidth));
-    const finalY = Math.max(30, Math.min(initialY, maxHeight - finalHeight));
+    const finalY = Math.max(27, Math.min(initialY, maxHeight - finalHeight));
     
     const newWindow: WindowConfig = {
       appId: windowConfig.appId,

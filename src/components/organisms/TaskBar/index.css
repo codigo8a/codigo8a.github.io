@@ -1,51 +1,121 @@
+/* ── TaskBar 98.js ── */
+
 .taskbar {
-  background: #c0c0c0;
-  border-top: 2px solid #fff;
-}
-
-.start-button.active {
-  background: #dfdfdf;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-}
-
-.taskbar-button {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 27px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-weight: bold;
+  z-index: 5000;
+  outline: 1px solid var(--ButtonLight);
+  border-bottom: 1px solid var(--ButtonHilight);
+  background: var(--ButtonFace);
+  color: var(--ButtonText);
+  user-select: none;
+  cursor: default;
 }
 
-.taskbar-button img {
+/* Start button — authentic 98.js look */
+.taskbar .start-button {
+  flex-shrink: 0;
+  padding: 2px 4px;
+  margin: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 14px;
+  overflow: hidden;
+}
+.taskbar .start-button img {
   width: 16px;
   height: 16px;
+  image-rendering: pixelated;
+}
+.taskbar .start-button b {
+  font-weight: bold;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  font-size: 11px;
 }
 
+/* Divider — ridge/groove vertical line */
 .taskbar-divider {
-  border-left: 2px solid #808080;
-  border-right: 2px solid #fff;
+  margin: 2px 0;
+  border-left: 1px solid var(--ButtonShadow);
+  border-right: 1px solid var(--ButtonHilight);
   height: 20px;
+  flex-shrink: 0;
 }
 
-.taskbar-windows {
+/* Task buttons container */
+.tasks {
   display: flex;
-  gap: 4px;
   flex: 1;
+  height: 100%;
+  min-width: 0;
+  gap: 0;
+  margin: 2px 0;
 }
 
-.taskbar-windows button {
-  max-width: 150px;
+/* Individual task button */
+.task {
+  max-width: 200px;
+  width: 50%;
+  text-align: left;
+  margin: 0 1px;
+  padding: 2px 4px;
+  line-height: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  font-size: 11px;
+}
+.task img {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-right: 3px;
+  image-rendering: pixelated;
+}
+.task .title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-align: left;
+}
+.task.selected {
+  font-weight: bold;
 }
 
-.taskbar-windows button.active {
-  background: #dfdfdf;
+/* Tray area */
+.tray {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 2px;
+  line-height: 22px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  padding: 0 4px;
 }
-
-.taskbar-clock {
-  font-size: 12px;
-  margin-left: 8px;
+.tray-icons {
+  display: flex;
+  align-items: center;
+}
+.tray-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+.taskbar-time {
+  width: 60px;
+  text-align: center;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  font-size: 11px;
+  line-height: 22px;
+  user-select: none;
 }

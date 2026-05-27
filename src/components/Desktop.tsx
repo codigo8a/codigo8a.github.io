@@ -57,8 +57,6 @@ export const Desktop: React.FC = () => {
         onRestore={handleRestore}
         isStartOpen={isStartOpen}
         onStartClick={handleStartClick}
-        clippyEnabled={clippyEnabled}
-        onClippyClick={() => setClippyEnabled(true)}
       />
       
       <DesktopIcons />
