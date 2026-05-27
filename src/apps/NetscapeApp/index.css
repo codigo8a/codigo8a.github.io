@@ -49,6 +49,16 @@
   font-size: 12px;
 }
 
+.proxy-btn {
+  font-size: 12px;
+}
+
+.proxy-btn.active {
+  border: 2px inset #ffffff;
+  box-shadow: none;
+  background: #d4d0c8;
+}
+
 /* Address Bar */
 .netscape-address-bar {
   flex: 1;
@@ -156,6 +166,28 @@
 
 .netscape-security.error {
   color: #ff0000;
+}
+
+/* Proxy banner */
+.netscape-proxy-banner {
+  background: #ffffcc;
+  border-bottom: 1px solid #808080;
+  padding: 3px 8px;
+  font-size: 11px;
+  text-align: center;
+  color: #333;
+}
+
+.netscape-proxy-badge {
+  color: #cc6600;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.netscape-error-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 /* Error Message */

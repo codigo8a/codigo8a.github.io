@@ -62,7 +62,7 @@ export const APPS: Record<string, AppDefinition> = {
     title: 'Browser',
     icon: '🌐',
     component: NetscapeApp,
-    defaultSize: { width: 900, height: 650 },
+    defaultSize: { width: 900, height: 750 },
     centered: true
   }
 };
