@@ -5,6 +5,46 @@
   background: #c0c0c0;
 }
 
+/* ── Toolbar ── */
+.my-documents-toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 3px 4px;
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.toolbar-btn:hover {
+  background: #e0e0e0;
+  border-color: #fff #808080 #808080 #fff;
+}
+
+.toolbar-btn.active {
+  background: #c0c0c0;
+  border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px 1px rgba(0,0,0,0.15);
+}
+
+.toolbar-btn-icon {
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ── Icon Grid ── */
 .my-documents-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -46,4 +86,99 @@
   max-width: 80px;
   line-height: 1.2;
   color: #000;
+}
+
+/* ── List View ── */
+.my-documents-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.list-item:hover {
+  background: #c0e0ff;
+  border-color: #000080;
+}
+
+.list-item:active {
+  background: #000080;
+  color: #fff;
+}
+
+.list-item-icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.list-item-name {
+  font-size: 11px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+/* ── Details View ── */
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+  margin: 0;
+  font-size: 11px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.details-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #c0c0c0;
+}
+
+.details-table th {
+  padding: 3px 6px;
+  font-weight: normal;
+  border-bottom: 1px solid #808080;
+  white-space: nowrap;
+}
+
+.details-table td {
+  padding: 2px 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.details-table tbody tr:hover {
+  background: #c0e0ff;
+}
+
+.details-table tbody tr:active {
+  background: #000080;
+  color: #fff;
+}
+
+.details-file-icon {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* ── File explorer shared ── */
+.fileexplorer-folder {
+  cursor: pointer;
+  user-select: none;
+}
+
+.fileexplorer-file {
+  cursor: pointer;
+}
+
+.fileexplorer-folder ul {
+  margin-left: 20px;
 }

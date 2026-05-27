@@ -8,7 +8,7 @@ type TranslationKeys =
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
   | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
-  | 'iconView';
+  | 'iconView' | 'listView' | 'detailsView';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -206,6 +206,14 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   iconView: {
     es: "Vista de Iconos",
     en: "Icon View"
+  },
+  listView: {
+    es: "Vista de Lista",
+    en: "List View"
+  },
+  detailsView: {
+    es: "Vista de Detalles",
+    en: "Details View"
   }
 };
 
