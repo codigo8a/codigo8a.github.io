@@ -72,13 +72,16 @@ export const Clippy: React.FC<ClippyProps> = ({ enabled, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [showSpeech, setShowSpeech] = useState(false);
   
-  // Guardar el orden aleatorio de tips entre renders
+  // Guardar el lenguaje actual para detectar cambios
+  const [prevLang, setPrevLang] = useState(language);
   const shuffledTipsRef = useRef<string[]>([]);
   
   const allTips = TIPS[language as 'es' | 'en'] || TIPS.en;
   
-  // Inicializar el orden aleatorio solo una vez por sesión
-  if (shuffledTipsRef.current.length === 0) {
+  // Reiniciar el orden si cambió el idioma
+  if (shuffledTipsRef.current.length === 0 || language !== prevLang) {
+    setPrevLang(language);
+    setCurrentTipIndex(0);
     // El primer tip siempre es el de bienvenida (índice 0)
     const otherTips = allTips.slice(1);
     const shuffledOthers = shuffleArray(otherTips);
