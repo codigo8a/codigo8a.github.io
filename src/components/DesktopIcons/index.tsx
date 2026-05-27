@@ -23,6 +23,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'find', icon: '🔍', label: 'Find' },
   { id: 'browser', icon: '🌐', label: 'Browser' },
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },
+  { id: 'prueba', icon: '🧪', label: 'Prueba' },
 ];
 
 export const DesktopIcons: React.FC = () => {
@@ -37,6 +38,8 @@ export const DesktopIcons: React.FC = () => {
       openApp('netscape');
     } else if (iconId === 'winamp') {
       launchWinamp();
+    } else if (iconId === 'prueba') {
+      openApp('prueba');
     }
   };
 

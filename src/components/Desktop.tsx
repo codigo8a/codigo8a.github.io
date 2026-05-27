@@ -75,6 +75,8 @@ export const Desktop: React.FC = () => {
           key={win.id}
           id={win.id}
           title={win.title}
+          icon={win.icon}
+          menu={win.menu}
           isActive={activeWindowId === win.id && !win.isMinimized}
           isMinimized={win.isMinimized}
           centered={win.centered}

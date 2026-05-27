@@ -5,10 +5,17 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>React Desktop</title>
-    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <!-- os-gui: Windows 98 window/menu library -->
+    <link rel="stylesheet" href="/os-gui/layout.css">
+    <link rel="stylesheet" href="/os-gui/windows-98.css">
   </head>
   <body>
     <div id="root"></div>
+    <!-- jQuery (required by os-gui) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- os-gui: real Windows 98 components -->
+    <script src="/os-gui/MenuBar.js"></script>
+    <script src="/os-gui/Window.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

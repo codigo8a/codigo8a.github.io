@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleBar } from '../../molecules/TitleBar';
+import { MenuBar } from '../../molecules/MenuBar';
 import { WindowProvider } from '../../../context/WindowContext';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import type { MenuDefinition } from '../../molecules/MenuBar';
 import './index.css';
 
 interface WindowProps {
@@ -23,6 +25,8 @@ interface WindowProps {
   onClose?: (id: string) => void;
   onMove?: (id: string, position: { x: number; y: number }) => void;
   onResize?: (id: string, size: { width: number; height: number }) => void;
+  icon?: string;
+  menu?: MenuDefinition;
 }
 
 export const Window: React.FC<WindowProps> = ({
@@ -43,7 +47,9 @@ export const Window: React.FC<WindowProps> = ({
   onMaximize,
   onClose,
   onMove,
-  onResize
+  onResize,
+  icon,
+  menu
 }) => {
   const [size, setSize] = useState(initialSize);
   const [position, setPosition] = useState(() => {
@@ -190,7 +196,9 @@ export const Window: React.FC<WindowProps> = ({
         onMaximize={isMobile ? () => {} : () => onMaximize?.(id)}
         onClose={handleClose}
         active={isActive}
+        icon={icon}
       />
+      {menu && <MenuBar menus={menu} inactive={!isActive} />}
       <div className="window-body">
         {children}
       </div>

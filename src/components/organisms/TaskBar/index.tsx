@@ -161,11 +161,18 @@ export const TaskBar: React.FC<TaskBarProps> = ({
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
               textAlign: 'left',
-              flexShrink: 0
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '2px 4px'
             }}
             onClick={() => win.isMinimized ? onRestore(win.id) : onWindowClick(win.id)}
           >
-            {isMobile && win.title.length > 10 ? win.title.substring(0, 10) + '...' : win.title}
+            {win.icon && <img src={win.icon} alt="" width="16" height="16" style={{ flexShrink: 0 }} />}
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {isMobile && win.title.length > 10 ? win.title.substring(0, 10) + '...' : win.title}
+            </span>
           </button>
         ))}
         

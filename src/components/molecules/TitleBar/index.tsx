@@ -8,6 +8,7 @@ interface TitleBarProps {
   onMaximize: () => void;
   onClose: () => void;
   active?: boolean;
+  icon?: string;
 }
 
 export const TitleBar: React.FC<TitleBarProps> = ({ 
@@ -15,10 +16,12 @@ export const TitleBar: React.FC<TitleBarProps> = ({
   onMinimize, 
   onMaximize, 
   onClose, 
-  active = true 
+  active = true,
+  icon
 }) => {
   return (
-    <div className={`title-bar ${active ? '' : 'inactive'}`}>
+    <div className={`title-bar ${active ? 'active' : 'inactive'}`}>
+      {icon && <img src={icon} alt="" className="title-bar-icon" />}
       <div className="title-bar-text">{title}</div>
       <WindowControls 
         onMinimize={onMinimize} 

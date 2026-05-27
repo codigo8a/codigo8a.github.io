@@ -10,6 +10,7 @@ export interface WindowConfig {
   id: string;
   appId: string;
   title: string;
+  icon?: string;
   content: React.ReactNode;
   isMinimized: boolean;
   isMaximized: boolean;
@@ -21,6 +22,7 @@ export interface WindowConfig {
   zIndex: number;
   windowKey?: string;
   animationState?: 'opening' | 'closing' | 'minimizing' | 'restoring' | null;
+  menu?: any;
 }
 
 export interface AppDefinition {
@@ -31,4 +33,6 @@ export interface AppDefinition {
   defaultSize: { width: number; height: number };
   centered: boolean;
   singleInstance?: boolean;
+  /** If set, this function is called instead of creating a React Window (e.g. for os-gui native windows) */
+  customLaunch?: () => void;
 }

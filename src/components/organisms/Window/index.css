@@ -1,11 +1,13 @@
 .window {
   background: #c0c0c0;
-  box-shadow: inset 1px 1px #dfdfdf, inset -1px -1px #808080, 1px 1px #000;
+  box-shadow: inset 1px 1px #ffffff, inset -1px -1px #0a0a0a, 1px 1px #000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transform-origin: center center;
   transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
 }
 
 /* Opening animation - scale up from 0.95 with fade */

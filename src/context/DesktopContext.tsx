@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback, useRef, ReactNode, useEffect } from 'react';
 import { getAppById } from '../apps/apps';
+import { getAppMenu } from '../utils/appMenus';
 import { WindowConfig } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
@@ -275,6 +276,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       appId: windowConfig.appId,
       id: windowConfig.appId + '-' + Date.now(),
       title: windowConfig.title || 'Window',
+      icon: windowConfig.icon,
+      menu: windowConfig.menu,
       isMinimized: false,
       isActive: true,
       isMaximized: false,
@@ -322,6 +325,9 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
           : { ...win, isActive: false }
       ));
       setActiveWindowId(existingWindow.id);
+    } else if (app.customLaunch) {
+      // Custom launch handler (e.g. for os-gui native windows)
+      app.customLaunch();
     } else {
       const AppComponent = app.component;
       
@@ -332,6 +338,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
         appId: app.id,
         windowKey: windowKey,
         title: appData?.title || app.title,
+        icon: app.icon,
+        menu: getAppMenu(app.id),
         initialSize: savedState?.size || app.defaultSize,
         initialPosition: savedState?.position,
         centered: savedState ? false : app.centered, // Si hay estado guardado, no centrar
