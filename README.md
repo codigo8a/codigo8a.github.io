@@ -91,11 +91,12 @@ npm run deploy # Despliegue a GitHub Pages
 |-----|-------------|--------|-----------------|
 | **Welcome** | Pantalla de bienvenida con tips, selector de idioma y enlaces sociales | 700x420 | ✅ Sí |
 | **Notepad** | Bloc de notas con barra de estado | 450x350 | ✅ Sí |
-| **FileExplorer** | Explorador con vista Tabla (ordenada por fecha) y vista Árbol | 600x350 | ✅ Sí |
+| **FileExplorer** | Explorador con vista de iconos estilo "My Documents" (cuadrícula) | 650x450 | ✅ Sí |
 | **FileViewer** | Visor markdown con tabs Preview/Source | 1000x800 | ❌ No (por archivo) |
 | **Search** | Buscador por nombre y contenido de archivos | 500x350 | ✅ Sí |
 | **Settings** | Configuración con tabs: General (idioma, Clippy) y Desktop (wallpapers) | 450x480 | ✅ Sí |
 | **Browser** | Navegador web estilo retro | 900x650 | ✅ Sí |
+| **Winamp** | Reproductor de música clásico con Webamp | 900x600 | ✅ Sí |
 
 ## Características Principales
 
@@ -122,12 +123,9 @@ npm run deploy # Despliegue a GitHub Pages
 - ~42 claves de traducción
 
 ### Explorador de Archivos
-- **Vista Tabla**: Lista todos los archivos ordenados por fecha
-  - Columnas: Nombre, Ubicación, Fecha
-  - Ordenados por fecha descendente
-- **Vista Árbol**: Estructura de carpetas expandible
-  - Carpetas inician contraídas
-  - Click para expandir/colapsar
+- **Vista Iconos (My Documents)**: Cuadrícula de iconos estilo Windows 98
+  - Iconos con nombres de archivos
+  - Doble clic para abrir archivos
 
 ### Barra de Tareas
 - Botón Start con menú funcional
@@ -304,35 +302,37 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 
 ## Estadísticas
 
-- **Aplicaciones**: 7
+- **Aplicaciones**: 8 (incluyendo Winamp)
 - **Componentes**: 13 principales (incluyendo LoadingScreen)
 - **Hooks**: 6 personalizados
 - **Contextos**: 3
 - **Archivos markdown**: ~70
 - **Wallpapers**: 6
-- **Asistente virtual**: Clippy con 20 tips
+- **Asistente virtual**: Clippy con 23 tips
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
 - **Animaciones**: 5 tipos (loading, abrir, cerrar, minimizar, restaurar)
 - **Persistencia**: Posición y tamaño de ventanas guardados en localStorage
+- **Iconos de apps**: SVG oficiales en `public/app/icons/`
 
 ## Estado Actual
 
 - ✅ Sistema de ventanas completo
 - ✅ Enrutamiento por URL
 - ✅ Soporte multilenguaje
-- ✅ Explorador de archivos (tabla/árbol)
+- ✅ Explorador de archivos (iconos en cuadrícula estilo My Documents)
 - ✅ Visor de markdown con tabs
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional
-- ✅ Iconos de escritorio
+- ✅ Iconos de escritorio (incluyendo Winamp con icono oficial)
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98
 - ✅ Persistencia de posición y tamaño de ventanas
 - ✅ Clippy - Asistente virtual con tips interactivos
 - ✅ Browser - Navegador web estilo retro con soporte para sitios web
+- ✅ **Winamp** - Reproductor de música clásico usando Webamp
 - ✅ Responsive
 - ✅ ErrorBoundary
 - ✅ CI/CD automático

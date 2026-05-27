@@ -38,7 +38,7 @@
 | # | Mejora | Descripción | Complejidad | Estado |
 |---|--------|-------------|-------------|--------|
 | F-06 | **Terminal/Consola** | Simulación de línea de comandos con comandos útiles (`help`, `ls`, `cat`, `clear`) | Media | ⬜ Pendiente |
-| F-07 | **Reproductor de Música** | Reproducir archivos de audio con controles (play, pause, volumen, playlist) | Media-Alta | ⬜ Pendiente |
+| F-07 | **Reproductor de Música** | Reproducir archivos de audio con controles (play, pause, volumen, playlist) | Media-Alta | ✅ Completado (Winamp con Webamp) |
 | F-08 | **Solitario** | Juego de cartas clásico estilo Windows 98 | Alta | ⬜ Pendiente |
 | F-09 | **Buscaminas** | Juego Minesweeper con diferentes niveles de dificultad | Media | ⬜ Pendiente |
 | F-10 | **Reloj/Alarma** | Reloj mundial, cronómetro, temporizador con alarmas | Baja-Media | ⬜ Pendiente |
@@ -132,7 +132,7 @@
 | # | Mejora | Descripción | Diversión | Estado |
 |---|--------|-------------|-----------|--------|
 | EGG-01 | **BSOD (Blue Screen)** | Pantalla azul de la muerte al presionar combinación secreta (Ctrl+Shift+Alt+Delete x3) | ⭐⭐⭐⭐⭐ | ⬜ Pendiente |
-| EGG-02 | **Clippy** | Asistente de ayuda tipo Office 97 que aparece ocasionalmente con frases divertidas | ⭐⭐⭐⭐⭐ | ⬜ Pendiente |
+| EGG-02 | **Clippy** | Asistente de ayuda tipo Office 97 que aparece ocasionalmente con frases divertidas | ⭐⭐⭐⭐⭐ | ✅ Completado |
 | EGG-03 | **Ventanas de error falsas** | Diálogos de error humorísticos aleatorios | ⭐⭐⭐⭐ | ⬜ Pendiente |
 | EGG-04 | **MODO DOS** | Pantalla negra con comandos estilo DOS accesible con `cmd` | ⭐⭐⭐⭐ | ⬜ Pendiente |
 | EGG-05 | **Referencias Windows 95** | Easter eggs ocultos tipo "Start me up" | ⭐⭐⭐ | ⬜ Pendiente |
@@ -197,13 +197,13 @@ Por categoría:
 
 Por prioridad:
 - 🔴 Alta: 6
-- 🟡 Media: 10
+- 🟡 Media: 9
 - 🟢 Baja: 42
 
 Estado actual:
-⬜ Pendiente: 57
+⬜ Pendiente: 56
 🟡 En progreso: 0
-✅ Completado: 1
+✅ Completado: 2
 ```
 
 ---
