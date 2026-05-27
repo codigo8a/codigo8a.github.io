@@ -5,15 +5,45 @@
   background: #c0c0c0;
 }
 
-.fileexplorer-folder {
+.my-documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 4px;
+  padding: 8px;
+}
+
+.document-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
   cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 2px;
   user-select: none;
 }
 
-.fileexplorer-file {
-  cursor: pointer;
+.document-icon:hover {
+  background: #c0e0ff;
+  border-color: #000080;
 }
 
-.fileexplorer-folder ul {
-  margin-left: 20px;
+.document-icon:active {
+  background: #000080;
+}
+
+.document-icon-image {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.document-icon-label {
+  font-size: 11px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  text-align: center;
+  word-break: break-all;
+  max-width: 80px;
+  line-height: 1.2;
+  color: #000;
 }

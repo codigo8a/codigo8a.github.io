@@ -8,10 +8,24 @@ export const FileExplorerApp: React.FC = () => {
   const { getFileStructure, getRawFileContent } = useFileSystem();
   const { openApp } = useDesktop();
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'table' | 'tree'>('table');
+  const [activeTab, setActiveTab] = useState<'icons' | 'tree'>('icons');
   const { t } = useTranslation();
-  
+
   const fileStructure = useMemo(() => getFileStructure(), [getFileStructure]);
+
+  const allFiles = useMemo(() => {
+    const files: { name: string; folder: string; date: string }[] = [];
+    fileStructure.forEach(folder => {
+      folder.children?.forEach(file => {
+        files.push({
+          name: file.name,
+          folder: folder.name,
+          date: file.date || '',
+        });
+      });
+    });
+    return files;
+  }, [fileStructure]);
 
   const stats = useMemo(() => {
     let folderCount = fileStructure.length;
@@ -25,7 +39,7 @@ export const FileExplorerApp: React.FC = () => {
   const toggleFolder = useCallback((folderName: string) => {
     setExpandedFolders(prev => ({
       ...prev,
-      [folderName]: !prev[folderName]
+      [folderName]: !prev[folderName],
     }));
   }, []);
 
@@ -36,10 +50,10 @@ export const FileExplorerApp: React.FC = () => {
         name: file.name.replace('.md', ''),
         content: content,
         folder: folderName,
-        date: file.date || '01/01/2026'
+        date: file.date || '01/01/2026',
       },
       windowKey: `${folderName}/${file.name}`,
-      title: file.name.replace('.md', '')
+      title: file.name.replace('.md', ''),
     });
   }, [getRawFileContent, openApp]);
 
@@ -48,7 +62,7 @@ export const FileExplorerApp: React.FC = () => {
       const isOpen = expandedFolders[folder.name] === true;
       return (
         <li key={folder.name}>
-          <div 
+          <div
             className="fileexplorer-folder"
             onClick={() => toggleFolder(folder.name)}
           >
@@ -57,7 +71,7 @@ export const FileExplorerApp: React.FC = () => {
           {isOpen && (
             <ul>
               {folder.children?.map((file) => (
-                <li 
+                <li
                   key={file.name}
                   className="fileexplorer-file"
                   onClick={(e) => {
@@ -75,86 +89,105 @@ export const FileExplorerApp: React.FC = () => {
     });
   };
 
-  const renderTable = () => {
-    const allFiles: { name: string; folder: string; date: string; dateObj: Date }[] = [];
-    fileStructure.forEach(folder => {
-      folder.children?.forEach(file => {
-        allFiles.push({
-          name: file.name,
-          folder: folder.name,
-          date: file.date || '01/01/2026',
-          dateObj: new Date((file.date || '01/01/2026').split('/').reverse().join('-'))
-        });
-      });
-    });
-
-    allFiles.sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
-
-    return (
-      <table className="interactive" style={{ width: '100%', borderCollapse: 'collapse', border: 'none', margin: 0 }}>
-        <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#c0c0c0' }}>
-          <tr>
-            <th style={{ textAlign: 'left', width: '50%' }}>{t('name')}</th>
-            <th style={{ textAlign: 'left', width: '25%' }}>{t('location')}</th>
-            <th style={{ textAlign: 'left', width: '25%' }}>{t('date')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {allFiles.map((item, index) => (
-            <tr 
-              key={index}
-              onClick={() => {
-                const content = getRawFileContent(item.name, item.folder);
-                openApp('fileViewer', {
-                  file: {
-                    name: item.name.replace('.md', ''),
-                    content: content,
-                    folder: item.folder,
-                    date: item.date
-                  },
-                  windowKey: `${item.folder}/${item.name}`,
-                  title: item.name.replace('.md', '')
-                });
-              }}
-            >
-              <td>{item.name}</td>
-              <td>{item.folder}</td>
-              <td>{item.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
+  const renderIconGrid = () => (
+    <div className="my-documents-grid">
+      {allFiles.map((file, index) => (
+        <div
+          key={index}
+          className="document-icon"
+          onClick={() => handleFileClick(file, file.folder)}
+          title={`${file.folder}/${file.name} — ${file.date}`}
+        >
+          <div className="document-icon-image">📄</div>
+          <span className="document-icon-label">
+            {file.name.replace('.md', '')}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="fileexplorer-container">
       <menu role="tablist">
-        <li role="tab" aria-selected={activeTab === 'table'}>
-          <a href="#table" onClick={(e) => { e.preventDefault(); setActiveTab('table'); }}>{t('tableView')}</a>
+        <li role="tab" aria-selected={activeTab === 'icons'}>
+          <a
+            href="#icons"
+            onClick={(e) => { e.preventDefault(); setActiveTab('icons'); }}
+          >
+            {t('iconView')}
+          </a>
         </li>
         <li role="tab" aria-selected={activeTab === 'tree'}>
-          <a href="#tree" onClick={(e) => { e.preventDefault(); setActiveTab('tree'); }}>{t('treeView')}</a>
+          <a
+            href="#tree"
+            onClick={(e) => { e.preventDefault(); setActiveTab('tree'); }}
+          >
+            {t('treeView')}
+          </a>
         </li>
       </menu>
-      <div className="window" role="tabpanel" style={{ flex: 1, display: 'flex', flexDirection: 'column', margin: '0', border: 'none', boxShadow: 'none', overflow: 'hidden' }}>
-        <div className="window-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', margin: '0', padding: '4px', background: '#c0c0c0', overflow: 'hidden' }}>
-          {activeTab === 'tree' ? (
-            <div className="sunken-panel" style={{ flex: 1, overflow: 'auto', background: '#fff' }}>
-              <ul className="tree-view" style={{ border: 'none', boxShadow: 'none', margin: 0, width: 'max-content', minWidth: '100%', overflow: 'visible' }}>
+      <div
+        className="window"
+        role="tabpanel"
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          margin: 0,
+          border: 'none',
+          boxShadow: 'none',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          className="window-body"
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            margin: 0,
+            padding: '4px',
+            background: '#c0c0c0',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            className="sunken-panel"
+            style={{
+              flex: 1,
+              overflow: 'auto',
+              background: '#fff',
+              ...(activeTab === 'icons' ? { padding: '8px' } : {}),
+            }}
+          >
+            {activeTab === 'tree' ? (
+              <ul
+                className="tree-view"
+                style={{
+                  border: 'none',
+                  boxShadow: 'none',
+                  margin: 0,
+                  width: 'max-content',
+                  minWidth: '100%',
+                  overflow: 'visible',
+                }}
+              >
                 {renderTree()}
               </ul>
-            </div>
-          ) : (
-            <div className="sunken-panel" style={{ flex: 1, overflow: 'auto', background: '#fff' }}>
-              {renderTable()}
-            </div>
-          )}
+            ) : (
+              renderIconGrid()
+            )}
+          </div>
         </div>
       </div>
       <div className="status-bar" style={{ marginTop: '4px' }}>
-        <p className="status-bar-field">{stats.folderCount} {t('folders')}</p>
-        <p className="status-bar-field">{stats.fileCount} {t('objects')}</p>
+        <p className="status-bar-field">
+          {stats.folderCount} {t('folders')}
+        </p>
+        <p className="status-bar-field">
+          {stats.fileCount} {t('objects')}
+        </p>
         <p className="status-bar-field">{t('ready')}</p>
       </div>
     </div>

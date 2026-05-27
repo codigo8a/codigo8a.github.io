@@ -26,10 +26,10 @@ export const APPS: Record<string, AppDefinition> = {
   },
   fileExplorer: {
     id: 'fileExplorer',
-    title: 'Documents',
+    title: 'My Documents',
     icon: '📄',
     component: FileExplorerApp,
-    defaultSize: { width: 600, height: 350 },
+    defaultSize: { width: 650, height: 450 },
     centered: false
   },
   fileViewer: {

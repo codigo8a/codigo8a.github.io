@@ -7,7 +7,8 @@ type TranslationKeys =
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
-  | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows';
+  | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
+  | 'iconView';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -201,6 +202,10 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   openWindows: {
     es: "Ventanas abiertas",
     en: "Open windows"
+  },
+  iconView: {
+    es: "Vista de Iconos",
+    en: "Icon View"
   }
 };
 
