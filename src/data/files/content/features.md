@@ -1,4 +1,4 @@
-Date: 08/05/2026
+Date: 27/05/2026
 # Project Features
 
 This project is a Windows 95/98 style desktop environment built with React. Below are the main features available to the user:
@@ -32,7 +32,7 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 - **Wallpaper Selector**: Visual grid with thumbnails in Settings.
 
 ## 🤖 Clippy - Virtual Assistant
-- **Interactive Help**: Paper clip assistant with **20 useful tips** about the portfolio.
+- **Interactive Help**: Paper clip assistant with **23 useful tips** about the portfolio.
 - **Random Order**: Tips appear in random order (except the welcome tip), so you see different information each time.
 - **Floating Animation**: Gentle up and down movement with eye blinking every 4 seconds.
 - **Speech Bubble**: Classic Windows 98 yellow dialog bubble with "Next Tip" and "Close" buttons.
@@ -47,10 +47,8 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 
 ## 📂 Document Explorer (Documents)
 - **Folder Navigation**: View the file structure organized by categories (`YouTube`, `Systems`, `Pages`, `Internet`).
-- **View Modes**: 
-  - **Table View**: Detailed list of files with name, location, and last modification date (sorted by most recent).
-  - **Tree View**: Classic hierarchical folder navigation.
-- **Direct Access**: Open any document directly with a click.
+- **Icon Grid View**: Documents displayed as icons in a grid layout, styled like Windows 98 "My Documents".
+- **Direct Access**: Open any document directly with a double-click.
 
 ## 📄 File Viewer (File Viewer)
 - **Markdown Rendering**: View documents with rich formatting, including images, lists, links, and code blocks.
@@ -78,6 +76,13 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 - **Loading Indicator**: Progress bar shown while pages load.
 - **Status Bar**: Displays connection status and security information.
 - **New Tab Fallback**: When a site cannot be embedded, click "Open in New Tab" to view it in your default browser.
+
+## 🎵 Winamp
+- **Classic Music Player**: Fully functional Winamp simulation using Webamp.
+- **Official Icon**: Uses the authentic Winamp lambda/flame SVG logo from Wikimedia Commons.
+- **Desktop Integration**: Launches from desktop icon or Start Menu (Programs).
+- **Classic Interface**: Includes main window, equalizer, and playlist windows.
+- **Audio Support**: Play MP3s and other audio formats directly in the browser.
 
 ## 🔗 URL Routing
 - **Deep Linking**: The system can open specific files directly from the URL (e.g., `/youtube/ollama-en-linux`).

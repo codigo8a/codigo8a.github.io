@@ -383,9 +383,28 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
 
       const mod = await import('webamp');
       const WebampClass = mod.default;
-      const webamp = new WebampClass({ zIndex: 501 });
+      
+      // Load saved Winamp state from localStorage
+      const savedWinampState = localStorage.getItem(LOCAL_STORAGE_KEYS.WINAMP_STATE);
+      const initialSkin = savedWinampState ? JSON.parse(savedWinampState) : undefined;
+      
+      const webamp = new WebampClass({ 
+        zIndex: 501,
+        initialSkin
+      });
 
-      webamp.onClose(() => { webampClosedRef.current = true; });
+      // Save state when closing to persist window positions
+      webamp.onClose(() => { 
+        webampClosedRef.current = true;
+        // Use type assertion to access serialize method if available
+        const webampAny = webamp as any;
+        if (webampAny.serialize) {
+          const state = webampAny.serialize();
+          if (state) {
+            localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_STATE, JSON.stringify(state));
+          }
+        }
+      });
       webampRef.current = webamp;
 
       // Render into the dedicated container, NOT the desktop's #root
