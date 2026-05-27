@@ -8,11 +8,21 @@ interface DesktopIcon {
   label: string;
 }
 
+const WINAMP_ICON = (
+  <img 
+    src="/app/icons/winamp-logo.svg" 
+    alt="Winamp" 
+    width={32} 
+    height={32} 
+    style={{ imageRendering: 'auto' }} 
+  />
+);
+
 const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'myDocuments', icon: '📁', label: 'My Documents' },
   { id: 'find', icon: '🔍', label: 'Find' },
   { id: 'browser', icon: '🌐', label: 'Browser' },
-  { id: 'winamp', icon: '🎵', label: 'Winamp' },
+  { id: 'winamp', icon: 'winamp', label: 'Winamp' },
 ];
 
 export const DesktopIcons: React.FC = () => {
@@ -38,7 +48,9 @@ export const DesktopIcons: React.FC = () => {
           className="desktop-icon"
           onClick={() => handleIconClick(icon.id)}
         >
-          <div className="desktop-icon-image">{icon.icon}</div>
+          <div className="desktop-icon-image">
+            {icon.icon === 'winamp' ? WINAMP_ICON : icon.icon}
+          </div>
           <span className="desktop-icon-label">
             {icon.label}
           </span>
