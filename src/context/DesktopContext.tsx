@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode, useEffect } from 'react';
 import { getAppById } from '../apps/apps';
 import { WindowConfig } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -38,6 +38,7 @@ interface DesktopContextType {
   addWindow: (windowConfig: Partial<WindowConfig> & { appId: string; content: ReactNode }) => void;
   openApp: (appId: string, appData?: any) => void;
   isWindowOpen: (appId: string) => boolean;
+  launchWinamp: () => void;
 }
 
 const DesktopContext = createContext<DesktopContextType | null>(null);
@@ -343,6 +344,57 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     return windows.some(w => w.appId === appId);
   }, [windows]);
 
+  // ── Floating Winamp (no window) ──
+  const webampRef = useRef<any>(null);
+  const webampClosedRef = useRef(false);
+
+  const launchWinamp = useCallback(async () => {
+    if (webampRef.current && !webampClosedRef.current) {
+      return;
+    }
+    if (webampRef.current && webampClosedRef.current) {
+      webampRef.current.reopen();
+      webampClosedRef.current = false;
+      return;
+    }
+    try {
+      // Create a dedicated container for Webamp (separate from #root)
+      let container = document.getElementById('webamp-root');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'webamp-root';
+        container.style.cssText =
+          'position:fixed;top:0;left:0;width:100%;height:100%;z-index:500;';
+        document.body.appendChild(container);
+      }
+
+      // Inject CSS: container passes clicks through, Winamp windows stay interactive
+      if (!document.getElementById('webamp-pointer-css')) {
+        const s = document.createElement('style');
+        s.id = 'webamp-pointer-css';
+        s.textContent = `
+          #webamp-root { pointer-events: none; }
+          #webamp-root .main-window,
+          #webamp-root .equalizer-window,
+          #webamp-root .playlist { pointer-events: auto; }
+        `;
+        document.head.appendChild(s);
+      }
+
+      const mod = await import('webamp');
+      const WebampClass = mod.default;
+      const webamp = new WebampClass({ zIndex: 501 });
+
+      webamp.onClose(() => { webampClosedRef.current = true; });
+      webampRef.current = webamp;
+
+      // Render into the dedicated container, NOT the desktop's #root
+      await webamp.renderWhenReady(container);
+    } catch (e) {
+      console.error('Failed to launch Winamp:', e);
+    }
+  }, []);
+
   const value = {
     windows,
     activeWindowId,
@@ -359,7 +411,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     handleWindowResize,
     addWindow,
     openApp,
-    isWindowOpen
+    isWindowOpen,
+    launchWinamp
   };
 
   return (

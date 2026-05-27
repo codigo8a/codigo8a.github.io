@@ -12,10 +12,11 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'myDocuments', icon: '📁', label: 'My Documents' },
   { id: 'find', icon: '🔍', label: 'Find' },
   { id: 'browser', icon: '🌐', label: 'Browser' },
+  { id: 'winamp', icon: '🎵', label: 'Winamp' },
 ];
 
 export const DesktopIcons: React.FC = () => {
-  const { openApp } = useDesktop();
+  const { openApp, launchWinamp } = useDesktop();
 
   const handleIconClick = (iconId: string) => {
     if (iconId === 'myDocuments') {
@@ -24,6 +25,8 @@ export const DesktopIcons: React.FC = () => {
       openApp('search');
     } else if (iconId === 'browser') {
       openApp('netscape');
+    } else if (iconId === 'winamp') {
+      launchWinamp();
     }
   };
 

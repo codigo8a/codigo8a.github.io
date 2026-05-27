@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { APPS } from "../../../apps/apps";
 import { useTranslation } from "../../../i18n/translations";
+import { useDesktop } from "../../../context/DesktopContext";
 import "./index.css";
 
 interface StartMenuProps {
@@ -11,6 +12,7 @@ interface StartMenuProps {
 export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const { t } = useTranslation();
+  const { launchWinamp } = useDesktop();
 
   const toggleSubmenu = (menu: string) => {
     setOpenSubmenu(openSubmenu === menu ? null : menu);
@@ -53,6 +55,17 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
                   {APPS.notepad.icon}
                 </span>
                 {APPS.notepad.title}
+              </button>
+              <button
+                onClick={() => {
+                  launchWinamp();
+                  onClose();
+                }}
+              >
+                <span className="icon" style={{ marginRight: "8px" }}>
+                  🎵
+                </span>
+                Winamp
               </button>
             </div>
           )}
