@@ -393,18 +393,32 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
         initialSkin
       });
 
-      // Save state when closing to persist window positions
+      // Save state when closing to persist window positions and playlist
       webamp.onClose(() => { 
         webampClosedRef.current = true;
-        // Use type assertion to access serialize method if available
+        // Use private method to get serialized state
         const webampAny = webamp as any;
-        if (webampAny.serialize) {
-          const state = webampAny.serialize();
+        if (webampAny.__getSerializedState) {
+          const state = webampAny.__getSerializedState();
           if (state) {
             localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_STATE, JSON.stringify(state));
           }
         }
       });
+      
+      // Load state if we have a saved state
+      if (savedWinampState) {
+        try {
+          const state = JSON.parse(savedWinampState);
+          const webampAny = webamp as any;
+          if (webampAny.__loadSerializedState) {
+            webampAny.__loadSerializedState(state);
+          }
+        } catch (e) {
+          console.error('Failed to load Winamp state:', e);
+        }
+      }
+      
       webampRef.current = webamp;
 
       // Render into the dedicated container, NOT the desktop's #root
