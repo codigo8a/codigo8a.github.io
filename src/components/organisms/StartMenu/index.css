@@ -64,6 +64,7 @@
   padding: 6px 8px;
   background: transparent;
   border: none;
+  border-radius: 0;
   cursor: pointer;
   font-size: 11px;
   font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
@@ -72,6 +73,7 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 .start-menu-items button .icon {
   width: 16px;
@@ -87,7 +89,8 @@
   height: 16px;
   image-rendering: pixelated;
 }
-.start-menu-items button:not(:disabled):hover {
+.start-menu-items button:not(:disabled):hover,
+.start-menu-items button.active {
   background: var(--Hilight);
   color: var(--HilightText);
 }
@@ -119,15 +122,13 @@
   font-size: 9px;
   color: inherit;
 }
-.menu-item-with-submenu > button:not(:disabled):hover .submenu-arrow {
-  color: var(--HilightText);
-}
+
+/* Submenu panel (cascading menu) — positioned relative to .start-menu */
 .submenu {
   position: absolute;
   left: 100%;
-  top: 0;
   z-index: 5002;
-  min-width: 150px;
+  min-width: 160px;
   display: flex;
   flex-direction: column;
   padding: 2px;
@@ -143,6 +144,7 @@
   padding: 5px 8px;
   background: transparent;
   border: none;
+  border-radius: 0;
   cursor: pointer;
   font-size: 11px;
   font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
@@ -152,6 +154,7 @@
   gap: 6px;
   width: 100%;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 .submenu button:hover {
   background: var(--Hilight);

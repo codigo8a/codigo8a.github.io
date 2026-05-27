@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { APPS } from "../../../apps/apps";
 import { useTranslation } from "../../../i18n/translations";
 import { useDesktop } from "../../../context/DesktopContext";
@@ -11,115 +11,155 @@ interface StartMenuProps {
 
 export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [submenuTop, setSubmenuTop] = useState(0);
+  const submenuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const programsRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const { launchWinamp } = useDesktop();
 
-  const toggleSubmenu = (menu: string) => {
-    setOpenSubmenu(openSubmenu === menu ? null : menu);
-  };
+  const clearTimer = useCallback(() => {
+    if (submenuTimer.current) {
+      clearTimeout(submenuTimer.current);
+      submenuTimer.current = null;
+    }
+  }, []);
+
+  const startCloseTimer = useCallback(() => {
+    clearTimer();
+    submenuTimer.current = setTimeout(() => {
+      setOpenSubmenu(null);
+    }, 300);
+  }, [clearTimer]);
+
+  const openPrograms = useCallback(() => {
+    clearTimer();
+    setOpenSubmenu("programs");
+    // Calculate submenu position relative to .start-menu
+    if (programsRef.current && menuRef.current) {
+      const triggerRect = programsRef.current.getBoundingClientRect();
+      const menuRect = menuRef.current.getBoundingClientRect();
+      setSubmenuTop(triggerRect.top - menuRect.top);
+    }
+  }, [clearTimer]);
+
+  const handleSubmenuLeave = useCallback(() => {
+    startCloseTimer();
+  }, [startCloseTimer]);
+
+  const handleSubPanelEnter = useCallback(() => {
+    clearTimer();
+  }, [clearTimer]);
+
+  const handleSubPanelLeave = useCallback(() => {
+    startCloseTimer();
+  }, [startCloseTimer]);
+
+  const handleItemClick = useCallback((appId: string) => {
+    onOpenApp(appId);
+    onClose();
+  }, [onOpenApp, onClose]);
+
+  useEffect(() => {
+    return () => {
+      if (submenuTimer.current) clearTimeout(submenuTimer.current);
+    };
+  }, []);
+
+  const renderAppIcon = (iconPath: string, alt: string) => (
+    <span className="icon">
+      <img src={iconPath} alt={alt} />
+    </span>
+  );
 
   return (
-    <div className="start-menu outset-deep" onClick={(e) => e.stopPropagation()}>
+    <div className="start-menu outset-deep" ref={menuRef} onClick={(e) => e.stopPropagation()}>
       <div className="start-menu-sidebar">
         <span>Desktop</span>
       </div>
+
       <div className="start-menu-items">
-        <div className="menu-item-with-submenu">
-          <button onClick={() => toggleSubmenu("programs")}>
-            <span className="icon" style={{ marginRight: "8px" }}>
-              🗃️
+        {/* Programs submenu trigger */}
+        <div
+          className="menu-item-with-submenu"
+          ref={programsRef}
+          onMouseEnter={openPrograms}
+          onMouseLeave={handleSubmenuLeave}
+        >
+          <button
+            className={openSubmenu === "programs" ? "active" : ""}
+            onClick={() => setOpenSubmenu(openSubmenu === "programs" ? null : "programs")}
+          >
+            <span className="icon">
+              <img src="/app/icons/folder.svg" alt="Programs" />
             </span>
             {t("programs" as any)}
             <span className="submenu-arrow">▶</span>
           </button>
-          {openSubmenu === "programs" && (
-            <div className="submenu">
-              <button
-                onClick={() => {
-                  onOpenApp("netscape");
-                  onClose();
-                }}
-              >
-                <span className="icon" style={{ marginRight: "8px" }}>
-                  {APPS.netscape.icon}
-                </span>
-                {APPS.netscape.title}
-              </button>
-              <button
-                onClick={() => {
-                  onOpenApp("notepad");
-                  onClose();
-                }}
-              >
-                <span className="icon" style={{ marginRight: "8px" }}>
-                  {APPS.notepad.icon}
-                </span>
-                {APPS.notepad.title}
-              </button>
-              <button
-                onClick={() => {
-                  launchWinamp();
-                  onClose();
-                }}
-              >
-                <span className="icon" style={{ marginRight: "8px", display: 'flex', alignItems: 'center' }}>
-                  <img src="/app/icons/winamp-logo.svg" alt="Winamp" width={16} height={16} />
-                </span>
-                Winamp
-              </button>
-            </div>
-          )}
         </div>
-        <button
-          onClick={() => {
-            onOpenApp("search");
-            onClose();
-          }}
-        >
-          <span className="icon" style={{ marginRight: "8px" }}>
-            🔍
-          </span>
+
+        {/* Search */}
+        <button onClick={() => handleItemClick("search")}>
+          {renderAppIcon(APPS.search.icon, APPS.search.title)}
           {t("find" as any)}
         </button>
-        <button
-          onClick={() => {
-            onOpenApp("fileExplorer");
-            onClose();
-          }}
-        >
-          <span className="icon" style={{ marginRight: "8px" }}>
-            {APPS.fileExplorer.icon}
-          </span>
+
+        {/* My Documents */}
+        <button onClick={() => handleItemClick("fileExplorer")}>
+          {renderAppIcon(APPS.fileExplorer.icon, APPS.fileExplorer.title)}
           {t("documents" as any)}
         </button>
+
         <div className="start-menu-divider" />
-         <button
-          onClick={() => {
-            onOpenApp("settings");
-            onClose();
-          }}
-        >
-          <span className="icon" style={{ marginRight: "8px" }}>
-            ⚙️
-          </span>
+
+        {/* Settings */}
+        <button onClick={() => handleItemClick("settings")}>
+          {renderAppIcon(APPS.settings.icon, APPS.settings.title)}
           {t("settings" as any)}
         </button>
-        <button
-          onClick={() => {
-            onOpenApp("welcome");
-            onClose();
-          }}
-        >
-          <span className="icon" style={{ marginRight: "8px" }}>
-            {APPS.welcome.icon}
-          </span>
+
+        {/* Welcome */}
+        <button onClick={() => handleItemClick("welcome")}>
+          {renderAppIcon(APPS.welcome.icon, APPS.welcome.title)}
           {APPS.welcome.title}
         </button>
+
+        {/* Help (disabled) */}
         <button disabled>{t("help" as any)}</button>
+
+        {/* Run (disabled) */}
         <button disabled>{t("run" as any)}...</button>
+
         <div className="start-menu-divider" />
+
+        {/* Shut Down (disabled) */}
         <button disabled>{t("shutDown" as any)}...</button>
       </div>
+
+      {/* Submenu rendered OUTSIDE .start-menu-items to avoid overflow clipping */}
+      {openSubmenu === "programs" && (
+        <div
+          className="submenu"
+          style={{ top: submenuTop }}
+          onMouseEnter={handleSubPanelEnter}
+          onMouseLeave={handleSubPanelLeave}
+        >
+          <button onClick={() => handleItemClick("netscape")}>
+            {renderAppIcon(APPS.netscape.icon, APPS.netscape.title)}
+            {APPS.netscape.title}
+          </button>
+          <button onClick={() => handleItemClick("notepad")}>
+            {renderAppIcon(APPS.notepad.icon, APPS.notepad.title)}
+            {APPS.notepad.title}
+          </button>
+          <button onClick={() => { launchWinamp(); onClose(); }}>
+            <span className="icon">
+              <img src="/app/icons/winamp-logo.svg" alt="Winamp" width={16} height={16} />
+            </span>
+            Winamp
+          </button>
+        </div>
+      )}
     </div>
   );
 };
