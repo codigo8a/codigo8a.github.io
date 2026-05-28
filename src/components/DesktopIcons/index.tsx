@@ -8,20 +8,30 @@ interface DesktopIcon {
   label: string;
 }
 
-const WINAMP_ICON = (
-  <img 
-    src="/app/icons/winamp-logo.svg" 
-    alt="Winamp" 
-    width={32} 
-    height={32} 
-    style={{ imageRendering: 'auto' }} 
-  />
-);
+const APP_ICONS: Record<string, React.ReactNode> = {
+  winamp: (
+    <img 
+      src="/app/icons/winamp-logo.svg" 
+      alt="Winamp" 
+      width={32} 
+      height={32} 
+      style={{ imageRendering: 'auto' }} 
+    />
+  ),
+  iexplorer: (
+    <img 
+      src="/app/icons/iexplorer-32x32.png" 
+      alt="Internet Explorer" 
+      width={32} 
+      height={32} 
+    />
+  ),
+};
 
 const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'myDocuments', icon: '📁', label: 'My Documents' },
   { id: 'find', icon: '🔍', label: 'Find' },
-  { id: 'browser', icon: '🌐', label: 'Browser' },
+  { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },
   { id: 'prueba', icon: '🧪', label: 'Prueba' },
 ];
@@ -35,7 +45,7 @@ export const DesktopIcons: React.FC = () => {
     } else if (iconId === 'find') {
       openApp('search');
     } else if (iconId === 'browser') {
-      openApp('netscape');
+      openApp('iexplorer');
     } else if (iconId === 'winamp') {
       launchWinamp();
     } else if (iconId === 'prueba') {
@@ -52,7 +62,7 @@ export const DesktopIcons: React.FC = () => {
           onClick={() => handleIconClick(icon.id)}
         >
           <div className="desktop-icon-image">
-            {icon.icon === 'winamp' ? WINAMP_ICON : icon.icon}
+            {APP_ICONS[icon.icon] ?? icon.icon}
           </div>
           <span className="desktop-icon-label">
             {icon.label}

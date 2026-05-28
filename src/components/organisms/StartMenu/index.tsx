@@ -144,9 +144,9 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
           onMouseEnter={handleSubPanelEnter}
           onMouseLeave={handleSubPanelLeave}
         >
-          <button onClick={() => handleItemClick("netscape")}>
-            {renderAppIcon(APPS.netscape.icon, APPS.netscape.title)}
-            {APPS.netscape.title}
+          <button onClick={() => handleItemClick("iexplorer")}>
+            {renderAppIcon(APPS.iexplorer.icon, APPS.iexplorer.title)}
+            {APPS.iexplorer.title}
           </button>
           <button onClick={() => handleItemClick("notepad")}>
             {renderAppIcon(APPS.notepad.icon, APPS.notepad.title)}

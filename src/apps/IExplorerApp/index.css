@@ -1,0 +1,154 @@
+/* ═══════════════════════════════════════
+   Internet Explorer 5 — DOM-based browser UI
+   Uses os-gui native window (not React)
+   ═══════════════════════════════════════ */
+
+.iexplorer-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--ButtonFace, #c0c0c0);
+  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+}
+
+/* ── Proxy Banner ── */
+
+.ie-proxy-banner {
+  background: #ffffcc;
+  border-bottom: 1px solid var(--ButtonShadow, #808080);
+  padding: 3px 8px;
+  font-size: 11px;
+  text-align: center;
+  color: #333;
+}
+
+/* ── Content Area ── */
+
+.ie-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--Window, #fff);
+  display: block;
+  flex: 1;
+}
+
+/* ── Loading Overlay ── */
+
+.ie-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--ButtonFace, #c0c0c0);
+  border: 2px outset var(--ButtonHilight, #dfdfdf);
+  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.ie-loading-text {
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--WindowText, #000);
+}
+
+/* ── Error Overlay ── */
+
+.ie-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background: #ffffcc;
+  z-index: 10;
+}
+
+.ie-error-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.ie-error h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--WindowText, #000);
+}
+
+.ie-error p {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #444;
+  max-width: 420px;
+}
+
+.ie-error code {
+  background: #eee;
+  padding: 2px 5px;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.ie-error-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ie-error-actions button.lightweight {
+  padding: 4px 16px;
+  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ── Status Bar ── */
+
+.ie-status-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  background: var(--ButtonFace, #c0c0c0);
+  min-height: 18px;
+  margin-top: 2px;
+}
+
+.ie-status-left {
+  flex: 1;
+  padding: 2px 6px;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ie-status-right {
+  padding: 2px 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .ie-loading {
+    padding: 12px 16px;
+  }
+}

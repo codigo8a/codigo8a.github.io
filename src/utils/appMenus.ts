@@ -71,7 +71,7 @@ export const getAppMenu = (appId: string, actions?: any): MenuDefinition | null 
         ],
       };
 
-    case 'netscape':
+    case 'iexplorer':
       return {
         '&File': [
           { label: '&Open...', shortcut: 'Ctrl+L', action: () => actions?.onOpen?.() },

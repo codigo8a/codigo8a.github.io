@@ -4,7 +4,7 @@ import { FileExplorerApp, launchFileExplorer } from './FileExplorerApp';
 import { FileViewerApp, launchFileViewer } from './FileViewerApp';
 import { SearchApp, launchSearch } from './SearchApp';
 import { SettingsApp, launchSettings } from './SettingsApp';
-import { NetscapeApp, launchNetscape } from './NetscapeApp';
+import { IExplorerApp, launchIExplorer } from './IExplorerApp';
 import { PruebaApp, launchPrueba } from './Prueba';
 import { AppDefinition } from '../types';
 
@@ -64,14 +64,14 @@ export const APPS: Record<string, AppDefinition> = {
     centered: true,
     customLaunch: launchSettings,
   },
-  netscape: {
-    id: 'netscape',
-    title: 'Netscape Navigator',
-    icon: '/app/icons/browser.svg',
-    component: NetscapeApp,
-    defaultSize: { width: 900, height: 750 },
+  iexplorer: {
+    id: 'iexplorer',
+    title: 'Internet Explorer',
+    icon: '/app/icons/iexplorer-32x32.png',
+    component: IExplorerApp,
+    defaultSize: { width: 900, height: 650 },
     centered: true,
-    customLaunch: launchNetscape,
+    customLaunch: launchIExplorer,
   },
   prueba: {
     id: 'prueba',
