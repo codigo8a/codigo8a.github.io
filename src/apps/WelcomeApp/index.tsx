@@ -1,5 +1,6 @@
 import React from 'react';
 import { extractRawContent, extractDate, extractContentWithoutDate } from '../../utils/fileUtils';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -222,6 +223,11 @@ function createTipContent(
   return div;
 }
 
+// ─── Singleton instance tracker ──────────────────────────────────────────────
+// Ensures clicking Start Menu or startup auto-launch reuses the same window.
+
+let welcomeWindowInstance: any = null;
+
 // ─── os-gui launch function ──────────────────────────────────────────────────
 
 export function launchWelcome(): void {
@@ -230,6 +236,13 @@ export function launchWelcome(): void {
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');
+    return;
+  }
+
+  // Reuse existing window if still open
+  if (welcomeWindowInstance && !welcomeWindowInstance.closed) {
+    welcomeWindowInstance.show();   // un-minimize if hidden
+    welcomeWindowInstance.focus();  // bring to front
     return;
   }
 
@@ -263,6 +276,15 @@ export function launchWelcome(): void {
 
   $win.css({ width: '700px', height: '420px' });
   $win.center();
+
+  // Register with taskbar
+  registerOsWindow($win, 'welcome', 'Welcome', '/app/icons/welcome.svg');
+
+  // Track instance for singleton reuse; clear reference when window closes
+  welcomeWindowInstance = $win;
+  $win.onClosed(() => {
+    welcomeWindowInstance = null;
+  });
 
   // ── Menu bar (inserted after titlebar, like NetscapeApp) ──
 

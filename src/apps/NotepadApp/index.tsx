@@ -1,5 +1,6 @@
 import React from 'react';
 import './index.css';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * Placeholder React component — Notepad uses os-gui natively via launchNotepad().
@@ -44,6 +45,7 @@ export function launchNotepad(): void {
     height: '350px',
   });
   $win.center();
+  registerOsWindow($win, 'notepad', 'Untitled - Notepad', '/app/icons/notepad.svg');
 
   // ── Build Notepad layout ──
   const container = document.createElement('div');

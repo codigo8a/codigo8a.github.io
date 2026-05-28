@@ -1,5 +1,6 @@
 import React from 'react';
 import './index.css';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * Placeholder React component — FileViewerApp uses os-gui natively via launchFileViewer().
@@ -222,6 +223,7 @@ export function launchFileViewer(appData?: any): void {
     height: '500px',
   });
   $win.center();
+  registerOsWindow($win, 'fileViewer', title, '/app/icons/file-viewer.svg');
 
   // ── Build the viewer layout ──
   const container = document.createElement('div');

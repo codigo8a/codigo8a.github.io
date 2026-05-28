@@ -1,4 +1,5 @@
 import React from 'react';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * Placeholder React component - the Prueba app uses os-gui natively.
@@ -250,6 +251,7 @@ export function launchPrueba(): void {
     height: '480px',
   });
   $win.center();
+  registerOsWindow($win, 'prueba', 'My Documents', '/app/icons/folder.svg');
 
   // ── Build Explorer layout ──
   const explorer = document.createElement('div');

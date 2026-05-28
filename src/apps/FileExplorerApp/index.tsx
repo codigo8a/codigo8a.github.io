@@ -4,6 +4,7 @@ import {
   extractContentWithoutDate,
   extractRawContent,
 } from '../../utils/fileUtils';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -381,6 +382,7 @@ export function launchFileExplorer(): void {
     height: '540px',
   });
   $win.center();
+  registerOsWindow($win, 'fileExplorer', 'My Documents', '/app/icons/folder.svg');
 
   // ── Root explorer container ──
   const explorer = document.createElement('div');

@@ -4,6 +4,7 @@ import {
   extractContentWithoutDate,
   extractRawContent,
 } from '../../utils/fileUtils';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -123,6 +124,7 @@ export function launchSearch(): void {
 
   $win.css({ width: '640px', height: '460px' });
   $win.center();
+  registerOsWindow($win, 'search', 'Find: Files', '/app/icons/search.svg');
 
   // ── Root container ──
   const container = document.createElement('div');

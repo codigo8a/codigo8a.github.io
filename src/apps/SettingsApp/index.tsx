@@ -1,5 +1,6 @@
 import React from 'react';
 import './index.css';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
  * Placeholder React component — Settings uses os-gui natively via launchSettings().
@@ -102,6 +103,7 @@ export function launchSettings(): void {
     height: '480px',
   });
   $win.center();
+  registerOsWindow($win, 'settings', t('settings'), '/app/icons/settings.svg');
 
   // ── Build Settings layout ──
   const container = document.createElement('div');

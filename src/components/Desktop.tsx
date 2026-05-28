@@ -12,6 +12,7 @@ import { WindowConfig } from '../types';
 export const Desktop: React.FC = () => {
   const {
     windows,
+    osWindows,
     activeWindowId,
     wallpaper,
     clippyEnabled,
@@ -19,6 +20,7 @@ export const Desktop: React.FC = () => {
     handleWindowFocus,
     handleMinimize,
     handleRestore,
+    handleRestoreOsWindow,
     handleClose,
     handleMaximize,
     handleWindowMove,
@@ -52,9 +54,11 @@ export const Desktop: React.FC = () => {
     }}>
       <TaskBar
         windows={windows}
+        osWindows={osWindows}
         activeWindowId={activeWindowId}
         onWindowClick={handleWindowFocus}
         onRestore={handleRestore}
+        onRestoreOsWindow={handleRestoreOsWindow}
         isStartOpen={isStartOpen}
         onStartClick={handleStartClick}
       />

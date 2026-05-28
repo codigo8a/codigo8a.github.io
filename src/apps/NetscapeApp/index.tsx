@@ -1,5 +1,6 @@
 import React from 'react';
 import './index.css';
+import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 const PROXY_BASE = 'https://corsproxy.io/?url=';
 
@@ -302,6 +303,7 @@ export function launchNetscape(): void {
     height: '600px',
   });
   $win.center();
+  registerOsWindow($win, 'netscape', 'Netscape Navigator', '/app/icons/browser.svg');
 
   // ──────────────────────────────────────
   //  Menu bar

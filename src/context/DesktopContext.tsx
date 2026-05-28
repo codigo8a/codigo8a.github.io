@@ -4,6 +4,8 @@ import { getAppById } from '../apps/apps';
 import { getAppMenu } from '../utils/appMenus';
 import { WindowConfig } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { getOsWindows, focusOsWindow } from '../utils/osWindowRegistry';
+import type { OsWindowEntry } from '../utils/osWindowRegistry';
 
 export type WallpaperId = 'teal' | 'brick' | 'marble' | 'ocean' | 'grid' | 'purple';
 
@@ -24,6 +26,7 @@ export const WALLPAPERS: WallpaperOption[] = [
 
 interface DesktopContextType {
   windows: WindowConfig[];
+  osWindows: OsWindowEntry[];
   activeWindowId: string | null;
   wallpaper: WallpaperId;
   setWallpaper: (wallpaper: WallpaperId) => void;
@@ -40,6 +43,8 @@ interface DesktopContextType {
   openApp: (appId: string, appData?: any) => void;
   isWindowOpen: (appId: string) => boolean;
   launchWinamp: () => void;
+  /** Restore/focus an os-gui native window from the taskbar */
+  handleRestoreOsWindow: (id: string) => void;
 }
 
 const DesktopContext = createContext<DesktopContextType | null>(null);
@@ -48,6 +53,23 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   const [windows, setWindows] = useState<WindowConfig[]>(initialWindows);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(initialWindows[0]?.id || null);
   const [zIndexCounter, setZIndexCounter] = useState(10);
+
+  // ── os-gui window tracking (for taskbar) ──
+
+  const [osWindows, setOsWindows] = useState<OsWindowEntry[]>(() => getOsWindows());
+
+  // Sync with the shared registry when it changes
+  useEffect(() => {
+    const sync = () => setOsWindows(getOsWindows());
+    window.addEventListener('os-windows-changed', sync);
+    return () => window.removeEventListener('os-windows-changed', sync);
+  }, []);
+
+  const handleRestoreOsWindow = useCallback((id: string) => {
+    focusOsWindow(id);
+    // Refresh state after focus
+    setOsWindows(getOsWindows());
+  }, []);
   
   // Load wallpaper from localStorage on mount
   const [wallpaper, setWallpaperState] = useState<WallpaperId>(() => {
@@ -470,6 +492,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
 
   const value = {
     windows,
+    osWindows,
     activeWindowId,
     wallpaper,
     setWallpaper,
@@ -485,7 +508,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     addWindow,
     openApp,
     isWindowOpen,
-    launchWinamp
+    launchWinamp,
+    handleRestoreOsWindow,
   };
 
   return (
