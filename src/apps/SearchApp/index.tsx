@@ -10,7 +10,7 @@ import { registerOsWindow } from '../../utils/osWindowRegistry';
  * All markdown files loaded eagerly via Vite's import.meta.glob.
  * This is a build-time feature, so it cannot live inside a React hook.
  */
-const files: Record<string, string> = import.meta.glob('../data/files/**/*.md', {
+const files: Record<string, string> = import.meta.glob('../../data/files/**/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -37,7 +37,7 @@ interface SearchResult extends FileData {
 function getAllFiles(): FileData[] {
   const result: FileData[] = [];
   Object.entries(files).forEach(([path, content]) => {
-    const parts = path.replace('../data/files/', '').split('/');
+    const parts = path.replace('../../data/files/', '').split('/');
     const folder = parts[0];
     const filename = parts[1];
     result.push({
@@ -75,7 +75,7 @@ function searchFiles(term: string): SearchResult[] {
  */
 function openFileInViewer(file: FileData): void {
   const rawContent = extractRawContent(
-    files[`../data/files/${file.folder}/${file.name}`],
+    files[`../../data/files/${file.folder}/${file.name}`],
   );
   window.dispatchEvent(
     new CustomEvent('desktop-open-app', {

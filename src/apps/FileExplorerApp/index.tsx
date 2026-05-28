@@ -10,7 +10,7 @@ import { registerOsWindow } from '../../utils/osWindowRegistry';
  * All markdown files loaded eagerly via Vite's import.meta.glob.
  */
 const files: Record<string, string> = import.meta.glob(
-  '../data/files/**/*.md',
+  '../../data/files/**/*.md',
   {
     query: '?raw',
     import: 'default',
@@ -42,7 +42,7 @@ interface FolderItem {
 function getFolderStructure(): FolderItem[] {
   const map: Record<string, FileItem[]> = {};
   Object.entries(files).forEach(([path, content]) => {
-    const parts = path.replace('../data/files/', '').split('/');
+    const parts = path.replace('../../data/files/', '').split('/');
     const folder = parts[0];
     const filename = parts[1];
     const date = extractDate(content);
@@ -69,7 +69,7 @@ function getFolderStructure(): FolderItem[] {
 function getAllFilesFlat(sortBy: SortMode = 'date'): FileItem[] {
   const result: FileItem[] = [];
   Object.entries(files).forEach(([path, content]) => {
-    const parts = path.replace('../data/files/', '').split('/');
+    const parts = path.replace('../../data/files/', '').split('/');
     result.push({
       name: parts[1],
       folder: parts[0],
@@ -111,7 +111,7 @@ function getStats(): { folderCount: number; fileCount: number } {
   // Count unique folders
   const folderSet = new Set<string>();
   Object.keys(files).forEach((path) => {
-    const folder = path.replace('../data/files/', '').split('/')[0];
+    const folder = path.replace('../../data/files/', '').split('/')[0];
     folderSet.add(folder);
   });
   return { folderCount: folderSet.size, fileCount };
@@ -163,7 +163,7 @@ function getFileTypeLabel(name: string): string {
  * (matching the convention used by other os-gui apps).
  */
 function openFileViewer(name: string, folder: string, date: string): void {
-  const contentPath = `../data/files/${folder}/${name}`;
+  const contentPath = `../../data/files/${folder}/${name}`;
   const content = files[contentPath];
   const rawContent = content ? extractRawContent(content) : '';
   const processedContent = content ? extractContentWithoutDate(content) : '';

@@ -6,7 +6,7 @@ import { registerOsWindow } from '../../utils/osWindowRegistry';
  * All markdown files loaded eagerly via Vite's import.meta.glob.
  * Used for "What's New" (features.md) and "Resume" (hoja-de-vida.md) content.
  */
-const mdFiles: Record<string, string> = import.meta.glob('../data/files/**/*.md', {
+const mdFiles: Record<string, string> = import.meta.glob('../../data/files/**/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -29,7 +29,7 @@ function openFileInViewer(
   folder: string,
   displayTitle: string,
 ): void {
-  const rawPath = `../data/files/${folder}/${fileName}.md`;
+  const rawPath = `../../data/files/${folder}/${fileName}.md`;
   const rawMd = mdFiles[rawPath];
   if (!rawMd) {
     console.warn(`WelcomeApp: file not found — ${rawPath}`);

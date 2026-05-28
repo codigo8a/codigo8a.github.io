@@ -28,7 +28,6 @@
 .start-menu-sidebar {
   flex: 0 0 auto;
   width: 22px;
-  background-image: url('/images/start-menu-side-98-js-alt.png');
   background-repeat: repeat-y;
   background-size: 22px 100%;
   display: flex;
