@@ -48,3 +48,6 @@ _site/
 # Deployment platforms
 .vercel
 .netlify
+
+# SDD infrastructure
+.atl/

@@ -20,47 +20,13 @@ const files: Record<string, string> = import.meta.glob(
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = 'icons' | 'details' | 'tree';
+type ViewMode = 'LARGE_ICONS' | 'SMALL_ICONS' | 'LIST' | 'DETAILS';
 type SortMode = 'name' | 'date' | 'type' | 'size';
 
 interface FileItem {
   name: string;
   folder: string;
   date: string;
-}
-
-interface FolderItem {
-  name: string;
-  files: FileItem[];
-}
-
-// ─── Data helpers ─────────────────────────────────────────────────────────────
-
-/**
- * Builds folder/file hierarchy from the imported markdown files.
- */
-function getFolderStructure(): FolderItem[] {
-  const map: Record<string, FileItem[]> = {};
-  Object.entries(files).forEach(([path, content]) => {
-    const parts = path.replace('../../data/files/', '').split('/');
-    const folder = parts[0];
-    const filename = parts[1];
-    const date = extractDate(content);
-    if (!map[folder]) map[folder] = [];
-    map[folder].push({ name: filename, folder, date });
-  });
-  // Sort folders by name
-  return Object.entries(map)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([name, fileList]) => ({
-      name,
-      // Sort files within a folder by date descending
-      files: fileList.sort((a, b) => {
-        const da = new Date(a.date.split('/').reverse().join('-')).getTime();
-        const db = new Date(b.date.split('/').reverse().join('-')).getTime();
-        return db - da;
-      }),
-    }));
 }
 
 /**
@@ -201,19 +167,14 @@ const SPRITE_CUT = 21;
 const SPRITE_COPY = 22;
 const SPRITE_PASTE = 23;
 
+const SPRITE_VIEWS = 38;
+
 /**
  * Shared SVG for dropdown arrow (▶ rotated 90° — identical to 98.js).
  */
 const DROPDOWN_ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="fill:currentColor;display:inline-block;vertical-align:middle"><path style="transform:rotate(90deg);transform-origin:center" d="m5 6 4 4-4 4z"></path></svg>`;
 
-/**
- * View-mode SVG icons for the toggle buttons (16×16).
- */
-const VIEW_MODE_SVGS: Record<ViewMode, string> = {
-  icons: `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`,
-  details: `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="3" rx="0.5"/><rect x="1" y="6" width="14" height="2" rx="0.5"/><rect x="1" y="9" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>`,
-  tree: `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/><line x1="6" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="10" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="3.5" y1="6" x2="3.5" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>`,
-};
+
 
 /**
  * Creates a sprite-based icon div (20×20 px with the correct sprite position).
@@ -251,7 +212,7 @@ function createCompoundButton(
   label: string,
   spriteIndex: number,
   mainAction: () => void,
-  dropdownAction: () => void,
+  dropdownAction: (event: Event) => void,
   disabled: boolean = false,
 ): HTMLDivElement {
   const wrapper = document.createElement('div');
@@ -350,11 +311,120 @@ export function launchFileExplorer(): void {
   ensureDisabledFilter();
 
   // ── Mutable state ──
-  let currentView: ViewMode = 'icons';
+  let currentView: ViewMode = 'LARGE_ICONS';
   let currentSort: SortMode = 'date';
   let statusBarVisible = true;
   let stdToolbarVisible = true;
   let addrBarVisible = true;
+
+  /**
+   * Cycles through view modes: LARGE_ICONS → SMALL_ICONS → LIST → LARGE_ICONS.
+   * DETAILS is excluded from the cycle, matching 98.js behavior.
+   */
+  function cycleViewMode(): void {
+    const cycle: ViewMode[] = ['LARGE_ICONS', 'SMALL_ICONS', 'LIST'];
+    const idx = cycle.indexOf(currentView);
+    if (idx === -1) {
+      currentView = 'LARGE_ICONS';
+    } else {
+      currentView = cycle[(idx + 1) % cycle.length];
+    }
+    refreshContent();
+  }
+
+  /**
+   * Opens the Views dropdown menu using a temporary MenuBar
+   * appended off-screen, then programmatically dispatching pointerdown.
+   */
+  function openViewsDropdown(event: Event): void {
+    // Position the dummy MenuBar at the Views button location so the
+    // dropdown opens at the correct position (matching 98.js approach).
+    const dropBtn = event.currentTarget as HTMLElement;
+    const wrapper = dropBtn.closest('.toolbar-compound-button-wrapper') as HTMLElement;
+    const rect = wrapper.getBoundingClientRect();
+
+    const dummyMenuBar = new MenuBar({
+      "Views": [
+        {
+          label: "as &Web Page",
+          enabled: false,
+          type: 'checkbox',
+          checked: false,
+          action: () => {},
+        },
+        { separator: true },
+        {
+          label: "Lar&ge Icons",
+          type: 'radio',
+          checked: currentView === 'LARGE_ICONS',
+          action: () => {
+            currentView = 'LARGE_ICONS';
+            refreshContent();
+            cleanup();
+          },
+        },
+        {
+          label: "S&mall Icons",
+          type: 'radio',
+          checked: currentView === 'SMALL_ICONS',
+          action: () => {
+            currentView = 'SMALL_ICONS';
+            refreshContent();
+            cleanup();
+          },
+        },
+        {
+          label: "&List",
+          type: 'radio',
+          checked: currentView === 'LIST',
+          action: () => {
+            currentView = 'LIST';
+            refreshContent();
+            cleanup();
+          },
+        },
+        {
+          label: "&Details",
+          type: 'radio',
+          checked: currentView === 'DETAILS',
+          enabled: false,
+          action: () => {
+            currentView = 'DETAILS';
+            refreshContent();
+            cleanup();
+          },
+        },
+      ],
+    });
+
+    const dummyEl = document.createElement('div');
+    dummyEl.style.cssText = `
+      position: absolute;
+      left: ${rect.left}px;
+      top: ${rect.top}px;
+      visibility: hidden;
+      pointer-events: none;
+    `;
+    dummyEl.appendChild(dummyMenuBar.element);
+    document.body.appendChild(dummyEl);
+
+    const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement;
+    if (menuButton) {
+      menuButton.dispatchEvent(new PointerEvent('pointerdown'));
+      // Clean up when the dropdown closes
+      menuButton.addEventListener('release', () => {
+        if (document.body.contains(dummyEl)) {
+          document.body.removeChild(dummyEl);
+        }
+      });
+    }
+
+    function cleanup(): void {
+      if (document.body.contains(dummyEl)) {
+        document.body.removeChild(dummyEl);
+      }
+    }
+  }
 
   // DOM element references (assigned after creation)
   let contentEl: HTMLElement;
@@ -364,7 +434,6 @@ export function launchFileExplorer(): void {
   let statusRightEl: HTMLElement;
   let stdToolbarEl: HTMLElement;
   let addrToolbarEl: HTMLElement;
-  let viewButtons: Record<ViewMode, HTMLButtonElement>;
 
   // ── Create the os-gui window ──
   const $win = $Window({
@@ -423,22 +492,25 @@ export function launchFileExplorer(): void {
     }
 
     const currentFiles = getAllFilesFlat(currentSort);
-    const currentFolders = getFolderStructure();
+    const stats = getStats();
 
     switch (currentView) {
-      case 'details':
+      case 'DETAILS':
         contentEl.appendChild(buildDetailsView(currentFiles));
         break;
-      case 'tree':
-        contentEl.appendChild(buildTreeView(currentFolders));
+      case 'SMALL_ICONS':
+        contentEl.appendChild(buildSmallIconsView(currentFiles));
         break;
-      case 'icons':
+      case 'LIST':
+        contentEl.appendChild(buildListView(currentFiles));
+        break;
+      case 'LARGE_ICONS':
       default:
-        contentEl.appendChild(buildIconsView(currentFiles));
+        contentEl.appendChild(buildLargeIconsView(currentFiles));
         break;
     }
 
-    updateStatusBar(currentFiles.length, currentFolders.length);
+    updateStatusBar(stats.fileCount, stats.folderCount);
   }
 
   /**
@@ -451,15 +523,6 @@ export function launchFileExplorer(): void {
     statusLeftEl.textContent = `${folderCount} folder(s)`;
     statusMiddleEl.textContent = `${fileCount} object(s)`;
     statusRightEl.textContent = 'Ready';
-  }
-
-  /**
-   * Highlights the active view button.
-   */
-  function updateViewButtonStates(): void {
-    (Object.keys(viewButtons) as ViewMode[]).forEach((mode) => {
-      viewButtons[mode].classList.toggle('active', mode === currentView);
-    });
   }
 
   // Build menus
@@ -591,7 +654,7 @@ export function launchFileExplorer(): void {
           alert(
             'My Documents\n\n' +
               'Browse, search, and view markdown files organized by folder.\n\n' +
-              'Three view modes: Icons, Details, Tree.\n\n' +
+              'Four view modes: Large Icons, Small Icons, List, Details.\n\n' +
               'Version 1.0',
           );
         },
@@ -652,49 +715,14 @@ export function launchFileExplorer(): void {
 
   stdButtons.appendChild(createSeparator());
 
-  // ── View mode toggle buttons (after a separator) ──
-  viewButtons = {} as Record<ViewMode, HTMLButtonElement>;
-
-  (['icons', 'details', 'tree'] as ViewMode[]).forEach((mode) => {
-    const btn = document.createElement('button');
-    btn.className = 'toolbar-button lightweight';
-    if (mode === currentView) btn.classList.add('active');
-
-    // Icon
-    const iconDiv = document.createElement('div');
-    iconDiv.style.cssText = `
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      top: 2px;
-    `;
-    iconDiv.innerHTML = VIEW_MODE_SVGS[mode];
-    btn.appendChild(iconDiv);
-
-    // Label
-    const labelSpan = document.createElement('span');
-    labelSpan.className = 'label-text';
-    const labels: Record<ViewMode, string> = {
-      icons: 'Icons',
-      details: 'Details',
-      tree: 'Tree',
-    };
-    labelSpan.textContent = labels[mode];
-    btn.appendChild(labelSpan);
-
-    btn.addEventListener('click', () => {
-      if (currentView === mode) return;
-      currentView = mode;
-      updateViewButtonStates();
-      refreshContent();
-    });
-
-    viewButtons[mode] = btn;
-    stdButtons.appendChild(btn);
-  });
+  stdButtons.appendChild(
+    createCompoundButton(
+      'Views',
+      SPRITE_VIEWS,
+      cycleViewMode,
+      openViewsDropdown,
+    ),
+  );
 
   stdToolbarEl.appendChild(stdButtons);
   toolbars.appendChild(stdToolbarEl);
@@ -784,9 +812,9 @@ export function launchFileExplorer(): void {
   // ══════════════════════════════════════════════════════════════════
 
   /**
-   * Builds the icons view — grid of file icons sorted flat.
+   * Builds the large icons view — grid of 32×32 file icons sorted flat.
    */
-  function buildIconsView(fileList: FileItem[]): HTMLElement {
+  function buildLargeIconsView(fileList: FileItem[]): HTMLElement {
     const grid = document.createElement('div');
     grid.style.cssText = `
       display: flex;
@@ -956,151 +984,207 @@ export function launchFileExplorer(): void {
   }
 
   /**
-   * Builds the tree view — hierarchical folder/file structure.
+   * Builds the small icons view — grid of 16×16 file icons with label to the right.
    */
-  function buildTreeView(folderList: FolderItem[]): HTMLElement {
-    const tree = document.createElement('ul');
-    tree.style.cssText = `
-      list-style: none;
-      margin: 4px 0;
-      padding: 0 8px;
-      font-size: 11px;
-      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  function buildSmallIconsView(fileList: FileItem[]): HTMLElement {
+    const grid = document.createElement('div');
+    grid.style.cssText = `
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      padding: 4px;
+      align-content: flex-start;
     `;
 
-    // Track expanded state per folder
-    const expanded: Record<string, boolean> = {};
-
-    folderList.forEach((folder) => {
-      const li = document.createElement('li');
-      li.style.marginBottom = '1px';
-
-      // Folder row
-      const folderRow = document.createElement('div');
-      folderRow.style.cssText = `
+    fileList.forEach((file) => {
+      const item = document.createElement('div');
+      item.style.cssText = `
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 3px;
+        width: 160px;
+        padding: 2px 4px;
         cursor: pointer;
         user-select: none;
-        padding: 2px 4px;
+        border: 1px solid transparent;
+        border-radius: 2px;
       `;
-      folderRow.addEventListener('mouseenter', () => {
-        folderRow.style.background = '#c0e0ff';
+      item.title = `${file.folder}/${file.name} — ${file.date}`;
+
+      item.addEventListener('mouseenter', () => {
+        item.style.background = '#c0e0ff';
+        item.style.borderColor = '#000080';
       });
-      folderRow.addEventListener('mouseleave', () => {
-        folderRow.style.background = '';
+      item.addEventListener('mouseleave', () => {
+        item.style.background = '';
+        item.style.borderColor = 'transparent';
+      });
+      item.addEventListener('mousedown', () => {
+        item.style.background = '#000080';
+      });
+      item.addEventListener('mouseup', () => {
+        item.style.background = '#c0e0ff';
       });
 
-      // Expand/collapse arrow
-      const arrow = document.createElement('span');
-      arrow.style.cssText = `
-        width: 12px;
-        font-size: 10px;
-        text-align: center;
-        flex-shrink: 0;
-      `;
-      arrow.textContent = '▶';
+      item.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
 
-      // Folder icon
-      const iconContainer = document.createElement('span');
-      iconContainer.style.cssText = `
+      // 16×16 icon
+      const icon = document.createElement('span');
+      icon.style.cssText = `
         width: 16px;
         height: 16px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        pointer-events: none;
       `;
-      iconContainer.innerHTML = getFileIcon(true).replace(
+      icon.innerHTML = getFileIcon(false).replace(
         'width="32" height="32"',
         'width="16" height="16"',
       );
 
-      // Folder name
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = folder.name;
-
-      folderRow.appendChild(arrow);
-      folderRow.appendChild(iconContainer);
-      folderRow.appendChild(nameSpan);
-      li.appendChild(folderRow);
-
-      // Children container
-      const childContainer = document.createElement('div');
-      childContainer.style.cssText = `
-        margin-left: 20px;
-        display: none;
+      // Label
+      const label = document.createElement('span');
+      label.style.cssText = `
+        font-size: 11px;
+        font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        pointer-events: none;
+        line-height: 1.2;
       `;
+      label.textContent = file.name.replace('.md', '');
 
-      // Files list
-      const fileList = document.createElement('ul');
-      fileList.style.cssText = `
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      `;
-
-      folder.files.forEach((file) => {
-        const fileLi = document.createElement('li');
-        fileLi.style.cssText = `
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          padding: 2px 4px;
-          cursor: pointer;
-          user-select: none;
-        `;
-        fileLi.addEventListener('mouseenter', () => {
-          fileLi.style.background = '#c0e0ff';
-        });
-        fileLi.addEventListener('mouseleave', () => {
-          fileLi.style.background = '';
-        });
-        fileLi.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openFileViewer(file.name, file.folder, file.date);
-        });
-
-        // File icon (small)
-        const fileIcon = document.createElement('span');
-        fileIcon.style.cssText = `
-          width: 16px;
-          height: 16px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        `;
-        fileIcon.innerHTML = getFileIcon(false).replace(
-          'width="32" height="32"',
-          'width="16" height="16"',
-        );
-
-        const fileName = document.createElement('span');
-        fileName.textContent = file.name.replace('.md', '');
-
-        fileLi.appendChild(fileIcon);
-        fileLi.appendChild(fileName);
-        fileList.appendChild(fileLi);
-      });
-
-      childContainer.appendChild(fileList);
-
-      // Toggle expand/collapse
-      folderRow.addEventListener('click', () => {
-        const isOpen = !expanded[folder.name];
-        expanded[folder.name] = isOpen;
-        childContainer.style.display = isOpen ? 'block' : 'none';
-        arrow.textContent = isOpen ? '▼' : '▶';
-      });
-
-      li.appendChild(childContainer);
-      tree.appendChild(li);
+      item.appendChild(icon);
+      item.appendChild(label);
+      grid.appendChild(item);
     });
 
-    return tree;
+    return grid;
   }
+
+  /**
+   * Builds the list view — vertical single-column list of files.
+   */
+  function buildListView(fileList: FileItem[]): HTMLElement {
+    const table = document.createElement('table');
+    table.style.cssText = `
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+      table-layout: fixed;
+    `;
+
+    // Header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.cssText = 'position: sticky; top: 0; z-index: 1;';
+
+    const headers = [
+      { label: 'Name', width: '30%' },
+      { label: 'Date', width: '20%' },
+      { label: 'Location', width: '25%' },
+      { label: 'Type', width: '25%' },
+    ];
+
+    headers.forEach((h) => {
+      const th = document.createElement('th');
+      th.textContent = h.label;
+      th.style.cssText = `
+        text-align: left;
+        background: #c0c0c0;
+        padding: 3px 6px;
+        font-weight: normal;
+        font-size: 11px;
+        border-bottom: 1px solid #808080;
+        width: ${h.width};
+      `;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Body
+    const tbody = document.createElement('tbody');
+    fileList.forEach((file) => {
+      const row = document.createElement('tr');
+      row.style.cursor = 'pointer';
+
+      row.addEventListener('mouseenter', () => {
+        row.style.background = '#c0e0ff';
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.background = '';
+      });
+      row.addEventListener('mousedown', () => {
+        row.style.background = '#000080';
+        row.style.color = '#fff';
+      });
+      row.addEventListener('mouseup', () => {
+        row.style.background = '#c0e0ff';
+        row.style.color = '';
+      });
+
+      row.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
+
+      // Name (with icon)
+      const nameCell = document.createElement('td');
+      nameCell.style.cssText = 'padding: 2px 6px; font-size: 11px; display: flex; align-items: center; gap: 4px; border: none;';
+      const nameIcon = document.createElement('span');
+      nameIcon.style.cssText = `
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        pointer-events: none;
+      `;
+      nameIcon.innerHTML = getFileIcon(false).replace(
+        'width="32" height="32"',
+        'width="16" height="16"',
+      );
+      nameCell.appendChild(nameIcon);
+      const nameText = document.createElement('span');
+      nameText.textContent = file.name.replace('.md', '');
+      nameCell.appendChild(nameText);
+
+      // Date
+      const dateCell = document.createElement('td');
+      dateCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
+      dateCell.textContent = file.date;
+
+      // Location (folder)
+      const locCell = document.createElement('td');
+      locCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
+      locCell.textContent = file.folder;
+
+      // Type
+      const typeCell = document.createElement('td');
+      typeCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
+      typeCell.textContent = getFileTypeLabel(file.name);
+
+      row.appendChild(nameCell);
+      row.appendChild(dateCell);
+      row.appendChild(locCell);
+      row.appendChild(typeCell);
+      tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    return table;
+  }
+
+
 
   // ══════════════════════════════════════════════════════════════════
   // INITIAL RENDER

@@ -414,13 +414,11 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       const mod = await import('webamp');
       const WebampClass = mod.default;
       
-      // Load saved Winamp state from localStorage
+      // Load saved Winamp state from localStorage (for restoring position/playlist later)
       const savedWinampState = localStorage.getItem(LOCAL_STORAGE_KEYS.WINAMP_STATE);
-      const initialSkin = savedWinampState ? JSON.parse(savedWinampState) : undefined;
       
       const webamp = new WebampClass({ 
         zIndex: 501,
-        initialSkin
       });
 
       // Save state when closing to persist window positions and playlist
