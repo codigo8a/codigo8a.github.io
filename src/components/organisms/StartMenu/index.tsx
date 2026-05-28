@@ -152,6 +152,14 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
             {renderAppIcon(APPS.notepad.icon, APPS.notepad.title)}
             {APPS.notepad.title}
           </button>
+          <button onClick={() => handleItemClick("soundRecorder")}>
+            {renderAppIcon(APPS.soundRecorder.icon, APPS.soundRecorder.title)}
+            {APPS.soundRecorder.title}
+          </button>
+          <button onClick={() => handleItemClick("msdos")}>
+            {renderAppIcon(APPS.msdos.icon, APPS.msdos.title)}
+            {APPS.msdos.title}
+          </button>
           <button onClick={() => { launchWinamp(); onClose(); }}>
             <span className="icon">
               <img src="/app/icons/winamp2-16x16.png" alt="Winamp" width={16} height={16} />

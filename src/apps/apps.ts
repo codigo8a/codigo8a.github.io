@@ -7,6 +7,11 @@ import { SettingsApp, launchSettings } from './SettingsApp';
 import { IExplorerApp, launchIExplorer } from './IExplorerApp';
 import { PruebaApp, launchPrueba } from './Prueba';
 import { AppDefinition } from '../types';
+import { SoundRecorderApp, launchSoundRecorder } from './SoundRecorder';
+import { MSDOSApp, launchMSDOS } from './MSDOS';
+import { RecycleBinApp, launchRecycleBin } from './RecycleBin';
+import { NetworkApp, launchNetwork } from './Network';
+import { MyComputerApp, launchMyComputer } from './MyComputer';
 
 export const APPS: Record<string, AppDefinition> = {
   welcome: {
@@ -21,7 +26,7 @@ export const APPS: Record<string, AppDefinition> = {
   notepad: {
     id: 'notepad',
     title: 'Notepad',
-    icon: '/app/icons/notepad.svg',
+    icon: '/app/icons/notepad-32x32.png',
     component: NotepadApp,
     defaultSize: { width: 450, height: 350 },
     centered: true,
@@ -73,6 +78,51 @@ export const APPS: Record<string, AppDefinition> = {
     centered: true,
     customLaunch: launchIExplorer,
   },
+  myComputer: {
+    id: 'myComputer',
+    title: 'My Computer',
+    icon: '/app/icons/my-computer-32x32.png',
+    component: MyComputerApp,
+    defaultSize: { width: 780, height: 540 },
+    centered: true,
+    customLaunch: launchMyComputer,
+  },
+  network: {
+    id: 'network',
+    title: 'Network Neighborhood',
+    icon: '/app/icons/network-32x32.png',
+    component: NetworkApp,
+    defaultSize: { width: 500, height: 350 },
+    centered: true,
+    customLaunch: launchNetwork,
+  },
+  recycleBin: {
+    id: 'recycleBin',
+    title: 'Recycle Bin',
+    icon: '/app/icons/recycle-bin-32x32.png',
+    component: RecycleBinApp,
+    defaultSize: { width: 500, height: 350 },
+    centered: true,
+    customLaunch: launchRecycleBin,
+  },
+  soundRecorder: {
+    id: 'soundRecorder',
+    title: 'Sound Recorder',
+    icon: '/app/icons/speaker-32x32.png',
+    component: SoundRecorderApp,
+    defaultSize: { width: 270, height: 130 },
+    centered: true,
+    customLaunch: launchSoundRecorder,
+  },
+  msdos: {
+    id: 'msdos',
+    title: 'MS-DOS Prompt',
+    icon: '/app/icons/msdos-32x32.png',
+    component: MSDOSApp,
+    defaultSize: { width: 640, height: 400 },
+    centered: true,
+    customLaunch: launchMSDOS,
+  },
   prueba: {
     id: 'prueba',
     title: 'Prueba',
@@ -81,7 +131,7 @@ export const APPS: Record<string, AppDefinition> = {
     defaultSize: { width: 600, height: 450 },
     centered: true,
     customLaunch: launchPrueba,
-  }
+  },
 };
 
 export const getAppById = (id: string): AppDefinition | null => {

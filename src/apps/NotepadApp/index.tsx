@@ -33,8 +33,8 @@ export function launchNotepad(): void {
   const $win = $Window({
     title: 'Untitled - Notepad',
     icons: {
-      16: '/app/icons/notepad.svg',
-      any: '/app/icons/notepad.svg',
+      16: '/app/icons/notepad-16x16.png',
+      32: '/app/icons/notepad-32x32.png',
     },
     minWidth: 300,
     minHeight: 200,
@@ -45,7 +45,7 @@ export function launchNotepad(): void {
     height: '350px',
   });
   $win.center();
-  registerOsWindow($win, 'notepad', 'Untitled - Notepad', '/app/icons/notepad.svg');
+  registerOsWindow($win, 'notepad', 'Untitled - Notepad', '/app/icons/notepad-32x32.png');
 
   // ── Build Notepad layout ──
   const container = document.createElement('div');
