@@ -1,10 +1,10 @@
-import { WelcomeApp } from './WelcomeApp';
-import { NotepadApp } from './NotepadApp';
-import { FileExplorerApp } from './FileExplorerApp';
-import { FileViewerApp } from './FileViewerApp';
-import { SearchApp } from './SearchApp';
-import { SettingsApp } from './SettingsApp';
-import { NetscapeApp } from './NetscapeApp';
+import { WelcomeApp, launchWelcome } from './WelcomeApp';
+import { NotepadApp, launchNotepad } from './NotepadApp';
+import { FileExplorerApp, launchFileExplorer } from './FileExplorerApp';
+import { FileViewerApp, launchFileViewer } from './FileViewerApp';
+import { SearchApp, launchSearch } from './SearchApp';
+import { SettingsApp, launchSettings } from './SettingsApp';
+import { NetscapeApp, launchNetscape } from './NetscapeApp';
 import { PruebaApp, launchPrueba } from './Prueba';
 import { AppDefinition } from '../types';
 
@@ -15,7 +15,8 @@ export const APPS: Record<string, AppDefinition> = {
     icon: '/app/icons/welcome.svg',
     component: WelcomeApp,
     defaultSize: { width: 700, height: 420 },
-    centered: true
+    centered: true,
+    customLaunch: launchWelcome,
   },
   notepad: {
     id: 'notepad',
@@ -23,15 +24,17 @@ export const APPS: Record<string, AppDefinition> = {
     icon: '/app/icons/notepad.svg',
     component: NotepadApp,
     defaultSize: { width: 450, height: 350 },
-    centered: true
+    centered: true,
+    customLaunch: launchNotepad,
   },
   fileExplorer: {
     id: 'fileExplorer',
     title: 'My Documents',
     icon: '/app/icons/folder.svg',
     component: FileExplorerApp,
-    defaultSize: { width: 650, height: 450 },
-    centered: false
+    defaultSize: { width: 780, height: 540 },
+    centered: true,
+    customLaunch: launchFileExplorer,
   },
   fileViewer: {
     id: 'fileViewer',
@@ -40,15 +43,17 @@ export const APPS: Record<string, AppDefinition> = {
     component: FileViewerApp,
     defaultSize: { width: 1000, height: 800 },
     centered: true,
-    singleInstance: false
+    singleInstance: false,
+    customLaunch: launchFileViewer,
   },
   search: {
     id: 'search',
-    title: 'Search Files',
+    title: 'Find: Files',
     icon: '/app/icons/search.svg',
     component: SearchApp,
-    defaultSize: { width: 500, height: 350 },
-    centered: false
+    defaultSize: { width: 640, height: 460 },
+    centered: true,
+    customLaunch: launchSearch,
   },
   settings: {
     id: 'settings',
@@ -56,15 +61,17 @@ export const APPS: Record<string, AppDefinition> = {
     icon: '/app/icons/settings.svg',
     component: SettingsApp,
     defaultSize: { width: 450, height: 480 },
-    centered: true
+    centered: true,
+    customLaunch: launchSettings,
   },
   netscape: {
     id: 'netscape',
-    title: 'Browser',
+    title: 'Netscape Navigator',
     icon: '/app/icons/browser.svg',
     component: NetscapeApp,
     defaultSize: { width: 900, height: 750 },
-    centered: true
+    centered: true,
+    customLaunch: launchNetscape,
   },
   prueba: {
     id: 'prueba',

@@ -1,283 +1,1107 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useFileSystem, FileStructureItem } from '../../hooks/useFileSystem';
-import { useDesktop } from '../../context/DesktopContext';
-import { useTranslation } from '../../i18n/translations';
-import './index.css';
+import React from 'react';
+import {
+  extractDate,
+  extractContentWithoutDate,
+  extractRawContent,
+} from '../../utils/fileUtils';
+
+/**
+ * All markdown files loaded eagerly via Vite's import.meta.glob.
+ */
+const files: Record<string, string> = import.meta.glob(
+  '../data/files/**/*.md',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+);
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type ViewMode = 'icons' | 'details' | 'tree';
+type SortMode = 'name' | 'date' | 'type' | 'size';
 
-/* ── SVG icons for the toolbar ── */
+interface FileItem {
+  name: string;
+  folder: string;
+  date: string;
+}
 
-const IconViewSvg = () => (
-  <svg viewBox="0 0 16 16" width="16" height="16" fill="#000">
-    <rect x="1" y="1" width="6" height="6" rx="1" />
-    <rect x="9" y="1" width="6" height="6" rx="1" />
-    <rect x="1" y="9" width="6" height="6" rx="1" />
-    <rect x="9" y="9" width="6" height="6" rx="1" />
-  </svg>
-);
+interface FolderItem {
+  name: string;
+  files: FileItem[];
+}
 
-const DetailsViewSvg = () => (
-  <svg viewBox="0 0 16 16" width="16" height="16" fill="#000">
-    <rect x="1" y="1" width="14" height="3" rx="0.5" />
-    <rect x="1" y="6" width="14" height="2" rx="0.5" />
-    <rect x="1" y="9" width="14" height="2" rx="0.5" />
-    <rect x="1" y="12" width="14" height="2" rx="0.5" />
-  </svg>
-);
+// ─── Data helpers ─────────────────────────────────────────────────────────────
 
-const TreeViewSvg = () => (
-  <svg viewBox="0 0 16 16" width="16" height="16">
-    <path d="M2 3h5l1.5 1.5H14v7H2V3z" fill="#000" stroke="#000" strokeWidth="0.5" />
-    <line x1="4" y1="7" x2="8" y2="7" stroke="#000" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="4" y1="9.5" x2="10" y2="9.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="4" y1="12" x2="7" y2="12" stroke="#000" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-);
-
-/* ── Component ── */
-
-export const FileExplorerApp: React.FC = () => {
-  const { getFileStructure, getRawFileContent } = useFileSystem();
-  const { openApp } = useDesktop();
-  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
-  const [activeView, setActiveView] = useState<ViewMode>('icons');
-  const { t } = useTranslation();
-
-  const fileStructure = useMemo(() => getFileStructure(), [getFileStructure]);
-
-  const allFiles = useMemo(() => {
-    const files: { name: string; folder: string; date: string }[] = [];
-    fileStructure.forEach(folder => {
-      folder.children?.forEach(file => {
-        files.push({
-          name: file.name,
-          folder: folder.name,
-          date: file.date || '',
-        });
-      });
-    });
-    // Sort by date descending (newest first) — dates are DD/MM/YYYY
-    files.sort((a, b) => {
-      const dateA = new Date(a.date.split('/').reverse().join('-')).getTime();
-      const dateB = new Date(b.date.split('/').reverse().join('-')).getTime();
-      return dateB - dateA;
-    });
-    return files;
-  }, [fileStructure]);
-
-  const stats = useMemo(() => {
-    let folderCount = fileStructure.length;
-    let fileCount = 0;
-    fileStructure.forEach(folder => {
-      fileCount += folder.children?.length || 0;
-    });
-    return { folderCount, fileCount };
-  }, [fileStructure]);
-
-  const toggleFolder = useCallback((folderName: string) => {
-    setExpandedFolders(prev => ({
-      ...prev,
-      [folderName]: !prev[folderName],
+/**
+ * Builds folder/file hierarchy from the imported markdown files.
+ */
+function getFolderStructure(): FolderItem[] {
+  const map: Record<string, FileItem[]> = {};
+  Object.entries(files).forEach(([path, content]) => {
+    const parts = path.replace('../data/files/', '').split('/');
+    const folder = parts[0];
+    const filename = parts[1];
+    const date = extractDate(content);
+    if (!map[folder]) map[folder] = [];
+    map[folder].push({ name: filename, folder, date });
+  });
+  // Sort folders by name
+  return Object.entries(map)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, fileList]) => ({
+      name,
+      // Sort files within a folder by date descending
+      files: fileList.sort((a, b) => {
+        const da = new Date(a.date.split('/').reverse().join('-')).getTime();
+        const db = new Date(b.date.split('/').reverse().join('-')).getTime();
+        return db - da;
+      }),
     }));
-  }, []);
+}
 
-  const handleFileClick = useCallback((file: { name: string; date?: string }, folderName: string) => {
-    const content = getRawFileContent(file.name, folderName);
-    openApp('fileViewer', {
-      file: {
-        name: file.name.replace('.md', ''),
-        content: content,
-        folder: folderName,
-        date: file.date || '01/01/2026',
-      },
-      windowKey: `${folderName}/${file.name}`,
-      title: file.name.replace('.md', ''),
+/**
+ * Returns a flat list of all files, sorted by the given criterion.
+ */
+function getAllFilesFlat(sortBy: SortMode = 'date'): FileItem[] {
+  const result: FileItem[] = [];
+  Object.entries(files).forEach(([path, content]) => {
+    const parts = path.replace('../data/files/', '').split('/');
+    result.push({
+      name: parts[1],
+      folder: parts[0],
+      date: extractDate(content),
     });
-  }, [getRawFileContent, openApp]);
-
-  /* ── Toolbar ── */
-
-  const VIEW_BUTTONS: { mode: ViewMode; icon: React.ReactNode; label: string }[] = [
-    { mode: 'icons', icon: <IconViewSvg />, label: t('iconView') },
-    { mode: 'details', icon: <DetailsViewSvg />, label: t('detailsView') },
-    { mode: 'tree', icon: <TreeViewSvg />, label: t('treeView') },
-  ];
-
-  const renderToolbar = () => (
-    <div className="my-documents-toolbar">
-      {VIEW_BUTTONS.map(btn => (
-        <button
-          key={btn.mode}
-          className={`toolbar-btn${activeView === btn.mode ? ' active' : ''}`}
-          onClick={() => setActiveView(btn.mode)}
-          title={btn.label}
-        >
-          {btn.icon}
-        </button>
-      ))}
-    </div>
-  );
-
-  /* ── Views ── */
-
-  const renderTree = () => {
-    return fileStructure.map((folder: FileStructureItem) => {
-      const isOpen = expandedFolders[folder.name] === true;
-      return (
-        <li key={folder.name}>
-          <div
-            className="fileexplorer-folder"
-            onClick={() => toggleFolder(folder.name)}
-          >
-            {isOpen ? '📂' : '📁'} {folder.name}
-          </div>
-          {isOpen && (
-            <ul>
-              {folder.children?.map((file) => (
-                <li
-                  key={file.name}
-                  className="fileexplorer-file"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleFileClick(file, folder.name);
-                  }}
-                >
-                  📄 {file.name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </li>
-      );
-    });
-  };
-
-  const renderIconGrid = () => (
-    <div className="my-documents-grid">
-      {allFiles.map((file, index) => (
-        <div
-          key={index}
-          className="document-icon"
-          onClick={() => handleFileClick(file, file.folder)}
-          title={`${file.folder}/${file.name} — ${file.date}`}
-        >
-          <div className="document-icon-image">📄</div>
-          <span className="document-icon-label">
-            {file.name.replace('.md', '')}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderDetailsView = () => (
-    <table className="interactive details-table">
-      <thead>
-        <tr>
-          <th style={{ textAlign: 'left', width: '40%' }}>{t('name')}</th>
-          <th style={{ textAlign: 'left', width: '25%' }}>{t('location')}</th>
-          <th style={{ textAlign: 'left', width: '20%' }}>{t('date')}</th>
-          <th style={{ textAlign: 'left', width: '15%' }}>{t('type')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {allFiles.map((file, index) => (
-          <tr
-            key={index}
-            onClick={() => handleFileClick(file, file.folder)}
-          >
-            <td><span className="details-file-icon">📄</span> {file.name.replace('.md', '')}</td>
-            <td>{file.folder}</td>
-            <td>{file.date}</td>
-            <td>MD File</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-
-  const renderTreeView = () => (
-    <ul
-      className="tree-view"
-      style={{
-        border: 'none',
-        boxShadow: 'none',
-        margin: 0,
-        width: 'max-content',
-        minWidth: '100%',
-        overflow: 'visible',
-      }}
-    >
-      {renderTree()}
-    </ul>
-  );
-
-  const renderContent = () => {
-    switch (activeView) {
-      case 'details':
-        return renderDetailsView();
-      case 'tree':
-        return renderTreeView();
+  });
+  result.sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'date': {
+        const da = new Date(a.date.split('/').reverse().join('-')).getTime();
+        const db = new Date(b.date.split('/').reverse().join('-')).getTime();
+        return db - da;
+      }
+      case 'type': {
+        const extA = a.name.split('.').pop() || '';
+        const extB = b.name.split('.').pop() || '';
+        const cmp = extA.localeCompare(extB);
+        if (cmp !== 0) return cmp;
+        return a.name.localeCompare(b.name);
+      }
       default:
-        return renderIconGrid();
+        return 0;
     }
-  };
+  });
+  return result;
+}
 
-  /* ── Padding helper ── */
-  const panelStyle: React.CSSProperties = {
-    flex: 1,
-    overflow: 'auto',
-    background: '#fff',
-  };
-  if (activeView === 'icons') {
-    panelStyle.padding = '8px';
-  } else if (activeView === 'details') {
-    panelStyle.padding = '0';
+/**
+ * Counts folders and total files across all folders.
+ */
+function getStats(): { folderCount: number; fileCount: number } {
+  let fileCount = 0;
+  Object.entries(files).forEach(([path]) => {
+    // Each entry is a file
+    fileCount++;
+  });
+  // Count unique folders
+  const folderSet = new Set<string>();
+  Object.keys(files).forEach((path) => {
+    const folder = path.replace('../data/files/', '').split('/')[0];
+    folderSet.add(folder);
+  });
+  return { folderCount: folderSet.size, fileCount };
+}
+
+// ─── Icon helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * Returns an inline SVG string for a folder or file icon (32×32).
+ */
+function getFileIcon(isFolder: boolean): string {
+  if (isFolder) {
+    return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="6" width="28" height="24" rx="1" fill="#FFD700" stroke="#8B6914" stroke-width="1"/>
+      <polygon points="2,14 2,6 12,6 15,10 30,10 30,14" fill="#FFD700" stroke="#8B6914" stroke-width="1"/>
+      <rect x="4" y="16" width="8" height="2" rx="1" fill="#B8860B"/>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
+    <rect x="4" y="2" width="24" height="6" rx="2" fill="#C0C0C0" stroke="#808080" stroke-width="1"/>
+    <line x1="8" y1="12" x2="24" y2="12" stroke="#000" stroke-width="1"/>
+    <line x1="8" y1="16" x2="22" y2="16" stroke="#000" stroke-width="1"/>
+    <line x1="8" y1="20" x2="20" y2="20" stroke="#000" stroke-width="1"/>
+  </svg>`;
+}
+
+/**
+ * Returns the display type label for a file based on its extension.
+ */
+function getFileTypeLabel(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  switch (ext) {
+    case 'md':
+      return 'Markdown Document';
+    case 'txt':
+      return 'Text Document';
+    case 'pdf':
+      return 'PDF Document';
+    default:
+      return `${ext.toUpperCase()} File`;
+  }
+}
+
+// ─── Action helper ────────────────────────────────────────────────────────────
+
+/**
+ * Dispatches a custom event to open a file in FileViewer
+ * (matching the convention used by other os-gui apps).
+ */
+function openFileViewer(name: string, folder: string, date: string): void {
+  const contentPath = `../data/files/${folder}/${name}`;
+  const content = files[contentPath];
+  const rawContent = content ? extractRawContent(content) : '';
+  const processedContent = content ? extractContentWithoutDate(content) : '';
+
+  window.dispatchEvent(
+    new CustomEvent('desktop-open-app', {
+      detail: {
+        appId: 'fileViewer',
+        appData: {
+          file: {
+            name: name.replace('.md', ''),
+            content: processedContent,
+            rawContent,
+            folder,
+            date,
+          },
+          windowKey: `${folder}/${name}`,
+          title: name.replace('.md', ''),
+        },
+      },
+    }),
+  );
+}
+
+// ─── os-gui DOM helpers (mirrors Prueba pattern) ──────────────────────────────
+
+/**
+ * Sprite indices for standard toolbar buttons, matching 98.js
+ * browse-ui-icons sprite sheet. Each icon is 20×20 px.
+ */
+const SPRITE_BACK = 0;
+const SPRITE_FORWARD = 1;
+const SPRITE_UP = 44;
+const SPRITE_CUT = 21;
+const SPRITE_COPY = 22;
+const SPRITE_PASTE = 23;
+
+/**
+ * Shared SVG for dropdown arrow (▶ rotated 90° — identical to 98.js).
+ */
+const DROPDOWN_ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="fill:currentColor;display:inline-block;vertical-align:middle"><path style="transform:rotate(90deg);transform-origin:center" d="m5 6 4 4-4 4z"></path></svg>`;
+
+/**
+ * View-mode SVG icons for the toggle buttons (16×16).
+ */
+const VIEW_MODE_SVGS: Record<ViewMode, string> = {
+  icons: `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`,
+  details: `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="3" rx="0.5"/><rect x="1" y="6" width="14" height="2" rx="0.5"/><rect x="1" y="9" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>`,
+  tree: `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/><line x1="6" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="10" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="3.5" y1="6" x2="3.5" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>`,
+};
+
+/**
+ * Creates a sprite-based icon div (20×20 px with the correct sprite position).
+ */
+function createSpriteIcon(spriteIndex: number): HTMLDivElement {
+  const div = document.createElement('div');
+  div.className = 'icon';
+  div.style.backgroundPosition = `-${spriteIndex * 20}px 0px`;
+  return div;
+}
+
+/**
+ * Creates a toolbar button element with the authentic 98.js sprite icon.
+ */
+function createToolbarButton(
+  label: string,
+  spriteIndex: number,
+  disabled: boolean = false,
+): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.className = 'toolbar-button lightweight';
+  if (disabled) btn.disabled = true;
+  btn.appendChild(createSpriteIcon(spriteIndex));
+  const labelSpan = document.createElement('span');
+  labelSpan.className = 'label-text';
+  labelSpan.textContent = label;
+  btn.appendChild(labelSpan);
+  return btn;
+}
+
+/**
+ * Creates a compound toolbar button (main + dropdown), matching 98.js.
+ */
+function createCompoundButton(
+  label: string,
+  spriteIndex: number,
+  mainAction: () => void,
+  dropdownAction: () => void,
+  disabled: boolean = false,
+): HTMLDivElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'toolbar-compound-button-wrapper';
+
+  const mainBtn = createToolbarButton(label, spriteIndex, disabled);
+  mainBtn.addEventListener('click', mainAction);
+  wrapper.appendChild(mainBtn);
+
+  const dropBtn = document.createElement('button');
+  dropBtn.className = 'toolbar-dropdown-button lightweight';
+  if (disabled) dropBtn.disabled = true;
+  dropBtn.innerHTML = DROPDOWN_ARROW_SVG;
+  dropBtn.addEventListener('click', dropdownAction);
+  wrapper.appendChild(dropBtn);
+
+  return wrapper;
+}
+
+/**
+ * Creates a vertical toolbar separator.
+ */
+function createSeparator(): HTMLHRElement {
+  const hr = document.createElement('hr');
+  hr.setAttribute('aria-orientation', 'vertical');
+  return hr;
+}
+
+/**
+ * Adds the disabled-inset SVG filter to the document body.
+ */
+function ensureDisabledFilter(): void {
+  if (document.getElementById('prueba-disabled-filter')) return;
+  const svg = document.createElementNS(
+    'http://www.w3.org/2000/svg',
+    'svg',
+  );
+  svg.id = 'prueba-disabled-filter';
+  svg.setAttribute(
+    'style',
+    'position: absolute; pointer-events: none; bottom: 100%;',
+  );
+  svg.innerHTML = `
+    <defs>
+      <filter id="disabled-inset-filter" x="0" y="0" width="1px" height="1px">
+        <feColorMatrix
+          in="SourceGraphic"
+          type="matrix"
+          values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -2 -2 -2 4 0"
+          result="dark-parts-isolated"
+        />
+        <feFlood result="shadow-color" flood-color="var(--ButtonShadow)"/>
+        <feFlood result="hilight-color" flood-color="var(--ButtonHilight)"/>
+        <feOffset in="dark-parts-isolated" dx="1" dy="1" result="offset"/>
+        <feComposite in="hilight-color" in2="offset" operator="in" result="hilight-colored-offset"/>
+        <feComposite in="shadow-color" in2="dark-parts-isolated" operator="in" result="shadow-colored"/>
+        <feMerge>
+          <feMergeNode in="hilight-colored-offset"/>
+          <feMergeNode in="shadow-colored"/>
+        </feMerge>
+      </filter>
+    </defs>
+  `;
+  document.body.appendChild(svg);
+}
+
+// ─── React placeholder ────────────────────────────────────────────────────────
+
+/**
+ * Placeholder React component — FileExplorerApp uses os-gui natively.
+ * This component is never rendered via the React window system;
+ * the launchFileExplorer() function is called instead.
+ */
+export const FileExplorerApp: React.FC = () => {
+  return <div data-os-gui-placeholder />;
+};
+
+// ─── os-gui launch function ───────────────────────────────────────────────────
+
+/**
+ * Launches the File Explorer ("My Documents") as a native os-gui window
+ * with MenuBar, toolbar, address bar, three view modes, and status bar.
+ */
+export function launchFileExplorer(): void {
+  const $Window = (window as any).$Window;
+  const MenuBar = (window as any).MenuBar;
+
+  if (!$Window || !MenuBar) {
+    console.error(
+      'os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.',
+    );
+    return;
   }
 
-  return (
-    <div className="fileexplorer-container">
-      {renderToolbar()}
-      <div
-        className="window"
-        role="tabpanel"
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          margin: 0,
-          border: 'none',
-          boxShadow: 'none',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          className="window-body"
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            margin: 0,
-            padding: '4px',
-            background: '#c0c0c0',
-            overflow: 'hidden',
-          }}
-        >
-          <div className="sunken-panel" style={panelStyle}>
-            {renderContent()}
-          </div>
-        </div>
-      </div>
-      <div className="status-bar" style={{ marginTop: '4px' }}>
-        <p className="status-bar-field">
-          {stats.folderCount} {t('folders')}
-        </p>
-        <p className="status-bar-field">
-          {stats.fileCount} {t('objects')}
-        </p>
-        <p className="status-bar-field">{t('ready')}</p>
-      </div>
-    </div>
+  // ── Ensure disabled-inset SVG filter ──
+  ensureDisabledFilter();
+
+  // ── Mutable state ──
+  let currentView: ViewMode = 'icons';
+  let currentSort: SortMode = 'date';
+  let statusBarVisible = true;
+  let stdToolbarVisible = true;
+  let addrBarVisible = true;
+
+  // DOM element references (assigned after creation)
+  let contentEl: HTMLElement;
+  let statusBarEl: HTMLElement;
+  let statusLeftEl: HTMLElement;
+  let statusMiddleEl: HTMLElement;
+  let statusRightEl: HTMLElement;
+  let stdToolbarEl: HTMLElement;
+  let addrToolbarEl: HTMLElement;
+  let viewButtons: Record<ViewMode, HTMLButtonElement>;
+
+  // ── Create the os-gui window ──
+  const $win = $Window({
+    title: 'My Documents',
+    icons: {
+      16: '/app/icons/folder.svg',
+      any: '/app/icons/folder.svg',
+    },
+    minWidth: 600,
+    minHeight: 400,
+  });
+
+  $win.css({
+    width: '780px',
+    height: '540px',
+  });
+  $win.center();
+
+  // ── Root explorer container ──
+  const explorer = document.createElement('div');
+  explorer.className = 'os-explorer';
+  explorer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+    font-size: 11px;
+  `;
+
+  // ══════════════════════════════════════════════════════════════════
+  // TOOLBARS
+  // ══════════════════════════════════════════════════════════════════
+  const toolbars = document.createElement('div');
+  toolbars.className = 'toolbars';
+
+  // ── Menu bar ──
+  const menuToolbar = document.createElement('div');
+  menuToolbar.className = 'toolbar';
+
+  /**
+   * Prevents TypeScript from narrowing the `let` variable
+   * when used inside the MenuBar object literal.
+   */
+  function isSortActive(mode: SortMode): boolean {
+    return currentSort === mode;
+  }
+
+  /**
+   * Helper: re-render the content area after state changes.
+   */
+  function refreshContent(): void {
+    // Clear content
+    while (contentEl.firstChild) {
+      contentEl.removeChild(contentEl.firstChild);
+    }
+
+    const currentFiles = getAllFilesFlat(currentSort);
+    const currentFolders = getFolderStructure();
+
+    switch (currentView) {
+      case 'details':
+        contentEl.appendChild(buildDetailsView(currentFiles));
+        break;
+      case 'tree':
+        contentEl.appendChild(buildTreeView(currentFolders));
+        break;
+      case 'icons':
+      default:
+        contentEl.appendChild(buildIconsView(currentFiles));
+        break;
+    }
+
+    updateStatusBar(currentFiles.length, currentFolders.length);
+  }
+
+  /**
+   * Updates the status bar text.
+   */
+  function updateStatusBar(
+    fileCount: number,
+    folderCount: number,
+  ): void {
+    statusLeftEl.textContent = `${folderCount} folder(s)`;
+    statusMiddleEl.textContent = `${fileCount} object(s)`;
+    statusRightEl.textContent = 'Ready';
+  }
+
+  /**
+   * Highlights the active view button.
+   */
+  function updateViewButtonStates(): void {
+    (Object.keys(viewButtons) as ViewMode[]).forEach((mode) => {
+      viewButtons[mode].classList.toggle('active', mode === currentView);
+    });
+  }
+
+  // Build menus
+  const menu = new MenuBar({
+    '&File': [
+      {
+        label: '&New',
+        submenu: [
+          { label: '&Folder', enabled: false },
+          { label: '&Shortcut', enabled: false },
+        ],
+      },
+      { separator: true },
+      { label: '&Delete', enabled: false },
+      { label: 'Rena&me', enabled: false },
+      { label: 'P&roperties', enabled: false },
+      { separator: true },
+      { label: '&Close', action: () => $win.close() },
+    ],
+    '&Edit': [
+      { label: '&Undo', shortcutLabel: 'Ctrl+Z', enabled: false },
+      { separator: true },
+      { label: 'Cu&t', shortcutLabel: 'Ctrl+X', enabled: false },
+      { label: '&Copy', shortcutLabel: 'Ctrl+C', enabled: false },
+      { label: '&Paste', shortcutLabel: 'Ctrl+V', enabled: false },
+      { separator: true },
+      {
+        label: 'Select &All',
+        shortcutLabel: 'Ctrl+A',
+        action: () => {
+          /* no-op for read-only browser */
+        },
+      },
+      {
+        label: '&Invert Selection',
+        action: () => {
+          /* no-op for read-only browser */
+        },
+      },
+    ],
+    '&View': [
+      {
+        label: '&Toolbars',
+        submenu: [
+          {
+            label: '&Standard Buttons',
+            checked: true,
+            action: () => {
+              stdToolbarVisible = !stdToolbarVisible;
+              stdToolbarEl.style.display = stdToolbarVisible ? '' : 'none';
+              // Update menu checked state
+              const items = (menu as any).menuItems;
+              if (items) {
+                // Items is a nested structure
+              }
+            },
+          },
+          {
+            label: '&Address Bar',
+            checked: true,
+            action: () => {
+              addrBarVisible = !addrBarVisible;
+              addrToolbarEl.style.display = addrBarVisible ? '' : 'none';
+            },
+          },
+        ],
+      },
+      {
+        label: 'Status &Bar',
+        checked: true,
+        action: () => {
+          statusBarVisible = !statusBarVisible;
+          statusBarEl.style.display = statusBarVisible ? '' : 'none';
+        },
+      },
+      { separator: true },
+      {
+        label: 'Arrange &Icons',
+        submenu: [
+          {
+            label: 'by &Name',
+            type: 'radio',
+            checked: isSortActive('name'),
+            action: () => {
+              currentSort = 'name';
+              refreshContent();
+            },
+          },
+          {
+            label: 'by &Type',
+            type: 'radio',
+            checked: isSortActive('type'),
+            action: () => {
+              currentSort = 'type';
+              refreshContent();
+            },
+          },
+          {
+            label: 'by &Size',
+            type: 'radio',
+            checked: isSortActive('size'),
+            action: () => {
+              currentSort = 'size';
+              refreshContent();
+            },
+          },
+          {
+            label: 'by &Date',
+            type: 'radio',
+            checked: isSortActive('date'),
+            action: () => {
+              currentSort = 'date';
+              refreshContent();
+            },
+          },
+        ],
+      },
+      { separator: true },
+      {
+        label: '&Refresh',
+        shortcutLabel: 'F5',
+        action: () => refreshContent(),
+      },
+    ],
+    '&Help': [
+      {
+        label: '&About My Documents',
+        action: () => {
+          alert(
+            'My Documents\n\n' +
+              'Browse, search, and view markdown files organized by folder.\n\n' +
+              'Three view modes: Icons, Details, Tree.\n\n' +
+              'Version 1.0',
+          );
+        },
+      },
+    ],
+  });
+
+  menuToolbar.appendChild(menu.element);
+  toolbars.appendChild(menuToolbar);
+
+  // ── Standard Buttons toolbar ──
+  stdToolbarEl = document.createElement('div');
+  stdToolbarEl.className = 'toolbar';
+  stdToolbarEl.id = 'standard-buttons-toolbar';
+
+  const stdButtons = document.createElement('div');
+  stdButtons.id = 'standard-buttons';
+
+  // Back (compound, disabled)
+  stdButtons.appendChild(
+    createCompoundButton(
+      'Back',
+      SPRITE_BACK,
+      () => {},
+      () => {},
+      true,
+    ),
   );
-};
+
+  // Forward (compound, disabled)
+  stdButtons.appendChild(
+    createCompoundButton(
+      'Forward',
+      SPRITE_FORWARD,
+      () => {},
+      () => {},
+      true,
+    ),
+  );
+
+  // Up
+  stdButtons.appendChild(createToolbarButton('Up', SPRITE_UP, true));
+
+  stdButtons.appendChild(createSeparator());
+
+  // Cut
+  stdButtons.appendChild(createToolbarButton('Cut', SPRITE_CUT, true));
+
+  // Copy
+  stdButtons.appendChild(
+    createToolbarButton('Copy', SPRITE_COPY, true),
+  );
+
+  // Paste
+  stdButtons.appendChild(
+    createToolbarButton('Paste', SPRITE_PASTE, true),
+  );
+
+  stdButtons.appendChild(createSeparator());
+
+  // ── View mode toggle buttons (after a separator) ──
+  viewButtons = {} as Record<ViewMode, HTMLButtonElement>;
+
+  (['icons', 'details', 'tree'] as ViewMode[]).forEach((mode) => {
+    const btn = document.createElement('button');
+    btn.className = 'toolbar-button lightweight';
+    if (mode === currentView) btn.classList.add('active');
+
+    // Icon
+    const iconDiv = document.createElement('div');
+    iconDiv.style.cssText = `
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 2px;
+    `;
+    iconDiv.innerHTML = VIEW_MODE_SVGS[mode];
+    btn.appendChild(iconDiv);
+
+    // Label
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'label-text';
+    const labels: Record<ViewMode, string> = {
+      icons: 'Icons',
+      details: 'Details',
+      tree: 'Tree',
+    };
+    labelSpan.textContent = labels[mode];
+    btn.appendChild(labelSpan);
+
+    btn.addEventListener('click', () => {
+      if (currentView === mode) return;
+      currentView = mode;
+      updateViewButtonStates();
+      refreshContent();
+    });
+
+    viewButtons[mode] = btn;
+    stdButtons.appendChild(btn);
+  });
+
+  stdToolbarEl.appendChild(stdButtons);
+  toolbars.appendChild(stdToolbarEl);
+
+  // ── Address bar toolbar ──
+  addrToolbarEl = document.createElement('div');
+  addrToolbarEl.className = 'toolbar';
+  addrToolbarEl.id = 'address-bar-toolbar';
+
+  const addrBar = document.createElement('div');
+  addrBar.id = 'address-bar';
+
+  const addrLabel = document.createElement('label');
+  addrLabel.setAttribute('for', 'address');
+  addrLabel.textContent = 'Address';
+  addrBar.appendChild(addrLabel);
+
+  const compoundInput = document.createElement('div');
+  compoundInput.id = 'address-compound-input';
+  compoundInput.className = 'inset-deep';
+
+  const addrIcon = document.createElement('img');
+  addrIcon.id = 'address-icon';
+  addrIcon.width = 16;
+  addrIcon.height = 16;
+  addrIcon.src = '/app/icons/folder.svg';
+  addrIcon.alt = '';
+  compoundInput.appendChild(addrIcon);
+
+  const addrInput = document.createElement('input');
+  addrInput.type = 'text';
+  addrInput.id = 'address';
+  addrInput.value = 'My Documents';
+  addrInput.autocomplete = 'off';
+  compoundInput.appendChild(addrInput);
+
+  const addrDropdown = document.createElement('button');
+  addrDropdown.id = 'address-dropdown-button';
+  addrDropdown.className = 'lightweight';
+  addrDropdown.disabled = true;
+  addrDropdown.innerHTML = DROPDOWN_ARROW_SVG;
+  compoundInput.appendChild(addrDropdown);
+
+  addrBar.appendChild(compoundInput);
+  addrToolbarEl.appendChild(addrBar);
+  toolbars.appendChild(addrToolbarEl);
+
+  explorer.appendChild(toolbars);
+
+  // ══════════════════════════════════════════════════════════════════
+  // CONTENT AREA
+  // ══════════════════════════════════════════════════════════════════
+  contentEl = document.createElement('div');
+  contentEl.id = 'content';
+  contentEl.className = 'inset-deep';
+
+  explorer.appendChild(contentEl);
+
+  // ══════════════════════════════════════════════════════════════════
+  // STATUS BAR
+  // ══════════════════════════════════════════════════════════════════
+  statusBarEl = document.createElement('div');
+  statusBarEl.id = 'status-bar';
+
+  statusLeftEl = document.createElement('div');
+  statusLeftEl.id = 'status-bar-left';
+  statusLeftEl.className = 'inset-shallow';
+  statusBarEl.appendChild(statusLeftEl);
+
+  statusMiddleEl = document.createElement('div');
+  statusMiddleEl.id = 'status-bar-middle';
+  statusMiddleEl.className = 'inset-shallow';
+  statusBarEl.appendChild(statusMiddleEl);
+
+  statusRightEl = document.createElement('div');
+  statusRightEl.id = 'status-bar-right';
+  statusRightEl.className = 'inset-shallow';
+  statusBarEl.appendChild(statusRightEl);
+
+  explorer.appendChild(statusBarEl);
+
+  // ── Append explorer to window ──
+  $win.$content.append(explorer);
+
+  // ══════════════════════════════════════════════════════════════════
+  // CONTENT BUILDERS
+  // ══════════════════════════════════════════════════════════════════
+
+  /**
+   * Builds the icons view — grid of file icons sorted flat.
+   */
+  function buildIconsView(fileList: FileItem[]): HTMLElement {
+    const grid = document.createElement('div');
+    grid.style.cssText = `
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px;
+      align-content: flex-start;
+    `;
+
+    fileList.forEach((file) => {
+      const iconDiv = document.createElement('div');
+      iconDiv.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 72px;
+        padding: 4px;
+        cursor: pointer;
+        user-select: none;
+        border: 1px solid transparent;
+        border-radius: 2px;
+      `;
+      iconDiv.title = `${file.folder}/${file.name} — ${file.date}`;
+
+      iconDiv.addEventListener('mouseenter', () => {
+        iconDiv.style.background = '#c0e0ff';
+        iconDiv.style.borderColor = '#000080';
+      });
+      iconDiv.addEventListener('mouseleave', () => {
+        iconDiv.style.background = '';
+        iconDiv.style.borderColor = 'transparent';
+      });
+      iconDiv.addEventListener('mousedown', () => {
+        iconDiv.style.background = '#000080';
+      });
+      iconDiv.addEventListener('mouseup', () => {
+        iconDiv.style.background = '#c0e0ff';
+      });
+
+      iconDiv.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
+
+      // SVG icon
+      const svgContainer = document.createElement('div');
+      svgContainer.style.cssText = `
+        width: 32px;
+        height: 32px;
+        margin-bottom: 2px;
+        pointer-events: none;
+      `;
+      svgContainer.innerHTML = getFileIcon(false);
+      iconDiv.appendChild(svgContainer);
+
+      // Label
+      const label = document.createElement('span');
+      label.style.cssText = `
+        font-size: 11px;
+        font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+        text-align: center;
+        word-wrap: break-word;
+        max-width: 68px;
+        pointer-events: none;
+        line-height: 1.2;
+      `;
+      label.textContent = file.name.replace('.md', '');
+      iconDiv.appendChild(label);
+
+      grid.appendChild(iconDiv);
+    });
+
+    return grid;
+  }
+
+  /**
+   * Builds the details view — table with Name, Location, Type columns.
+   */
+  function buildDetailsView(fileList: FileItem[]): HTMLElement {
+    const table = document.createElement('table');
+    table.style.cssText = `
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+      table-layout: fixed;
+    `;
+
+    // Header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.cssText =
+      'position: sticky; top: 0; z-index: 1;';
+
+    const headers = [
+      { label: 'Name', width: '40%' },
+      { label: 'Location', width: '30%' },
+      { label: 'Type', width: '30%' },
+    ];
+
+    headers.forEach((h) => {
+      const th = document.createElement('th');
+      th.textContent = h.label;
+      th.style.cssText = `
+        text-align: left;
+        background: #c0c0c0;
+        padding: 3px 6px;
+        font-weight: normal;
+        font-size: 11px;
+        border-bottom: 1px solid #808080;
+        width: ${h.width};
+      `;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Body
+    const tbody = document.createElement('tbody');
+    fileList.forEach((file) => {
+      const row = document.createElement('tr');
+      row.style.cursor = 'pointer';
+
+      row.addEventListener('mouseenter', () => {
+        row.style.background = '#c0e0ff';
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.background = '';
+      });
+      row.addEventListener('mousedown', () => {
+        row.style.background = '#000080';
+        row.style.color = '#fff';
+      });
+      row.addEventListener('mouseup', () => {
+        row.style.background = '#c0e0ff';
+        row.style.color = '';
+      });
+
+      row.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
+
+      // Name
+      const nameCell = document.createElement('td');
+      nameCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
+      nameCell.textContent = file.name.replace('.md', '');
+      row.appendChild(nameCell);
+
+      // Location (folder)
+      const locCell = document.createElement('td');
+      locCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
+      locCell.textContent = file.folder;
+      row.appendChild(locCell);
+
+      // Type
+      const typeCell = document.createElement('td');
+      typeCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
+      typeCell.textContent = getFileTypeLabel(file.name);
+      row.appendChild(typeCell);
+
+      tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    return table;
+  }
+
+  /**
+   * Builds the tree view — hierarchical folder/file structure.
+   */
+  function buildTreeView(folderList: FolderItem[]): HTMLElement {
+    const tree = document.createElement('ul');
+    tree.style.cssText = `
+      list-style: none;
+      margin: 4px 0;
+      padding: 0 8px;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+    `;
+
+    // Track expanded state per folder
+    const expanded: Record<string, boolean> = {};
+
+    folderList.forEach((folder) => {
+      const li = document.createElement('li');
+      li.style.marginBottom = '1px';
+
+      // Folder row
+      const folderRow = document.createElement('div');
+      folderRow.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        user-select: none;
+        padding: 2px 4px;
+      `;
+      folderRow.addEventListener('mouseenter', () => {
+        folderRow.style.background = '#c0e0ff';
+      });
+      folderRow.addEventListener('mouseleave', () => {
+        folderRow.style.background = '';
+      });
+
+      // Expand/collapse arrow
+      const arrow = document.createElement('span');
+      arrow.style.cssText = `
+        width: 12px;
+        font-size: 10px;
+        text-align: center;
+        flex-shrink: 0;
+      `;
+      arrow.textContent = '▶';
+
+      // Folder icon
+      const iconContainer = document.createElement('span');
+      iconContainer.style.cssText = `
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      `;
+      iconContainer.innerHTML = getFileIcon(true).replace(
+        'width="32" height="32"',
+        'width="16" height="16"',
+      );
+
+      // Folder name
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = folder.name;
+
+      folderRow.appendChild(arrow);
+      folderRow.appendChild(iconContainer);
+      folderRow.appendChild(nameSpan);
+      li.appendChild(folderRow);
+
+      // Children container
+      const childContainer = document.createElement('div');
+      childContainer.style.cssText = `
+        margin-left: 20px;
+        display: none;
+      `;
+
+      // Files list
+      const fileList = document.createElement('ul');
+      fileList.style.cssText = `
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      `;
+
+      folder.files.forEach((file) => {
+        const fileLi = document.createElement('li');
+        fileLi.style.cssText = `
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 4px;
+          cursor: pointer;
+          user-select: none;
+        `;
+        fileLi.addEventListener('mouseenter', () => {
+          fileLi.style.background = '#c0e0ff';
+        });
+        fileLi.addEventListener('mouseleave', () => {
+          fileLi.style.background = '';
+        });
+        fileLi.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openFileViewer(file.name, file.folder, file.date);
+        });
+
+        // File icon (small)
+        const fileIcon = document.createElement('span');
+        fileIcon.style.cssText = `
+          width: 16px;
+          height: 16px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        `;
+        fileIcon.innerHTML = getFileIcon(false).replace(
+          'width="32" height="32"',
+          'width="16" height="16"',
+        );
+
+        const fileName = document.createElement('span');
+        fileName.textContent = file.name.replace('.md', '');
+
+        fileLi.appendChild(fileIcon);
+        fileLi.appendChild(fileName);
+        fileList.appendChild(fileLi);
+      });
+
+      childContainer.appendChild(fileList);
+
+      // Toggle expand/collapse
+      folderRow.addEventListener('click', () => {
+        const isOpen = !expanded[folder.name];
+        expanded[folder.name] = isOpen;
+        childContainer.style.display = isOpen ? 'block' : 'none';
+        arrow.textContent = isOpen ? '▼' : '▶';
+      });
+
+      li.appendChild(childContainer);
+      tree.appendChild(li);
+    });
+
+    return tree;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // INITIAL RENDER
+  // ══════════════════════════════════════════════════════════════════
+  refreshContent();
+}

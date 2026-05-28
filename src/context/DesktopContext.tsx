@@ -327,7 +327,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       setActiveWindowId(existingWindow.id);
     } else if (app.customLaunch) {
       // Custom launch handler (e.g. for os-gui native windows)
-      app.customLaunch();
+      app.customLaunch(appData);
     } else {
       const AppComponent = app.component;
       
@@ -434,6 +434,38 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     } catch (e) {
       console.error('Failed to launch Winamp:', e);
     }
+  }, []);
+
+  // Listen for events from os-gui native windows
+  useEffect(() => {
+    const handleOpenApp = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.appId) {
+        openApp(detail.appId, detail.appData);
+      }
+    };
+    const handleWallpaper = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.wallpaper) {
+        setWallpaperState(detail.wallpaper as WallpaperId);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.WALLPAPER, detail.wallpaper);
+      }
+    };
+    const handleClippy = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.enabled !== undefined) {
+        setClippyEnabledState(detail.enabled);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.CLIPPY_ENABLED, String(detail.enabled));
+      }
+    };
+    window.addEventListener('desktop-open-app', handleOpenApp);
+    window.addEventListener('wallpaper-changed', handleWallpaper);
+    window.addEventListener('clippy-changed', handleClippy);
+    return () => {
+      window.removeEventListener('desktop-open-app', handleOpenApp);
+      window.removeEventListener('wallpaper-changed', handleWallpaper);
+      window.removeEventListener('clippy-changed', handleClippy);
+    };
   }, []);
 
   const value = {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Desktop } from './components/Desktop';
 import { DesktopProvider } from './context/DesktopContext';
 import { LanguageProvider } from './context/LanguageContext';
@@ -10,50 +10,44 @@ import { WindowConfig } from './types';
 
 const SIX_HOURS_IN_MS = 6 * 60 * 60 * 1000; // 6 horas en milisegundos
 
-const getInitialWindows = (): WindowConfig[] => {
+/** Determina si Welcome debe mostrarse al inicio (respeta cooldown de 6h) */
+const shouldShowWelcomeAtStart = (): boolean => {
   const showWelcome = localStorage.getItem(LOCAL_STORAGE_KEYS.SHOW_WELCOME) !== 'false';
-  
-  // Si el usuario desmarcó "mostrar al inicio", verificar si han pasado 6 horas
   if (!showWelcome) {
     const hiddenAt = localStorage.getItem(LOCAL_STORAGE_KEYS.WELCOME_HIDDEN_AT);
     if (hiddenAt) {
       const hiddenTime = parseInt(hiddenAt, 10);
       const now = Date.now();
-      // Si NO han pasado 6 horas, no mostrar
-      if (now - hiddenTime < SIX_HOURS_IN_MS) {
-        return [];
-      }
-      // Si ya pasaron 6 horas, limpiar el timestamp para que vuelva a mostrarse
+      if (now - hiddenTime < SIX_HOURS_IN_MS) return false;
       localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME_HIDDEN_AT);
     }
-    return [];
+    return false;
   }
-
-  return [
-    {
-      appId: 'welcome',
-      id: 'welcome-' + Date.now(),
-      title: 'Welcome',
-      isMinimized: false,
-      isActive: true,
-      isMaximized: false,
-      currentPosition: null,
-      initialPosition: { x: 0, y: 0 },
-      initialSize: APPS.welcome.defaultSize,
-      centered: APPS.welcome.centered,
-      zIndex: 10,
-      content: <APPS.welcome.component />
-    }
-  ];
+  return true;
 };
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const initialWindows = getInitialWindows();
+  // No more initial windows — all apps use customLaunch (os-gui native)
+  const initialWindows: WindowConfig[] = [];
 
   const handleLoadingComplete = () => {
     setIsLoading(false);
   };
+
+  // Launch welcome at startup AFTER providers are mounted
+  useEffect(() => {
+    if (!isLoading && shouldShowWelcomeAtStart()) {
+      // Pequeño retardo para asegurar que os-gui esté listo
+      const timer = setTimeout(() => {
+        const welcomeApp = APPS.welcome;
+        if (welcomeApp.customLaunch) {
+          welcomeApp.customLaunch();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
 
   return (
     <ErrorBoundary>

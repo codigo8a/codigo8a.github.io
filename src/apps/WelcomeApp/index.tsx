@@ -1,304 +1,525 @@
-import React, { useState, useEffect, JSX } from 'react';
-import { useWindow } from '../../context/WindowContext';
-import { useLanguage } from '../../context/LanguageContext';
-import { useDesktop } from '../../context/DesktopContext';
-import { useFileSystem } from '../../hooks/useFileSystem';
-import { useTranslation } from '../../i18n/translations';
-import { useIsMobile } from '../../hooks/useMediaQuery';
-import { LOCAL_STORAGE_KEYS } from '../../constants';
-import './index.css';
+import React from 'react';
+import { extractRawContent, extractDate, extractContentWithoutDate } from '../../utils/fileUtils';
 
+/**
+ * All markdown files loaded eagerly via Vite's import.meta.glob.
+ * Used for "What's New" (features.md) and "Resume" (hoja-de-vida.md) content.
+ */
+const mdFiles: Record<string, string> = import.meta.glob('../data/files/**/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+/**
+ * Placeholder React component — the Welcome app uses os-gui natively.
+ * This component is never rendered via the React window system.
+ */
 export const WelcomeApp: React.FC = () => {
-  const [showAtStartup, setShowAtStartup] = useState(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.SHOW_WELCOME);
-    return saved !== 'false';
+  return <div data-os-gui-placeholder />;
+};
+
+/**
+ * Dispatches a custom event to open the FileViewer app from os-gui native windows.
+ * DesktopProvider must listen for 'desktop-open-app' and route to openApp().
+ */
+function openFileInViewer(
+  fileName: string,
+  folder: string,
+  displayTitle: string,
+): void {
+  const rawPath = `../data/files/${folder}/${fileName}.md`;
+  const rawMd = mdFiles[rawPath];
+  if (!rawMd) {
+    console.warn(`WelcomeApp: file not found — ${rawPath}`);
+    return;
+  }
+
+  const content = extractContentWithoutDate(rawMd);
+  const rawContent = extractRawContent(rawMd);
+  const date = extractDate(rawMd);
+
+  window.dispatchEvent(
+    new CustomEvent('desktop-open-app', {
+      detail: {
+        appId: 'fileViewer',
+        appData: {
+          file: {
+            name: fileName,
+            content,
+            rawContent,
+            folder,
+            date,
+          },
+          windowKey: `${folder}/${fileName}.md`,
+          title: displayTitle,
+        },
+      },
+    }),
+  );
+}
+
+// ─── Translations ────────────────────────────────────────────────────────────
+
+const TRANSLATIONS: Record<string, Record<'en' | 'es', string>> = {
+  welcome: {
+    en: 'Welcome to juandavid.site',
+    es: 'Bienvenido a juandavid.site',
+  },
+  didYouKnow: {
+    en: 'Did you know this about me?',
+    es: '¿Sabías esto de mí?',
+  },
+  nextTip: {
+    en: 'Next Tip',
+    es: 'Siguiente Tip',
+  },
+  whatsNew: {
+    en: "What's New",
+    es: 'Qué hay de nuevo',
+  },
+  onlineRegistration: {
+    en: 'Online Registration',
+    es: 'Registro en línea',
+  },
+  close: {
+    en: 'Close',
+    es: 'Cerrar',
+  },
+  showWelcomeScreen: {
+    en: 'Show this Welcome Screen next time you start the system',
+    es: 'Mostrar esta pantalla de bienvenida al iniciar el sistema',
+  },
+  language: {
+    en: 'Language',
+    es: 'Idioma',
+  },
+  moreInfo: {
+    en: 'More info',
+    es: 'Más info',
+  },
+  contactInfo: {
+    en: 'Contact Info',
+    es: 'Datos de contacto',
+  },
+  resume: {
+    en: 'Resume',
+    es: 'Hoja de vida',
+  },
+  aboutMessage: {
+    en:
+      'Welcome to juandavid.site\n\n' +
+      'A Windows 98-style desktop experience.\n\n' +
+      'Full Stack Developer — Cloud Process Automation',
+    es:
+      'Bienvenido a juandavid.site\n\n' +
+      'Una experiencia de escritorio estilo Windows 98.\n\n' +
+      'Desarrollador Full Stack — Automatización en la Nube',
+  },
+};
+
+function tr(key: string, lang: 'en' | 'es'): string {
+  return TRANSLATIONS[key]?.[lang] ?? key;
+}
+
+// ─── Tip content builders ────────────────────────────────────────────────────
+
+interface TipEntry {
+  type: 'text' | 'html';
+  content: string;
+}
+
+function getTips(lang: 'en' | 'es'): TipEntry[] {
+  const en = lang === 'en';
+  return [
+    {
+      type: 'text',
+      content: en
+        ? 'Full Stack Developer expert in Cloud Process Automation, PaintBall, Softcombat and Roller derby Player, Robotics, Electronics and Technology Lover.'
+        : 'Desarrollador Full Stack experto en Automatización de Procesos en la Nube, jugador de PaintBall, Softcombat y Roller derby, Gomoso de la Robótica, Electrónica y Tecnología.',
+    },
+    {
+      type: 'html',
+      content: buildLinksHtml(lang),
+    },
+    {
+      type: 'html',
+      content: buildContactHtml(lang),
+    },
+    {
+      type: 'text',
+      content: en
+        ? "Available for consulting, mentoring, or hourly freelance work. Let's build something great together!"
+        : 'Disponible para asesorías, mentorías o trabajos por horas. ¡Impulsemos tu proyecto juntos!',
+    },
+  ];
+}
+
+function buildLinksHtml(lang: 'en' | 'es'): string {
+  const isEn = lang === 'en';
+  return [
+    `<p style="margin:0 0 8px 0;font-style:italic">${isEn ? 'More info' : 'Más info'}</p>`,
+    '<div style="display:flex;flex-direction:column;gap:6px">',
+    '<a href="#" data-action="open-resume" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px;cursor:pointer">📄 ' +
+      (isEn ? 'Resume' : 'Hoja de vida') +
+      '</a>',
+    '<a href="https://www.linkedin.com/in/juandavid8a" target="_blank" rel="noopener noreferrer" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px">💼 LinkedIn</a>',
+    '<a href="https://www.youtube.com/@JuanDavidOchoa" target="_blank" rel="noopener noreferrer" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px">▶️ YouTube</a>',
+    '<a href="https://www.instagram.com/zarkito8a" target="_blank" rel="noopener noreferrer" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px">📷 Instagram</a>',
+    '</div>',
+  ].join('\n');
+}
+
+function buildContactHtml(lang: 'en' | 'es'): string {
+  const isEn = lang === 'en';
+  return [
+    `<p style="margin:0 0 8px 0;font-style:italic">${isEn ? 'Contact Info' : 'Datos de contacto'}</p>`,
+    '<div style="display:flex;flex-direction:column;gap:6px">',
+    '<a href="mailto:juandavid8a@gmail.com" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px">📧 juandavid8a@gmail.com</a>',
+    '<a href="https://wa.me/573052370311" target="_blank" rel="noopener noreferrer" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px">💬 WhatsApp (+57) 3052370311</a>',
+    '<div style="display:flex;align-items:center;gap:8px">📍 Medellín - Colombia</div>',
+    '</div>',
+  ].join('\n');
+}
+
+/**
+ * Build a tip content DOM element for the given index and language.
+ * Uses innerHTML for html-type tips and attaches event delegation
+ * to handle internal actions like opening the Resume file.
+ */
+function createTipContent(
+  tipIndex: number,
+  lang: 'en' | 'es',
+  onOpenResume: () => void,
+): HTMLDivElement {
+  const div = document.createElement('div');
+  div.style.cssText = 'margin:0;line-height:1.5;font-size:12px';
+
+  const tip = getTips(lang)[tipIndex];
+  if (!tip) {
+    div.textContent = '';
+    return div;
+  }
+
+  if (tip.type === 'text') {
+    div.textContent = tip.content;
+  } else {
+    div.innerHTML = tip.content;
+    // Event delegation for internal actions (Resume link)
+    div.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const actionEl = target.closest('[data-action]') as HTMLElement | null;
+      if (actionEl) {
+        const action = actionEl.getAttribute('data-action');
+        if (action === 'open-resume') {
+          e.preventDefault();
+          onOpenResume();
+        }
+      }
+    });
+  }
+
+  return div;
+}
+
+// ─── os-gui launch function ──────────────────────────────────────────────────
+
+export function launchWelcome(): void {
+  const $Window = (window as any).$Window;
+  const MenuBar = (window as any).MenuBar;
+
+  if (!$Window || !MenuBar) {
+    console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');
+    return;
+  }
+
+  // ── Helpers ──
+
+  const getLang = (): 'en' | 'es' => {
+    const lang = localStorage.getItem('language');
+    return lang === 'es' ? 'es' : 'en';
+  };
+
+  const readShowWelcome = (): boolean => {
+    return localStorage.getItem('show_welcome') !== 'false';
+  };
+
+  // ── Mutable state ──
+
+  let currentTipIndex = 0;
+  let currentLang: 'en' | 'es' = getLang();
+
+  // ── Create os-gui window ──
+
+  const $win = $Window({
+    title: 'Welcome',
+    icons: {
+      16: '/app/icons/welcome.svg',
+      any: '/app/icons/welcome.svg',
+    },
+    minWidth: 500,
+    minHeight: 350,
   });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.SHOW_WELCOME, String(showAtStartup));
-    
-    // Si se desmarca el checkbox, guardar el timestamp para el cooldown de 6 horas
-    if (!showAtStartup) {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.WELCOME_HIDDEN_AT, String(Date.now()));
-    } else {
-      // Si se marca de nuevo, limpiar el timestamp
-      localStorage.removeItem(LOCAL_STORAGE_KEYS.WELCOME_HIDDEN_AT);
-    }
-  }, [showAtStartup]);
+  $win.css({ width: '700px', height: '420px' });
+  $win.center();
 
-  const [currentTip, setCurrentTip] = useState(0);
-  const windowContext = useWindow();
-  const onClose = windowContext?.onClose;
-  
-  const { language, changeLanguage } = useLanguage();
-  const { openApp } = useDesktop();
-  const { getRawFileContent } = useFileSystem();
-  const { t } = useTranslation();
-  const isMobile = useIsMobile();
+  // ── Menu bar (inserted after titlebar, like NetscapeApp) ──
 
-  const handleOpenResume = () => {
-    const content = getRawFileContent('hoja-de-vida.md', 'content');
-    openApp('fileViewer', {
-      file: {
-        name: 'hoja-de-vida',
-        content: content,
-        folder: 'content',
-        date: '01/01/2009'
+  const menu = new MenuBar({
+    '&File': [
+      {
+        label: 'E&xit',
+        action: () => $win.close(),
       },
-      windowKey: 'content/hoja-de-vida.md',
-      title: 'hoja-de-vida'
-    });
-  };
-
-  const handleWhatsNew = () => {
-    const content = getRawFileContent('features.md', 'content');
-    openApp('fileViewer', {
-      file: {
-        name: 'features',
-        content: content,
-        folder: 'content',
-        date: '17/03/2026'
-      },
-      windowKey: 'content/features.md',
-      title: t('whatsNew')
-    });
-  };
-
-  const tips: Record<string, (string | JSX.Element)[]> = {
-    en: [
-      "Full Stack Developer expert in Cloud Process Automation, PaintBall, Softcombat and Roller derby Player, Robotics, Electronics and Technology Lover.",
-      <div>
-        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>More info</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div 
-            onClick={handleOpenResume}
-            style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-          >📄 Resume</div>
-          <a href="https://www.linkedin.com/in/juandavid8a" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>💼 LinkedIn</a>
-          <a href="https://www.youtube.com/@JuanDavidOchoa" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>▶️ YouTube</a>
-          <a href="https://www.instagram.com/zarkito8a" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📷 Instagram</a>
-        </div>
-      </div>,
-      <div>
-        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Contact Info</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <a href="mailto:juandavid8a@gmail.com" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📧 juandavid8a@gmail.com</a>
-          <a href="https://wa.me/573052370311" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>💬 WhatsApp (+57) 3052370311</a>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Medellín - Colombia</div>
-        </div>
-      </div>,
-      "Available for consulting, mentoring, or hourly freelance work. Let's build something great together!",
     ],
-    es: [
-      "Desarrollador Full Stack experto en Automatización de Procesos en la Nube, jugador de PaintBall, Softcombat y Roller derby, Gomoso de la Robótica, Electrónica y Tecnología.",
-      <div>
-        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Más info</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div 
-            onClick={handleOpenResume}
-            style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-          >📄 Hoja de vida</div>
-          <a href="https://www.linkedin.com/in/juandavid8a" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>💼 LinkedIn</a>
-          <a href="https://www.youtube.com/@JuanDavidOchoa" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>▶️ YouTube</a>
-          <a href="https://www.instagram.com/zarkito8a" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📷 Instagram</a>
-        </div>
-      </div>,
-      <div>
-        <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>Datos de contacto</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <a href="mailto:juandavid8a@gmail.com" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>📧 juandavid8a@gmail.com</a>
-          <a href="https://wa.me/573052370311" target="_blank" rel="noopener noreferrer" style={{ color: '#0000ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>💬 WhatsApp (+57) 3052370311</a>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Medellín - Colombia</div>
-        </div>
-      </div>,
-      "Disponible para asesorías, mentorías o trabajos por horas. ¡Impulsemos tu proyecto juntos!",
-    ]
-  };
+    '&Help': [
+      {
+        label: '&About',
+        action: () => {
+          window.alert(tr('aboutMessage', currentLang));
+        },
+      },
+    ],
+  });
+  $win.$titlebar.after(menu.element);
 
-  const currentTips = language === 'es' ? tips.es : tips.en;
+  // ── Main content area (fills remaining space) ──
 
-  const handleNextTip = () => {
-    setCurrentTip((prev) => (prev + 1) % currentTips.length);
-  };
+  const mainContent = document.createElement('div');
+  mainContent.style.cssText = [
+    'height:100%',
+    'display:flex',
+    'flex-direction:column',
+    'padding:20px',
+    'overflow:hidden',
+    'box-sizing:border-box',
+    'background:var(--ButtonFace)',
+    "font-family:'MS Sans Serif','Segoe UI',sans-serif",
+    'font-size:11px',
+  ].join(';');
 
-  const handleClose = () => {
-    onClose?.();
-  };
+  // ── Title ──
+  const titleEl = document.createElement('h2');
+  titleEl.style.cssText = 'font-size:18px;margin:0 0 15px 0;font-weight:normal;color:var(--WindowText)';
+  titleEl.textContent = tr('welcome', currentLang);
+  mainContent.appendChild(titleEl);
 
-  return (
-    <div className="welcome-container" style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: '#c0c0c0',
-      color: '#000',
-      fontFamily: '"MS Sans Serif", Arial, sans-serif',
-      fontSize: isMobile ? '12px' : '11px',
-      padding: isMobile ? '12px' : '20px',
-      boxSizing: 'border-box'
-    }}>
-      <h2 style={{
-        fontSize: isMobile ? '16px' : '18px',
-        margin: isMobile ? '0 0 10px 0' : '0 0 15px 0',
-        fontWeight: 'normal',
-        color: '#000'
-      }}>
-        {t('welcome')}
-      </h2>
+  // ── Two-column row ──
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;flex:1;flex-direction:row;gap:20px;overflow:hidden';
+  mainContent.appendChild(row);
 
-      <div style={{
-        display: 'flex',
-        flex: 1,
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: isMobile ? '12px' : '20px',
-        overflow: 'hidden'
-      }}>
-        {/* Column 1: Tips */}
-        <div style={{
-          flex: 1,
-          background: '#fff',
-          border: '2px inset #ffffff',
-          padding: isMobile ? '12px' : '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: isMobile ? '12px' : '20px',
-          overflowY: 'auto',
-          minHeight: isMobile ? '150px' : undefined
-        }}>
-           <div style={{ display: 'flex', gap: isMobile ? '12px' : '20px', alignItems: 'flex-start' }}>
-             <div style={{ fontSize: isMobile ? '24px' : '32px' }}>💡</div>
-             <div style={{ flex: 1 }}>
-                <p style={{ margin: '0 0 12px 0', fontWeight: 'bold', fontSize: isMobile ? '12px' : '13px' }}>{t('didYouKnow')}</p>
-                <div style={{ margin: 0, lineHeight: '1.5', fontSize: isMobile ? '11px' : '12px' }}>
-                  {currentTips[currentTip]}
-                </div>
-             </div>
-           </div>
-        </div>
+  // ── Left column: tips area (sunken-panel) ──
+  const leftCol = document.createElement('div');
+  leftCol.className = 'sunken-panel';
+  leftCol.style.cssText = [
+    'flex:1',
+    'background:#fff',
+    'padding:20px',
+    'display:flex',
+    'flex-direction:column',
+    'gap:20px',
+    'overflow-y:auto',
+    'min-height:0',
+  ].join(';');
 
-        {/* Column 2: Buttons */}
-        <div className="welcome-buttons" style={{
-          width: isMobile ? '100%' : '200px',
-          display: 'flex',
-          flexDirection: isMobile ? 'row' : 'column',
-          flexWrap: isMobile ? 'wrap' : undefined,
-          gap: isMobile ? '8px' : '6px',
-          alignItems: isMobile ? 'stretch' : undefined
-        }}>
-          <button
-            onClick={handleNextTip}
-            style={{
-              padding: isMobile ? '10px 16px' : '4px 8px',
-              background: '#c0c0c0',
-              border: '2px outset #ffffff',
-              boxShadow: '1px 1px 0px #000',
-              cursor: 'pointer',
-              textAlign: 'left',
-              width: isMobile ? 'calc(50% - 4px)' : '100%',
-              fontSize: isMobile ? '12px' : '10px',
-              minHeight: isMobile ? '44px' : undefined,
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {t('nextTip')}
-          </button>
-          <button
-            onClick={handleWhatsNew}
-            style={{
-              padding: isMobile ? '10px 16px' : '4px 8px',
-              background: '#c0c0c0',
-              border: '2px outset #ffffff',
-              boxShadow: '1px 1px 0px #000',
-              cursor: 'pointer',
-              textAlign: 'left',
-              width: isMobile ? 'calc(50% - 4px)' : '100%',
-              fontSize: isMobile ? '12px' : '10px',
-              minHeight: isMobile ? '44px' : undefined,
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {t('whatsNew')}
-          </button>
-          <button
-            disabled
-            style={{
-              padding: isMobile ? '10px 16px' : '4px 8px',
-              background: '#c0c0c0',
-              border: '2px outset #ffffff',
-              boxShadow: '1px 1px 0px #000',
-              cursor: 'not-allowed',
-              textAlign: 'left',
-              width: isMobile ? 'calc(50% - 4px)' : '100%',
-              fontSize: isMobile ? '12px' : '10px',
-              minHeight: isMobile ? '44px' : undefined,
-              opacity: '0.6',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {t('onlineRegistration')}
-          </button>
-          <button
-            onClick={handleClose}
-            style={{
-              padding: isMobile ? '10px 16px' : '4px 8px',
-              background: '#c0c0c0',
-              border: '2px outset #ffffff',
-              boxShadow: '1px 1px 0px #000',
-              cursor: 'pointer',
-              textAlign: 'left',
-              width: isMobile ? 'calc(50% - 4px)' : '100%',
-              marginTop: isMobile ? '0' : '6px',
-              fontSize: isMobile ? '12px' : '10px',
-              minHeight: isMobile ? '44px' : undefined,
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {t('close')}
-          </button>
+  const tipFlexRow = document.createElement('div');
+  tipFlexRow.style.cssText = 'display:flex;gap:20px;align-items:flex-start';
 
-          <fieldset style={{ marginTop: isMobile ? '8px' : 'auto', padding: isMobile ? '8px' : '10px', width: '100%' }}>
-            <legend style={{ fontSize: isMobile ? '11px' : 'inherit' }}>{t('language')}</legend>
-            <div className="field-row" style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input
-                  id="lang-en"
-                  type="radio"
-                  name="language-select"
-                  value="en"
-                  checked={language === 'en'}
-                  onChange={() => changeLanguage('en')}
-                />
-                <label htmlFor="lang-en" style={{ fontSize: isMobile ? '11px' : 'inherit' }}>English</label>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input
-                  id="lang-es"
-                  type="radio"
-                  name="language-select"
-                  value="es"
-                  checked={language === 'es'}
-                  onChange={() => changeLanguage('es')}
-                />
-                <label htmlFor="lang-es" style={{ fontSize: isMobile ? '11px' : 'inherit' }}>Español</label>
-              </div>
-            </div>
-          </fieldset>
-        </div>
-      </div>
+  const lightbulb = document.createElement('span');
+  lightbulb.style.cssText = 'font-size:32px;line-height:1';
+  lightbulb.textContent = '💡';
+  tipFlexRow.appendChild(lightbulb);
 
-      {/* Footer: Checkbox */}
-      <div className="welcome-footer" style={{ marginTop: isMobile ? '12px' : '20px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-start' }}>
-        <input
-          type="checkbox"
-          checked={showAtStartup}
-          onChange={(e) => setShowAtStartup(e.target.checked)}
-          id="startup-check"
-          style={{ cursor: 'pointer', width: isMobile ? '18px' : '13px', height: isMobile ? '18px' : '13px' }}
-        />
-        <label htmlFor="startup-check" style={{ cursor: 'pointer', fontSize: isMobile ? '12px' : 'inherit' }}>
-          {t('showWelcomeScreen')}
-        </label>
-      </div>
-    </div>
+  const tipTextArea = document.createElement('div');
+  tipTextArea.style.cssText = 'flex:1';
+
+  const headingEl = document.createElement('p');
+  headingEl.style.cssText = 'margin:0 0 12px 0;font-weight:bold;font-size:13px;color:var(--WindowText)';
+  headingEl.textContent = tr('didYouKnow', currentLang);
+  tipTextArea.appendChild(headingEl);
+
+  const tipContentContainer = document.createElement('div');
+
+  let lastTipContent: HTMLDivElement | null = null;
+
+  function renderTipContent(): void {
+    const newContent = createTipContent(currentTipIndex, currentLang, () => {
+      openFileInViewer('hoja-de-vida', 'content', tr('resume', currentLang));
+    });
+    if (lastTipContent) {
+      tipContentContainer.replaceChild(newContent, lastTipContent);
+    } else {
+      tipContentContainer.appendChild(newContent);
+    }
+    lastTipContent = newContent;
+  }
+  renderTipContent();
+
+  tipTextArea.appendChild(tipContentContainer);
+  tipFlexRow.appendChild(tipTextArea);
+  leftCol.appendChild(tipFlexRow);
+  row.appendChild(leftCol);
+
+  // ── Right column: buttons panel ──
+  const rightCol = document.createElement('div');
+  rightCol.style.cssText = 'width:200px;display:flex;flex-direction:column;gap:6px';
+
+  function createWinButton(
+    text: string,
+    onClick: () => void,
+    disabled = false,
+  ): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.disabled = disabled;
+    btn.style.cssText = [
+      'padding:4px 8px',
+      'text-align:left',
+      'width:100%',
+      'font-size:11px',
+      "font-family:'MS Sans Serif','Segoe UI',sans-serif",
+    ].join(';');
+    if (!disabled) {
+      btn.addEventListener('click', onClick);
+    }
+    return btn;
+  }
+
+  const nextTipBtn = createWinButton(tr('nextTip', currentLang), () => {
+    const tips = getTips(currentLang);
+    currentTipIndex = (currentTipIndex + 1) % tips.length;
+    renderTipContent();
+  });
+
+  const whatsNewBtn = createWinButton(tr('whatsNew', currentLang), () => {
+    openFileInViewer('features', 'content', tr('whatsNew', currentLang));
+  });
+
+  const onlineRegBtn = createWinButton(
+    tr('onlineRegistration', currentLang),
+    () => {},
+    true,
   );
-};
+
+  const closeBtn = createWinButton(tr('close', currentLang), () => {
+    $win.close();
+  });
+
+  rightCol.appendChild(nextTipBtn);
+  rightCol.appendChild(whatsNewBtn);
+  rightCol.appendChild(onlineRegBtn);
+  rightCol.appendChild(closeBtn);
+
+  // ── Language fieldset ──
+  const fieldset = document.createElement('fieldset');
+  fieldset.style.cssText = 'margin-top:auto;padding:10px;width:100%';
+
+  const legend = document.createElement('legend');
+  legend.textContent = tr('language', currentLang);
+  fieldset.appendChild(legend);
+
+  const fieldRow = document.createElement('div');
+  fieldRow.className = 'field-row';
+  fieldRow.style.cssText = 'display:flex;gap:16px';
+
+  function createLangRadio(
+    value: 'en' | 'es',
+    label: string,
+  ): HTMLDivElement {
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;align-items:center;gap:4px';
+
+    const input = document.createElement('input');
+    input.id = 'lang-' + value;
+    input.type = 'radio';
+    input.name = 'language-select';
+    input.value = value;
+    input.checked = currentLang === value;
+
+    input.addEventListener('change', () => {
+      if (input.checked) {
+        currentLang = value;
+        localStorage.setItem('language', currentLang);
+
+        // Notify React context so the rest of the app responds
+        window.dispatchEvent(
+          new CustomEvent('language-changed', {
+            detail: { language: currentLang },
+          }),
+        );
+
+        // Update all UI elements
+        updateUILanguage(currentLang);
+      }
+    });
+
+    const lbl = document.createElement('label');
+    lbl.htmlFor = 'lang-' + value;
+    lbl.textContent = label;
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(lbl);
+    return wrapper;
+  }
+
+  fieldRow.appendChild(createLangRadio('en', 'English'));
+  fieldRow.appendChild(createLangRadio('es', 'Español'));
+  fieldset.appendChild(fieldRow);
+  rightCol.appendChild(fieldset);
+
+  row.appendChild(rightCol);
+
+  // ── Footer: show-on-startup checkbox ──
+  const footer = document.createElement('div');
+  footer.style.cssText = [
+    'margin-top:20px',
+    'display:flex',
+    'align-items:center',
+    'gap:8px',
+    'justify-content:flex-start',
+    'flex-shrink:0',
+  ].join(';');
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.id = 'startup-check';
+  checkbox.checked = readShowWelcome();
+  checkbox.style.cssText = 'cursor:pointer';
+
+  checkbox.addEventListener('change', () => {
+    const checked = checkbox.checked;
+    localStorage.setItem('show_welcome', String(checked));
+    if (!checked) {
+      localStorage.setItem('welcome_hidden_at', String(Date.now()));
+    } else {
+      localStorage.removeItem('welcome_hidden_at');
+    }
+  });
+
+  const footerLabel = document.createElement('label');
+  footerLabel.htmlFor = 'startup-check';
+  footerLabel.style.cssText = 'cursor:pointer';
+  footerLabel.textContent = tr('showWelcomeScreen', currentLang);
+
+  footer.appendChild(checkbox);
+  footer.appendChild(footerLabel);
+  mainContent.appendChild(footer);
+
+  // ── Language update function ──
+  function updateUILanguage(lang: 'en' | 'es'): void {
+    titleEl.textContent = tr('welcome', lang);
+    headingEl.textContent = tr('didYouKnow', lang);
+    nextTipBtn.textContent = tr('nextTip', lang);
+    whatsNewBtn.textContent = tr('whatsNew', lang);
+    onlineRegBtn.textContent = tr('onlineRegistration', lang);
+    closeBtn.textContent = tr('close', lang);
+    footerLabel.textContent = tr('showWelcomeScreen', lang);
+    legend.textContent = tr('language', lang);
+    renderTipContent();
+  }
+
+  // ── Append to window ──
+  $win.$content.append(mainContent);
+}

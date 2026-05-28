@@ -17,6 +17,18 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     localStorage.setItem('language', language);
   }, [language]);
 
+  // Listen for language changes from os-gui native windows
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.language) {
+        setLanguage(detail.language);
+      }
+    };
+    window.addEventListener('language-changed', handler);
+    return () => window.removeEventListener('language-changed', handler);
+  }, []);
+
   const changeLanguage = (lang: string) => {
     setLanguage(lang);
   };

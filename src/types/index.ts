@@ -34,5 +34,5 @@ export interface AppDefinition {
   centered: boolean;
   singleInstance?: boolean;
   /** If set, this function is called instead of creating a React Window (e.g. for os-gui native windows) */
-  customLaunch?: () => void;
+  customLaunch?: (appData?: any) => void;
 }

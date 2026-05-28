@@ -1,187 +1,221 @@
+/* ═══════════════════════════════════════
+   Netscape Navigator — DOM-based browser UI
+   Uses os-gui native window (not React)
+   ═══════════════════════════════════════ */
+
 .netscape-container {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #c0c0c0;
-  font-family: "MS Sans Serif", Arial, sans-serif;
+  background: var(--ButtonFace, #c0c0c0);
+  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
   font-size: 11px;
 }
 
-/* Toolbar */
+/* ── Toolbar ─────────────────────────── */
+
 .netscape-toolbar {
-  background: #c0c0c0;
-  border-bottom: 2px solid #808080;
-  padding: 4px 8px;
+  background: var(--ButtonFace, #c0c0c0);
+  border-bottom: 1px solid var(--ButtonShadow, #808080);
+  padding: 3px 6px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 28px;
 }
 
 .netscape-toolbar-buttons {
   display: flex;
-  gap: 4px;
+  gap: 2px;
+  align-items: center;
 }
 
-.netscape-btn {
-  width: 24px;
+.netscape-toolbar-buttons button.lightweight {
+  width: 26px;
   height: 22px;
-  background: #c0c0c0;
-  border: 2px outset #ffffff;
-  box-shadow: 1px 1px 0px #000;
-  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  padding: 0;
+  cursor: pointer;
 }
 
-.netscape-btn:hover {
-  background: #d4d0c8;
+.netscape-toolbar-buttons button.lightweight.active {
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--ButtonShadow, #808080) var(--ButtonHilight, #dfdfdf) var(--ButtonHilight, #dfdfdf) var(--ButtonShadow, #808080);
+  background-color: var(--ButtonFace, #c0c0c0);
 }
 
-.netscape-btn:active {
-  border: 2px inset #ffffff;
-  box-shadow: none;
-}
+/* ── Address Bar ─────────────────────── */
 
-.home-btn {
-  font-size: 12px;
-}
-
-.proxy-btn {
-  font-size: 12px;
-}
-
-.proxy-btn.active {
-  border: 2px inset #ffffff;
-  box-shadow: none;
-  background: #d4d0c8;
-}
-
-/* Address Bar */
 .netscape-address-bar {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #c0c0c0;
-  padding: 2px 4px;
+  gap: 4px;
+  min-width: 150px;
 }
 
 .netscape-address-label {
   font-weight: bold;
   white-space: nowrap;
+  font-size: 11px;
+  color: var(--WindowText, #000);
 }
 
 .netscape-address-input {
   flex: 1;
+  height: 20px;
+  border: 2px inset var(--ButtonShadow, #808080);
+  background: var(--Window, #fff);
+  padding: 1px 4px;
+  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+  color: var(--WindowText, #000);
+  min-width: 60px;
+}
+
+.netscape-address-bar button.lightweight {
+  padding: 1px 10px;
   height: 22px;
-  border: 2px inset #808080;
-  background: #fff;
-  padding: 2px 6px;
-  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
   font-size: 11px;
-}
-
-.netscape-go-btn {
-  padding: 2px 12px;
-  background: #c0c0c0;
-  border: 2px outset #ffffff;
-  box-shadow: 1px 1px 0px #000;
   cursor: pointer;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  font-size: 11px;
-  font-weight: bold;
 }
 
-.netscape-go-btn:hover {
-  background: #d4d0c8;
-}
+/* ── Proxy Banner ────────────────────── */
 
-.netscape-go-btn:active {
-  border: 2px inset #ffffff;
-  box-shadow: none;
-}
-
-/* Content Area */
-.netscape-content {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  background: #fff;
-  border: 2px inset #808080;
-}
-
-.netscape-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: #fff;
-}
-
-/* Loading Overlay */
-.netscape-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #c0c0c0;
-  border: 2px outset #ffffff;
-  padding: 16px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-}
-
-.netscape-loading-text {
-  font-weight: bold;
-  font-size: 12px;
-}
-
-/* Status Bar */
-.netscape-status-bar {
-  background: #c0c0c0;
-  border-top: 2px solid #dfdfdf;
-  padding: 2px 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 20px;
-}
-
-.netscape-status-field {
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.netscape-security {
-  color: #008000;
-  font-weight: bold;
-}
-
-.netscape-security.error {
-  color: #ff0000;
-}
-
-/* Proxy banner */
 .netscape-proxy-banner {
   background: #ffffcc;
-  border-bottom: 1px solid #808080;
+  border-bottom: 1px solid var(--ButtonShadow, #808080);
   padding: 3px 8px;
   font-size: 11px;
   text-align: center;
   color: #333;
 }
 
-.netscape-proxy-badge {
-  color: #cc6600;
+/* ── Content Area ────────────────────── */
+
+.netscape-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--Window, #fff);
+  border: 2px inset var(--ButtonShadow, #808080);
+  margin: 2px;
+}
+
+.netscape-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--Window, #fff);
+  display: block;
+}
+
+/* ── Loading Overlay ─────────────────── */
+
+.netscape-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--ButtonFace, #c0c0c0);
+  border: 2px outset var(--ButtonHilight, #dfdfdf);
+  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.netscape-loading-text {
   font-weight: bold;
-  font-size: 10px;
+  font-size: 12px;
+  color: var(--WindowText, #000);
+}
+
+/* Progress bar inside loading overlay */
+.netscape-progress-bar {
+  width: 200px;
+  height: 18px;
+  background: var(--Window, #fff);
+  border: 2px inset var(--ButtonShadow, #808080);
+  position: relative;
+  overflow: hidden;
+}
+
+.netscape-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--Highlight, #000080) 0%,
+    #1084d0 25%,
+    var(--Highlight, #000080) 50%,
+    #1084d0 75%,
+    var(--Highlight, #000080) 100%
+  );
+  background-size: 200% 100%;
+  animation: netscape-progress-slide 1.5s linear infinite;
+}
+
+@keyframes netscape-progress-slide {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Error Overlay ───────────────────── */
+
+.netscape-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background: #ffffcc;
+  z-index: 10;
+}
+
+.netscape-error-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.netscape-error h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--WindowText, #000);
+}
+
+.netscape-error p {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #444;
+  max-width: 420px;
+}
+
+.netscape-error code {
+  background: #eee;
+  padding: 2px 5px;
+  font-size: 11px;
+  word-break: break-all;
 }
 
 .netscape-error-actions {
@@ -190,70 +224,52 @@
   margin-top: 16px;
 }
 
-/* Error Message */
-.netscape-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 40px;
-  text-align: center;
-  background: #ffffcc;
-  border: 2px inset #808080;
-}
-
-.netscape-error-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.netscape-error h3 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  color: #000;
-}
-
-.netscape-error p {
-  margin: 0 0 12px 0;
+.netscape-error-actions button.lightweight {
+  padding: 4px 16px;
+  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
   font-size: 12px;
-  color: #333;
-  max-width: 400px;
-}
-
-.netscape-open-external-btn {
-  margin-top: 16px;
-  padding: 8px 24px;
-  background: #c0c0c0;
-  border: 2px outset #ffffff;
-  box-shadow: 1px 1px 0px #000;
   cursor: pointer;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  font-size: 12px;
+}
+
+/* ── Status Bar ──────────────────────── */
+
+.netscape-status-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  background: var(--ButtonFace, #c0c0c0);
+  min-height: 18px;
+}
+
+.netscape-security {
+  color: var(--Highlight, #008000);
   font-weight: bold;
+  font-size: 11px;
 }
 
-.netscape-open-external-btn:hover {
-  background: #d4d0c8;
+.netscape-security.error {
+  color: #ff0000;
 }
 
-.netscape-open-external-btn:active {
-  border: 2px inset #ffffff;
-  box-shadow: none;
-}
+/* ── Responsive ──────────────────────── */
 
-/* Responsive */
 @media (max-width: 768px) {
   .netscape-toolbar {
     flex-wrap: wrap;
   }
-  
+
   .netscape-address-bar {
     width: 100%;
     order: 3;
   }
-  
-  .netscape-status-field {
-    font-size: 10px;
+
+  .netscape-loading {
+    padding: 12px 16px;
+  }
+
+  .netscape-progress-bar {
+    width: 140px;
   }
 }
