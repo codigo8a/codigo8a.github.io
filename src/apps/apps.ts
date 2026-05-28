@@ -30,7 +30,7 @@ export const APPS: Record<string, AppDefinition> = {
   fileExplorer: {
     id: 'fileExplorer',
     title: 'My Documents',
-    icon: '/app/icons/folder.svg',
+    icon: '/app/icons/my-documents-folder-32x32.png',
     component: FileExplorerApp,
     defaultSize: { width: 780, height: 540 },
     centered: true,

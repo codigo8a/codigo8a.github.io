@@ -329,6 +329,7 @@ input[type="radio"]:disabled + label::before {
   color: inherit;
   border: 0;
   outline: 0;
+  box-shadow: none;
   padding: 0;
   min-width: 0;
   width: 0;

@@ -11,11 +11,10 @@ interface DesktopIcon {
 const APP_ICONS: Record<string, React.ReactNode> = {
   winamp: (
     <img 
-      src="/app/icons/winamp-logo.svg" 
+      src="/app/icons/winamp2-32x32.png" 
       alt="Winamp" 
       width={32} 
       height={32} 
-      style={{ imageRendering: 'auto' }} 
     />
   ),
   iexplorer: (
@@ -26,10 +25,18 @@ const APP_ICONS: Record<string, React.ReactNode> = {
       height={32} 
     />
   ),
+  myDocuments: (
+    <img 
+      src="/app/icons/my-documents-folder-32x32.png" 
+      alt="My Documents" 
+      width={32} 
+      height={32} 
+    />
+  ),
 };
 
 const DESKTOP_ICONS: DesktopIcon[] = [
-  { id: 'myDocuments', icon: '📁', label: 'My Documents' },
+  { id: 'myDocuments', icon: 'myDocuments', label: 'My Documents' },
   { id: 'find', icon: '🔍', label: 'Find' },
   { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },

@@ -154,7 +154,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
           </button>
           <button onClick={() => { launchWinamp(); onClose(); }}>
             <span className="icon">
-              <img src="/app/icons/winamp-logo.svg" alt="Winamp" width={16} height={16} />
+              <img src="/app/icons/winamp2-16x16.png" alt="Winamp" width={16} height={16} />
             </span>
             Winamp
           </button>

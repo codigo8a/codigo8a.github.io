@@ -370,8 +370,8 @@ export function launchFileExplorer(): void {
   const $win = $Window({
     title: 'My Documents',
     icons: {
-      16: '/app/icons/folder.svg',
-      any: '/app/icons/folder.svg',
+      16: '/app/icons/my-documents-16x16.png',
+      32: '/app/icons/my-documents-folder-32x32.png',
     },
     minWidth: 600,
     minHeight: 400,
@@ -382,7 +382,7 @@ export function launchFileExplorer(): void {
     height: '540px',
   });
   $win.center();
-  registerOsWindow($win, 'fileExplorer', 'My Documents', '/app/icons/folder.svg');
+  registerOsWindow($win, 'fileExplorer', 'My Documents', '/app/icons/my-documents-folder-32x32.png');
 
   // ── Root explorer container ──
   const explorer = document.createElement('div');
@@ -720,7 +720,7 @@ export function launchFileExplorer(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/folder.svg';
+  addrIcon.src = '/app/icons/my-documents-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 

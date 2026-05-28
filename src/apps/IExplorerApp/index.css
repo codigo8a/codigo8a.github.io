@@ -114,37 +114,6 @@
   cursor: pointer;
 }
 
-/* ── Status Bar ── */
-
-.ie-status-bar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 4px;
-  background: var(--ButtonFace, #c0c0c0);
-  min-height: 18px;
-  margin-top: 2px;
-}
-
-.ie-status-left {
-  flex: 1;
-  padding: 2px 6px;
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ie-status-right {
-  padding: 2px 6px;
-  font-size: 11px;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 /* ── Responsive ── */
 
 @media (max-width: 768px) {

@@ -603,17 +603,8 @@ export function launchIExplorer(): void {
   favBtn.addEventListener('click', () => alert('Favorites not supported.'));
   stdButtons.appendChild(favBtn);
 
-  // History — no sprite in browse-ui-icons, use inline SVG
-  const histBtn = document.createElement('button');
-  histBtn.className = 'toolbar-button lightweight';
-  const histIcon = document.createElement('div');
-  histIcon.className = 'icon';
-  histIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" fill="none"/><polyline points="10,5 10,11 14,13" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/></svg>`;
-  histBtn.appendChild(histIcon);
-  const histLabel = document.createElement('span');
-  histLabel.className = 'label-text';
-  histLabel.textContent = 'History';
-  histBtn.appendChild(histLabel);
+  // History — uses sprite 12 from browse-ui-icons (same as 98.js.org demo)
+  const histBtn = createToolbarBtn('History', 12);
   histBtn.addEventListener('click', () => alert('History not supported.'));
   stdButtons.appendChild(histBtn);
 
@@ -672,7 +663,7 @@ export function launchIExplorer(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/iexplorer-16x16.png';
+  addrIcon.src = '/app/icons/html-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 
@@ -694,13 +685,6 @@ export function launchIExplorer(): void {
   compoundInput.appendChild(addrDropdown);
 
   addrBar.appendChild(compoundInput);
-
-  const goBtn = document.createElement('button');
-  goBtn.className = 'lightweight';
-  goBtn.textContent = 'Go';
-  goBtn.style.fontWeight = 'bold';
-  goBtn.addEventListener('click', handleNavigate);
-  addrBar.appendChild(goBtn);
 
   addrToolbar.appendChild(addrBar);
   toolbars.appendChild(addrToolbar);
