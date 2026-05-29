@@ -1,8 +1,15 @@
-.fileviewer-container {
+/* Main container — fills os-gui window content area */
+.fileviewer-os-container {
   height: 100%;
   display: flex;
   flex-direction: column;
   background: #c0c0c0;
+  overflow: hidden;
+}
+
+/* Sunken panel inside the viewer — scrolls when content overflows */
+.fileviewer-os-container .sunken-panel {
+  overflow: auto;
 }
 
 .fileviewer-markdown {

@@ -43,13 +43,33 @@ function tr(key: string): string {
  * Converts basic markdown to HTML.
  * Supports: headings (h1-h3), paragraphs, bold, italic, inline code,
  * unordered/ordered lists, links, images, blockquotes, horizontal rules.
+ * Preserves HTML tags found in the source (img, p, hr, br, a, b, etc.).
  */
 function renderMarkdown(md: string): string {
-  // Escape HTML entities first to prevent XSS
-  let html = md
+  // ── Step 1: Extract existing HTML tags into placeholders ──
+  const htmlTagMap = new Map<string, string>();
+  let tagCounter = 0;
+  const extractHtml = md.replace(
+    /<[a-zA-Z\/][^>]*>/g,
+    (match) => {
+      const key = `\x00HTML_TAG_${tagCounter++}\x00`;
+      htmlTagMap.set(key, match);
+      return key;
+    },
+  );
+
+  // ── Step 2: Escape HTML entities (safe now — tags are in placeholders) ──
+  let html = extractHtml
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+
+  // ── Step 3: Restore HTML tags from placeholders ──
+  for (const [key, tag] of htmlTagMap) {
+    html = html.replace(key, tag);
+  }
+
+  // ── Step 4: Markdown processing ──
 
   // Headings (must come before bold/italic to avoid ** interference)
   html = html
@@ -63,10 +83,10 @@ function renderMarkdown(md: string): string {
   // Blockquotes
   html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
 
-  // Unordered list items: lines starting with - or * (not already inside a tag)
+  // Unordered list items
   html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
 
-  // Ordered list items: lines starting with number.
+  // Ordered list items
   html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
 
   // Wrap consecutive <li> elements in <ul>
@@ -74,40 +94,31 @@ function renderMarkdown(md: string): string {
 
   // Inline formatting
   html = html
-    // Inline code (before bold to avoid conflicts)
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // Bold
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    // Italic
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    // Images
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
-    // Links
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
-  // Paragraphs: double newline = paragraph break
-  // First unwrap any existing <p> wrapping, then re-wrap
-  // Split by blank lines (two or more newlines)
+  // ── Step 5: Paragraph wrapping ──
   const blocks = html.split(/\n\n+/);
   const wrapped = blocks
     .map((block) => {
       const trimmed = block.trim();
       if (!trimmed) return '';
-      // If block already starts with a block-level tag, leave it as-is
-      if (/^<(h[1-3]|ul|ol|li|blockquote|hr|pre|table|div|p)/i.test(trimmed)) {
+      if (/^<(h[1-3]|ul|ol|li|blockquote|hr|pre|table|div|p|img)/i.test(trimmed)) {
         return trimmed;
       }
-      // Single line = paragraph
       return `<p>${trimmed}</p>`;
     })
     .join('\n');
 
-  // Clean up empty paragraphs and redundant wrapping
+  // ── Step 6: Cleanup ──
   let result = wrapped
     .replace(/\n{3,}/g, '\n\n')
     .replace(/<p>\s*<\/p>/g, '')
-    .replace(/<\/ul>\n*<ul>/g, '') // merge adjacent <ul> blocks
-    .replace(/<li><\/li>/g, '');    // remove empty items
+    .replace(/<\/ul>\n*<ul>/g, '')
+    .replace(/<li><\/li>/g, '');
 
   return result;
 }
