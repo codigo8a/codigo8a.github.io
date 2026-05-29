@@ -4,7 +4,7 @@ Entorno de escritorio estilo Windows 98 construido con React. Desplegado en [htt
 
 ## Overview
 
-Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos con doble vista, buscador de contenido y visor de markdown. Construido con React 19, TypeScript y Vite.
+Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos, buscador y visor de markdown (MarkdownViewer). Construido con React 19, TypeScript y Vite.
 
 ## Despliegue y Dominio
 
@@ -33,7 +33,7 @@ src/
 │   ├── WelcomeApp/               # Pantalla de bienvenida
 │   ├── NotepadApp/              # Bloc de notas
 │   ├── FileExplorerApp/         # Explorador de archivos
-│   ├── FileViewerApp/           # Visor de markdown
+│   ├── MarkdownViewerApp/       # Visor de markdown
 │   ├── SearchApp/               # Buscador de archivos
 │   ├── SettingsApp/             # Configuración del sistema
 │   └── apps.ts                  # Registro central de apps
@@ -92,8 +92,8 @@ npm run deploy # Despliegue a GitHub Pages
 | **Welcome** | Pantalla de bienvenida con tips, selector de idioma y enlaces sociales | 700x420 | ✅ Sí |
 | **Notepad** | Bloc de notas con barra de estado | 450x350 | ✅ Sí |
 | **FileExplorer** | Explorador con vista de iconos estilo "My Documents" (cuadrícula) | 650x450 | ✅ Sí |
-| **FileViewer** | Visor markdown con tabs Preview/Source | 1000x800 | ❌ No (por archivo) |
-| **Search** | Buscador por nombre y contenido de archivos | 500x350 | ✅ Sí |
+| **MarkdownViewer** | Visor markdown con vista Preview/Source | 1000x800 | ❌ No (por archivo) |
+| **Search** | Búsqueda por nombre y contenido de archivos | 640x460 | ✅ Sí |
 | **Settings** | Configuración con tabs: General (idioma, Clippy) y Desktop (wallpapers) | 450x480 | ✅ Sí |
 | **Browser** | Navegador web estilo retro | 900x650 | ✅ Sí |
 | **Winamp** | Reproductor de música clásico con Webamp | 900x600 | ✅ Sí |
@@ -321,7 +321,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Enrutamiento por URL
 - ✅ Soporte multilenguaje
 - ✅ Explorador de archivos (iconos en cuadrícula estilo My Documents)
-- ✅ Visor de markdown con tabs
+- ✅ Visor de markdown (MarkdownViewer)
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional
