@@ -140,7 +140,7 @@ textarea:disabled {
   background-color: silver;
 }
 
-/* Checkboxes - visually hidden, custom drawing via label */
+/* Checkboxes & radios — visually hidden, custom drawing via label ::before/::after */
 input[type="checkbox"],
 input[type="radio"] {
   appearance: none;
@@ -150,25 +150,33 @@ input[type="radio"] {
   border: none;
   margin: 0;
   opacity: 0;
-  position: fixed;
+  position: absolute;
+  pointer-events: none;
 }
 input[type="checkbox"] + label,
 input[type="radio"] + label {
+  display: inline-flex;
+  align-items: center;
   line-height: 13px;
-}
-input[type="checkbox"] + label {
-  margin-left: 19px;
   position: relative;
+  cursor: default;
+  /* Padding-left creates room for the ::before visual inside the label's clickable box */
+}
+
+/* ── Checkbox ── */
+input[type="checkbox"] + label {
+  padding-left: 19px;
+  margin-left: 0;
 }
 input[type="checkbox"] + label::before {
   background: #fff;
   box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
   content: "";
-  display: inline-block;
+  display: block;
   height: 13px;
-  left: -19px;
-  margin-right: 6px;
+  left: 0;
   position: absolute;
+  top: 0;
   width: 13px;
 }
 input[type="checkbox"]:checked + label::after {
@@ -176,7 +184,7 @@ input[type="checkbox"]:checked + label::after {
   content: "";
   display: block;
   height: 7px;
-  left: -16px;
+  left: 3px;
   position: absolute;
   top: 3px;
   width: 7px;
@@ -186,18 +194,16 @@ input[type="radio"]:focus + label {
   outline: 1px dotted #000;
 }
 
-/* Radio buttons */
+/* ── Radio ── */
 input[type="radio"] + label {
-  margin-left: 18px;
-  position: relative;
+  padding-left: 18px;
 }
 input[type="radio"] + label::before {
   background: url("data:image/svg+xml;charset=utf-8,%3Csvg%20width='12'%20height='12'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M8%200H4v1H2v1H1v2H0v4h1v2h1V8H1V4h1V2h2V1h4v1h2V1H8V0z'%20fill='gray'/%3E%3Cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M8%201H4v1H2v2H1v4h1v1h1V8H2V4h1V3h1V2h4v1h2V2H8V1z'%20fill='%23000'/%3E%3Cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9%203h1v1H9V3zm1%205V4h1v4h-1zm-2%202V9h1V8h1v2H8zm-4%200v1h4v-1H4zm0%200V9H2v1h2z'%20fill='%23DFDFDF'/%3E%3Cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M11%202h-1v2h1v4h-1v2H8v1H4v-1H2v1h2v1h4v-1h2v-1h1V8h1V4h-1V2z'%20fill='%23fff'/%3E%3Cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M4%202h4v1h1v1h1v4H9v1H8v1H4V9H3V8H2V4h1V3h1V2z'%20fill='%23fff'/%3E%3C/svg%3E");
   content: "";
-  display: inline-block;
+  display: block;
   height: 12px;
-  left: -18px;
-  margin-right: 6px;
+  left: 0;
   position: absolute;
   top: 0;
   width: 12px;
@@ -207,7 +213,7 @@ input[type="radio"]:checked + label::after {
   content: "";
   display: block;
   height: 4px;
-  left: -14px;
+  left: 4px;
   position: absolute;
   top: 4px;
   width: 4px;
@@ -449,4 +455,32 @@ input[type="radio"]:disabled + label::before {
 }
 .os-explorer #status-bar-right {
   width: 170px;
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 767px) {
+  /* Status bar: fixed widths → flexible to avoid overflow on narrow screens */
+  .os-explorer #status-bar-left {
+    width: auto;
+    max-width: 120px;
+    flex-shrink: 1;
+    min-width: 50px;
+  }
+  .os-explorer #status-bar-right {
+    width: auto;
+    max-width: 80px;
+    flex-shrink: 1;
+    min-width: 40px;
+  }
+
+  /* Settings footer: reduce padding on mobile */
+  .settings-footer {
+    padding: 6px 8px 10px;
+  }
+
+  /* Reduce button min-width so Apply/Cancel fit without overflow */
+  .settings-button {
+    min-width: 60px;
+    padding: 3px 14px;
+  }
 }
