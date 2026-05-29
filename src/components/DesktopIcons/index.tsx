@@ -22,7 +22,7 @@ const ICON_W = 72;  // 64px width + 8px padding
 const ICON_H = 72;  // approximate height
 const GAP = 8;
 const LEFT = 4;
-const TOP = 42;
+const TOP = 13;
 
 const APP_ICONS: Record<string, React.ReactNode> = {
   winamp: (

@@ -483,4 +483,16 @@ input[type="radio"]:disabled + label::before {
     min-width: 60px;
     padding: 3px 14px;
   }
+
+  /* Toolbar: horizontal scroll when icons overflow on mobile */
+  .os-explorer .toolbar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    /* Hide scrollbar visually (keeps swipe-to-scroll) */
+    scrollbar-width: none;
+  }
+  .os-explorer .toolbar::-webkit-scrollbar {
+    display: none;
+  }
 }
