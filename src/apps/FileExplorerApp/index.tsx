@@ -137,7 +137,7 @@ function openFileViewer(name: string, folder: string, date: string): void {
   window.dispatchEvent(
     new CustomEvent('desktop-open-app', {
       detail: {
-        appId: 'fileViewer',
+        appId: 'markdownViewer',
         appData: {
           file: {
             name: name.replace('.md', ''),

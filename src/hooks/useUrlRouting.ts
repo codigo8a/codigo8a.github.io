@@ -19,7 +19,7 @@ export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, 
         const fileData = findFileByUrl(folder, filename);
         if (fileData) {
           const displayTitle = fileData.name.replace('.md', '');
-          openApp('fileViewer', {
+          openApp('markdownViewer', {
             file: {
               name: displayTitle,
               content: fileData.content,
@@ -43,7 +43,7 @@ export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, 
       return;
     }
 
-    const isAnyFileViewerOpen = windows.some(win => win.appId === 'fileViewer' && !win.isMinimized);
+    const isAnyFileViewerOpen = windows.some(win => win.appId === 'markdownViewer' && !win.isMinimized);
     
     if (!isAnyFileViewerOpen && window.location.pathname !== '/') {
       window.history.pushState({}, '', '/');

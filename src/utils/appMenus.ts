@@ -30,7 +30,7 @@ export const getAppMenu = (appId: string, actions?: any): MenuDefinition | null 
         ],
       };
 
-    case 'fileViewer':
+    case 'markdownViewer':
       return {
         '&File': [
           { label: '&Open...', shortcut: 'Ctrl+O', action: () => actions?.onOpen?.() },

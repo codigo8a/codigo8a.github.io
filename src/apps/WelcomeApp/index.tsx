@@ -43,7 +43,7 @@ function openFileInViewer(
   window.dispatchEvent(
     new CustomEvent('desktop-open-app', {
       detail: {
-        appId: 'fileViewer',
+        appId: 'markdownViewer',
         appData: {
           file: {
             name: fileName,

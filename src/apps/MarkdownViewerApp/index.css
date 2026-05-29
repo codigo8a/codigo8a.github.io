@@ -1,6 +1,6 @@
 /* ── Content panels ── */
-.fileviewer-preview,
-.fileviewer-source {
+.mdviewer-preview,
+.mdviewer-source {
   flex: 1;
   overflow: auto;
   padding: 10px;
@@ -11,11 +11,11 @@
 }
 
 /* Source panel hidden by default */
-.fileviewer-source {
+.mdviewer-source {
   display: none;
 }
 
-.fileviewer-source pre {
+.mdviewer-source pre {
   margin: 0;
   padding: 0;
   border: none;
@@ -32,14 +32,14 @@
 }
 
 /* ── Markdown preview styles ── */
-.fileviewer-preview {
+.mdviewer-preview {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: #000;
 }
 
-.fileviewer-preview h1 {
+.mdviewer-preview h1 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 12px;
@@ -48,7 +48,7 @@
   border-bottom: 2px solid #c0c0c0;
 }
 
-.fileviewer-preview h2 {
+.mdviewer-preview h2 {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 10px;
@@ -56,37 +56,37 @@
   color: #000080;
 }
 
-.fileviewer-preview h3 {
+.mdviewer-preview h3 {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 8px;
   margin-top: 14px;
 }
 
-.fileviewer-preview p {
+.mdviewer-preview p {
   margin-bottom: 12px;
   margin-top: 8px;
   /* Preserve single line breaks within a paragraph */
   white-space: pre-line;
 }
 
-.fileviewer-preview ul {
+.mdviewer-preview ul {
   margin-left: 24px;
   margin-bottom: 12px;
   list-style-type: disc;
 }
 
-.fileviewer-preview ol {
+.mdviewer-preview ol {
   margin-left: 24px;
   margin-bottom: 12px;
   list-style-type: decimal;
 }
 
-.fileviewer-preview li {
+.mdviewer-preview li {
   margin-bottom: 4px;
 }
 
-.fileviewer-preview code {
+.mdviewer-preview code {
   background-color: #ffffcc;
   padding: 2px 6px;
   font-family: monospace;
@@ -94,7 +94,7 @@
   border: 1px solid #c0c0c0;
 }
 
-.fileviewer-preview pre {
+.mdviewer-preview pre {
   background-color: #ffffcc;
   padding: 12px;
   font-family: monospace;
@@ -105,14 +105,14 @@
 }
 
 /* Reset inline code styling for code inside fenced blocks */
-.fileviewer-preview pre > code {
+.mdviewer-preview pre > code {
   padding: 0;
   border: none;
   background: transparent;
   white-space: pre;
 }
 
-.fileviewer-preview blockquote {
+.mdviewer-preview blockquote {
   border-left: 4px solid #c0c0c0;
   padding-left: 16px;
   margin-left: 0;
@@ -120,7 +120,7 @@
   color: #404040;
 }
 
-.fileviewer-preview img {
+.mdviewer-preview img {
   max-width: 100%;
   width: 100%;
   height: auto;

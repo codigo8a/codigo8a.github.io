@@ -1,7 +1,7 @@
 import { WelcomeApp, launchWelcome } from './WelcomeApp';
 import { NotepadApp, launchNotepad } from './NotepadApp';
 import { FileExplorerApp, launchFileExplorer } from './FileExplorerApp';
-import { FileViewerApp, launchFileViewer } from './FileViewerApp';
+import { MarkdownViewerApp, launchFileViewer } from './MarkdownViewerApp';
 import { SearchApp, launchSearch } from './SearchApp';
 import { SettingsApp, launchSettings } from './SettingsApp';
 import { IExplorerApp, launchIExplorer } from './IExplorerApp';
@@ -41,11 +41,11 @@ export const APPS: Record<string, AppDefinition> = {
     centered: true,
     customLaunch: launchFileExplorer,
   },
-  fileViewer: {
-    id: 'fileViewer',
-    title: 'File Viewer',
+  markdownViewer: {
+    id: 'markdownViewer',
+    title: 'Markdown Viewer',
     icon: '/app/icons/file-viewer.svg',
-    component: FileViewerApp,
+    component: MarkdownViewerApp,
     defaultSize: { width: 1000, height: 800 },
     centered: true,
     singleInstance: false,

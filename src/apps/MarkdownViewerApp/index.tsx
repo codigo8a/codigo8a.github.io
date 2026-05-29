@@ -25,11 +25,12 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   close: { es: '&Cerrar', en: '&Close' },
   statusPreview: { es: 'Vista Previa', en: 'Preview' },
   statusSource: { es: 'Código Fuente', en: 'Source' },
-  aboutFileViewer: { es: 'Acerca de Visor de Archivos', en: 'About File Viewer' },
-  fileViewerDesc: {
-    es: 'Visor de Archivos para 98.js.org\n\nUn visor de documentos markdown.\nBasado en Windows 98.',
-    en: 'File Viewer for 98.js.org\n\nA markdown document viewer.\nBased on Windows 98.',
+  aboutMarkdownViewer: { es: 'Acerca de Visor Markdown', en: 'About Markdown Viewer' },
+  markdownViewerDesc: {
+    es: 'Visor Markdown para 98.js.org\n\nUn visor de documentos markdown.\nBasado en Windows 98.',
+    en: 'Markdown Viewer for 98.js.org\n\nA markdown document viewer.\nBased on Windows 98.',
   },
+  markdownViewerTitle: { es: 'Visor Markdown', en: 'Markdown Viewer' },
 };
 
 function getLang(): 'es' | 'en' {
@@ -132,7 +133,7 @@ function createCompoundButton(
 // ══════════════════════════════════════════
 
 /**
- * Creates a native os-gui File Viewer window with Preview/Source views.
+ * Creates a native os-gui Markdown Viewer window with Preview/Source views.
  *
  * Expected appData shape:
  * {
@@ -156,7 +157,7 @@ export function launchFileViewer(appData?: any): void {
   }
 
   const file = appData?.file;
-  const title = appData?.title || file?.name || tr('fileViewerTitle');
+  const title = appData?.title || file?.name || tr('markdownViewerTitle');
 
   // Preview: cleaned content without date/YAML frontmatter
   const previewContent = file?.content || file?.rawContent || '';
@@ -179,7 +180,7 @@ export function launchFileViewer(appData?: any): void {
     height: '500px',
   });
   $win.center();
-  registerOsWindow($win, 'fileViewer', title, '/app/icons/file-viewer.svg');
+  registerOsWindow($win, 'markdownViewer', title, '/app/icons/file-viewer.svg');
 
   // ── Build the explorer-style layout ──
   const explorer = document.createElement('div');
@@ -220,8 +221,8 @@ export function launchFileViewer(appData?: any): void {
     ],
     '&Help': [
       {
-        label: tr('aboutFileViewer'),
-        action: () => alert(tr('fileViewerDesc')),
+        label: tr('aboutMarkdownViewer'),
+        action: () => alert(tr('markdownViewerDesc')),
       },
     ],
   });
