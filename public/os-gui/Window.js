@@ -835,8 +835,8 @@ function $Window(options = {}) {
 				position: "fixed",
 				top: taskbar_height,
 				left: 0,
-				width: `calc(100vw - ${scrollbar_width}px)`,
-				height: `calc(100vh - ${scrollbar_height}px - ${taskbar_height}px)`,
+				width: `${window.innerWidth - scrollbar_width}px`,
+				height: `${window.innerHeight - scrollbar_height - taskbar_height}px`,
 			});
 		};
 		const instantly_unmaximize = () => {
@@ -1325,8 +1325,8 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 				position: "fixed",
 				top: taskbar_height,
 				left: 0,
-				width: `calc(100vw - ${scrollbar_width}px)`,
-				height: `calc(100vh - ${scrollbar_height}px - ${taskbar_height}px)`,
+				width: `${window.innerWidth - scrollbar_width}px`,
+				height: `${window.innerHeight - scrollbar_height - taskbar_height}px`,
 			});
 			$w._autoMaximized = true;
 			return;
