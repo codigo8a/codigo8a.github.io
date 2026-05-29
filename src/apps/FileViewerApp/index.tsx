@@ -50,6 +50,9 @@ function tr(key: string): string {
  * Preserves HTML tags found in the source (img, p, hr, br, a, b, etc.).
  */
 function renderMarkdown(md: string): string {
+  // Normalize Windows line endings so all regex works consistently
+  md = md.replace(/\r\n/g, '\n');
+
   // ── Step 0: Extract fenced code blocks (```...```) into placeholders ──
   // Must happen BEFORE HTML tag extraction so tags inside code blocks
   // are escaped rather than preserved.

@@ -17,8 +17,10 @@ export const extractDate = (content: string): string => {
  */
 export const extractContentWithoutDate = (content: string): string => {
   if (!content) return '';
+  // Normalize Windows line endings (\r\n → \n) so all regex works correctly
+  let cleaned = content.replace(/\r\n/g, '\n');
   // Remove the date line (Fecha: or Date:)
-  let cleaned = content.replace(/^(?:Fecha|Date):\s*\d{1,2}\/\d{1,2}\/\d{4}\n?/gm, '');
+  cleaned = cleaned.replace(/^(?:Fecha|Date):\s*\d{1,2}\/\d{1,2}\/\d{4}\n?/gm, '');
   // Remove YAML frontmatter block (--- ... ---) that follows the date line
   cleaned = cleaned.replace(/^---\n[\s\S]*?\n---\n?/, '');
   return cleaned;
