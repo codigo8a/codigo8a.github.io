@@ -1,12 +1,15 @@
 import React from 'react';
+import { renderToString } from 'react-dom/server';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 
 /**
- * Placeholder React component — FileViewerApp uses os-gui natively via launchFileViewer().
+ * Placeholder React component — MarkdownViewerApp uses os-gui natively via launchFileViewer().
  * This component is never rendered through the React window system.
  */
-export const FileViewerApp: React.FC = () => {
+export const MarkdownViewerApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
 };
 
@@ -16,6 +19,7 @@ export const FileViewerApp: React.FC = () => {
 
 const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   view: { es: '&Vista', en: '&View' },
+  viewsButton: { es: 'Vistas', en: 'Views' },
   preview: { es: 'Vista Previa', en: '&Preview' },
   source: { es: 'Código Fuente', en: '&Source' },
   close: { es: '&Cerrar', en: '&Close' },
@@ -39,127 +43,33 @@ function tr(key: string): string {
 }
 
 // ══════════════════════════════════════════
-//  Simple Markdown Renderer
+//  Markdown → HTML via react-markdown
 // ══════════════════════════════════════════
 
 /**
- * Converts basic markdown to HTML.
- * Supports: headings (h1-h3), paragraphs, bold, italic, inline code,
- * fenced code blocks (with optional language), unordered/ordered lists,
- * links, images, blockquotes, horizontal rules.
- * Preserves HTML tags found in the source (img, p, hr, br, a, b, etc.).
+ * Renders markdown content to HTML using react-markdown + rehype-raw.
+ * Supports: headings, paragraphs, bold, italic, inline code, fenced code
+ * blocks with language tags, lists, links, images, blockquotes, HTML in
+ * markdown, and more.
  */
-function renderMarkdown(md: string): string {
-  // Normalize Windows line endings so all regex works consistently
-  md = md.replace(/\r\n/g, '\n');
-
-  // ── Step 0: Extract fenced code blocks (```...```) into placeholders ──
-  // Must happen BEFORE HTML tag extraction so tags inside code blocks
-  // are escaped rather than preserved.
-  const codeBlockMap = new Map<string, string>();
-  let codeCounter = 0;
-  let processed = md.replace(
-    /^```(\S*)\r?\n([\s\S]*?)\r?\n```[ \t]*/gm,
-    (match, lang, code) => {
-      const key = `\x00CODE_BLOCK_${codeCounter++}\x00`;
-      const escaped = code
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-      const langClass = lang ? ` class="language-${lang}"` : '';
-      codeBlockMap.set(key, `<pre><code${langClass}>${escaped}</code></pre>`);
-      return key;
-    },
+function renderHtml(md: string): string {
+  // Normalize CRLF → LF so markdown line-break rules work consistently
+  const normalized = md.replace(/\r\n/g, '\n');
+  return renderToString(
+    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{normalized}</ReactMarkdown>,
   );
-
-  // ── Step 1: Extract existing HTML tags into placeholders ──
-  const htmlTagMap = new Map<string, string>();
-  let tagCounter = 0;
-  const extractHtml = processed.replace(
-    /<[a-zA-Z\/][^>]*>/g,
-    (match) => {
-      const key = `\x00HTML_TAG_${tagCounter++}\x00`;
-      htmlTagMap.set(key, match);
-      return key;
-    },
-  );
-
-  // ── Step 2: Escape HTML entities (safe now — tags are in placeholders) ──
-  let html = extractHtml
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // ── Step 3: Restore HTML tags from placeholders ──
-  for (const [key, tag] of htmlTagMap) {
-    html = html.replace(key, tag);
-  }
-
-  // ── Step 4: Markdown processing ──
-
-  // Headings (must come before bold/italic to avoid ** interference)
-  html = html
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>');
-
-  // Horizontal rules
-  html = html.replace(/^(?:---|\*\*\*|___)$/gm, '<hr />');
-
-  // Blockquotes
-  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-
-  // Unordered list items
-  html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
-
-  // Ordered list items
-  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-
-  // Wrap consecutive <li> elements in <ul>
-  html = html.replace(/((?:<li>.*?<\/li>\n?)+)/g, '<ul>$1</ul>');
-
-  // Inline formatting
-  html = html
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-
-  // ── Step 4b: Restore code blocks BEFORE paragraph wrapping ──
-  // This ensures <pre><code> blocks are not wrapped in <p>
-  for (const [key, htmlBlock] of codeBlockMap) {
-    html = html.replace(key, htmlBlock);
-  }
-
-  // ── Step 5: Paragraph wrapping ──
-  const blocks = html.split(/\n\n+/);
-  const wrapped = blocks
-    .map((block) => {
-      const trimmed = block.trim();
-      if (!trimmed) return '';
-      if (/^<(h[1-3]|ul|ol|li|blockquote|hr|pre|table|div|p|img)/i.test(trimmed)) {
-        return trimmed;
-      }
-      return `<p>${trimmed}</p>`;
-    })
-    .join('\n');
-
-  // ── Step 6: Cleanup ──
-  let result = wrapped
-    .replace(/\n{3,}/g, '\n\n')
-    .replace(/<p>\s*<\/p>/g, '')
-    .replace(/<\/ul>\n*<ul>/g, '')
-    .replace(/<li><\/li>/g, '');
-
-  return result;
 }
 
 // ══════════════════════════════════════════
-//  Sprite helpers (same pattern as Prueba)
+//  Sprite helpers (same pattern as Prueba / FileExplorerApp)
 // ══════════════════════════════════════════
 
 const SPRITE_VIEWS = 38;
+
+/**
+ * Shared SVG for dropdown arrow (▶ rotated 90° — identical to 98.js).
+ */
+const DROPDOWN_ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="fill:currentColor;display:inline-block;vertical-align:middle"><path style="transform:rotate(90deg);transform-origin:center" d="m5 6 4 4-4 4z"></path></svg>`;
 
 /**
  * Creates a sprite-based icon div (20×20 px with the correct sprite position).
@@ -188,6 +98,33 @@ function createToolbarButton(
   labelSpan.textContent = label;
   btn.appendChild(labelSpan);
   return btn;
+}
+
+/**
+ * Creates a compound toolbar button (main + dropdown), matching 98.js.
+ */
+function createCompoundButton(
+  label: string,
+  spriteIndex: number,
+  mainAction: () => void,
+  dropdownAction: (event: Event) => void,
+  disabled: boolean = false,
+): HTMLDivElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'toolbar-compound-button-wrapper';
+
+  const mainBtn = createToolbarButton(label, spriteIndex, disabled);
+  mainBtn.addEventListener('click', mainAction);
+  wrapper.appendChild(mainBtn);
+
+  const dropBtn = document.createElement('button');
+  dropBtn.className = 'toolbar-dropdown-button lightweight';
+  if (disabled) dropBtn.disabled = true;
+  dropBtn.innerHTML = DROPDOWN_ARROW_SVG;
+  dropBtn.addEventListener('click', dropdownAction);
+  wrapper.appendChild(dropBtn);
+
+  return wrapper;
 }
 
 // ══════════════════════════════════════════
@@ -304,9 +241,19 @@ export function launchFileViewer(appData?: any): void {
   const stdButtons = document.createElement('div');
   stdButtons.id = 'standard-buttons';
 
-  // View button — sprite index 38, toggles Preview/Source
-  const viewBtn = createToolbarButton(tr('view'), SPRITE_VIEWS);
-  stdButtons.appendChild(viewBtn);
+  // View compound button — sprite index 38, main click toggles, dropdown opens menu
+  let currentView: 'preview' | 'source' = 'preview';
+
+  const viewCompound = createCompoundButton(
+    tr('viewsButton'),
+    SPRITE_VIEWS,
+    () => {
+      const next: 'preview' | 'source' = currentView === 'preview' ? 'source' : 'preview';
+      switchToView(next);
+    },
+    (event) => openViewDropdown(event),
+  );
+  stdButtons.appendChild(viewCompound);
 
   stdToolbar.appendChild(stdButtons);
   toolbars.appendChild(stdToolbar);
@@ -320,13 +267,13 @@ export function launchFileViewer(appData?: any): void {
 
   // Preview panel
   const previewPanel = document.createElement('div');
-  previewPanel.className = 'fileviewer-preview';
-  previewPanel.innerHTML = renderMarkdown(previewContent);
+  previewPanel.className = 'mdviewer-preview';
+  previewPanel.innerHTML = renderHtml(previewContent);
   content.appendChild(previewPanel);
 
   // Source panel (hidden by default) — shows the FULL raw markdown as-is
   const sourcePanel = document.createElement('div');
-  sourcePanel.className = 'fileviewer-source';
+  sourcePanel.className = 'mdviewer-source';
   const sourcePre = document.createElement('pre');
   sourcePre.textContent = sourceContent;
   sourcePanel.appendChild(sourcePre);
@@ -360,7 +307,6 @@ export function launchFileViewer(appData?: any): void {
   $win.$content.append(explorer);
 
   // ══════ View toggle logic ══════
-  let currentView: 'preview' | 'source' = 'preview';
 
   function switchToView(view: 'preview' | 'source'): void {
     currentView = view;
@@ -375,14 +321,62 @@ export function launchFileViewer(appData?: any): void {
     }
   }
 
-  viewBtn.addEventListener('click', () => {
-    const next: 'preview' | 'source' = currentView === 'preview' ? 'source' : 'preview';
-    switchToView(next);
+  /**
+   * Opens the View dropdown menu using a temporary MenuBar.
+   */
+  function openViewDropdown(event: Event): void {
+    const dropBtn = event.currentTarget as HTMLElement;
+    const wrapper = dropBtn.closest('.toolbar-compound-button-wrapper') as HTMLElement;
+    const rect = wrapper.getBoundingClientRect();
 
-    // Update menu radio state
-    const menuData = (window as any).menuData;
-    // Rebuild the View menu items with updated checked state
-    // (os-gui MenuBar doesn't support dynamic checked state updates directly,
-    //  so we toggle via the radio group behavior built into the menu)
-  });
+    const dummyMenuBar = new MenuBar({
+      "View": [
+        {
+          label: tr('preview'),
+          type: 'radio',
+          checked: currentView === 'preview',
+          action: () => {
+            switchToView('preview');
+            cleanup();
+          },
+        },
+        {
+          label: tr('source'),
+          type: 'radio',
+          checked: currentView === 'source',
+          action: () => {
+            switchToView('source');
+            cleanup();
+          },
+        },
+      ],
+    });
+
+    const dummyEl = document.createElement('div');
+    dummyEl.style.cssText = `
+      position: absolute;
+      left: ${rect.left}px;
+      top: ${rect.top}px;
+      visibility: hidden;
+      pointer-events: none;
+    `;
+    dummyEl.appendChild(dummyMenuBar.element);
+    document.body.appendChild(dummyEl);
+
+    const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement;
+    if (menuButton) {
+      menuButton.dispatchEvent(new PointerEvent('pointerdown'));
+      menuButton.addEventListener('release', () => {
+        if (document.body.contains(dummyEl)) {
+          document.body.removeChild(dummyEl);
+        }
+      });
+    }
+
+    function cleanup(): void {
+      if (document.body.contains(dummyEl)) {
+        document.body.removeChild(dummyEl);
+      }
+    }
+  }
 }
