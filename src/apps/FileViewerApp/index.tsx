@@ -215,8 +215,8 @@ export function launchFileViewer(appData?: any): void {
   const file = appData?.file;
   const title = appData?.title || file?.name || tr('fileViewerTitle');
 
-  // Use rawContent if available (includes date header), fallback to content
-  const displayContent = file?.rawContent || file?.content || '';
+  // Use cleaned content (without date/YAML frontmatter) for display; fallback to raw content
+  const displayContent = file?.content || file?.rawContent || '';
 
   // ── Create the os-gui window ──
   const $win = $Window({
