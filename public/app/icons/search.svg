@@ -1,5 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-  <circle cx="8" cy="8" r="7" fill="#c0c0c0" stroke="#808080"/>
-  <ellipse cx="8" cy="8" rx="5" ry="3" fill="none" stroke="#808080" stroke-width="1.5"/>
-  <circle cx="8" cy="8" r="2" fill="#808080"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Document/page base -->
+  <rect x="4" y="2" width="20" height="24" rx="1" fill="#ffffff" stroke="#000080" stroke-width="1.5"/>
+  
+  <!-- Document fold (top-right corner fold) -->
+  <path d="M20 2v5h5" fill="#c0c0c0" stroke="#000080" stroke-width="1"/>
+  
+  <!-- Text lines on document (blue, like Win98) -->
+  <rect x="7" y="9" width="10" height="1.5" rx="0.5" fill="#000080"/>
+  <rect x="7" y="12" width="14" height="1.5" rx="0.5" fill="#000080"/>
+  <rect x="7" y="15" width="8" height="1.5" rx="0.5" fill="#000080"/>
+  <rect x="7" y="18" width="12" height="1.5" rx="0.5" fill="#000080"/>
+  
+  <!-- Magnifying glass handle (diagonal from bottom-right) -->
+  <line x1="22" y1="24" x2="30" y2="30" stroke="#808080" stroke-width="3" stroke-linecap="round"/>
+  <line x1="22" y1="24" x2="30" y2="30" stroke="#dfdfdf" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Magnifying glass lens (overlapping the document) -->
+  <circle cx="15" cy="13" r="9" fill="none" stroke="#808080" stroke-width="2"/>
+  <circle cx="15" cy="13" r="8" fill="none" stroke="#c0c0c0" stroke-width="2"/>
+  
+  <!-- Lens overlay (semi-transparent blue tint matching Win98 style) -->
+  <circle cx="15" cy="13" r="7.5" fill="#000080" opacity="0.08"/>
+  
+  <!-- Lens glare -->
+  <ellipse cx="12" cy="10" rx="3" ry="2" fill="#ffffff" opacity="0.3" transform="rotate(-30 12 10)"/>
 </svg>

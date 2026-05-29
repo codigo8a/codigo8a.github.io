@@ -97,6 +97,14 @@ const APP_ICONS: Record<string, React.ReactNode> = {
       height={32} 
     />
   ),
+  search: (
+    <img 
+      src="/app/icons/search.svg" 
+      alt="Search" 
+      width={32} 
+      height={32} 
+    />
+  ),
 };
 
 /**
@@ -123,7 +131,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
   // Column 1, top to bottom (to the right of column 0)
   { id: 'myDocuments', icon: 'myDocuments', label: 'My Documents' },
-  { id: 'search', icon: '🔍', label: 'Search' },
+  { id: 'search', icon: 'search', label: 'Search' },
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },
   // Rest
   { id: 'network', icon: 'network', label: 'Network Neighborhood' },
