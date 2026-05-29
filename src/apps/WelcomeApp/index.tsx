@@ -351,10 +351,12 @@ export function launchWelcome(): void {
   const tipFlexRow = document.createElement('div');
   tipFlexRow.style.cssText = 'display:flex;gap:20px;align-items:flex-start';
 
-  const lightbulb = document.createElement('span');
-  lightbulb.style.cssText = 'font-size:32px;line-height:1';
-  lightbulb.textContent = '💡';
-  tipFlexRow.appendChild(lightbulb);
+  if (!isMobile) {
+    const lightbulb = document.createElement('span');
+    lightbulb.style.cssText = 'font-size:32px;line-height:1';
+    lightbulb.textContent = '💡';
+    tipFlexRow.appendChild(lightbulb);
+  }
 
   const tipTextArea = document.createElement('div');
   tipTextArea.style.cssText = 'flex:1';
