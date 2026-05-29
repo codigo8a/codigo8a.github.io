@@ -66,6 +66,8 @@
 .fileviewer-preview p {
   margin-bottom: 12px;
   margin-top: 8px;
+  /* Preserve single line breaks within a paragraph */
+  white-space: pre-line;
 }
 
 .fileviewer-preview ul {
@@ -100,6 +102,14 @@
   overflow: auto;
   border: 2px inset #fff;
   margin-bottom: 12px;
+}
+
+/* Reset inline code styling for code inside fenced blocks */
+.fileviewer-preview pre > code {
+  padding: 0;
+  border: none;
+  background: transparent;
+  white-space: pre;
 }
 
 .fileviewer-preview blockquote {

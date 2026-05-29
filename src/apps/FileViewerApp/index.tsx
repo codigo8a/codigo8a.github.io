@@ -45,14 +45,34 @@ function tr(key: string): string {
 /**
  * Converts basic markdown to HTML.
  * Supports: headings (h1-h3), paragraphs, bold, italic, inline code,
- * unordered/ordered lists, links, images, blockquotes, horizontal rules.
+ * fenced code blocks (with optional language), unordered/ordered lists,
+ * links, images, blockquotes, horizontal rules.
  * Preserves HTML tags found in the source (img, p, hr, br, a, b, etc.).
  */
 function renderMarkdown(md: string): string {
+  // ── Step 0: Extract fenced code blocks (```...```) into placeholders ──
+  // Must happen BEFORE HTML tag extraction so tags inside code blocks
+  // are escaped rather than preserved.
+  const codeBlockMap = new Map<string, string>();
+  let codeCounter = 0;
+  let processed = md.replace(
+    /^```(\S*)\r?\n([\s\S]*?)\r?\n```[ \t]*/gm,
+    (match, lang, code) => {
+      const key = `\x00CODE_BLOCK_${codeCounter++}\x00`;
+      const escaped = code
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const langClass = lang ? ` class="language-${lang}"` : '';
+      codeBlockMap.set(key, `<pre><code${langClass}>${escaped}</code></pre>`);
+      return key;
+    },
+  );
+
   // ── Step 1: Extract existing HTML tags into placeholders ──
   const htmlTagMap = new Map<string, string>();
   let tagCounter = 0;
-  const extractHtml = md.replace(
+  const extractHtml = processed.replace(
     /<[a-zA-Z\/][^>]*>/g,
     (match) => {
       const key = `\x00HTML_TAG_${tagCounter++}\x00`;
@@ -102,6 +122,12 @@ function renderMarkdown(md: string): string {
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+  // ── Step 4b: Restore code blocks BEFORE paragraph wrapping ──
+  // This ensures <pre><code> blocks are not wrapped in <p>
+  for (const [key, htmlBlock] of codeBlockMap) {
+    html = html.replace(key, htmlBlock);
+  }
 
   // ── Step 5: Paragraph wrapping ──
   const blocks = html.split(/\n\n+/);
@@ -192,8 +218,10 @@ export function launchFileViewer(appData?: any): void {
   const file = appData?.file;
   const title = appData?.title || file?.name || tr('fileViewerTitle');
 
-  // Use cleaned content (without date/YAML frontmatter) for display; fallback to raw content
-  const displayContent = file?.content || file?.rawContent || '';
+  // Preview: cleaned content without date/YAML frontmatter
+  const previewContent = file?.content || file?.rawContent || '';
+  // Source: full raw markdown as-is (with date header, YAML frontmatter, etc.)
+  const sourceContent = file?.rawContent || '';
 
   // ── Create the os-gui window ──
   const $win = $Window({
@@ -290,14 +318,14 @@ export function launchFileViewer(appData?: any): void {
   // Preview panel
   const previewPanel = document.createElement('div');
   previewPanel.className = 'fileviewer-preview';
-  previewPanel.innerHTML = renderMarkdown(displayContent);
+  previewPanel.innerHTML = renderMarkdown(previewContent);
   content.appendChild(previewPanel);
 
-  // Source panel (hidden by default)
+  // Source panel (hidden by default) — shows the FULL raw markdown as-is
   const sourcePanel = document.createElement('div');
   sourcePanel.className = 'fileviewer-source';
   const sourcePre = document.createElement('pre');
-  sourcePre.textContent = displayContent;
+  sourcePre.textContent = sourceContent;
   sourcePanel.appendChild(sourcePre);
   content.appendChild(sourcePanel);
 
