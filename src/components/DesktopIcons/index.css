@@ -2,23 +2,29 @@
   position: absolute;
   top: 34px;
   left: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   z-index: 1;
 }
 
 .desktop-icon {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 64px;
-  cursor: pointer;
+  cursor: grab;
   padding: 4px;
+  user-select: none;
+  touch-action: none;
+}
+
+.desktop-icon.dragging {
+  cursor: grabbing;
+  opacity: 0.85;
 }
 
 .desktop-icon-image {
   font-size: 32px;
+  pointer-events: none;
 }
 
 .desktop-icon-label {
@@ -27,4 +33,5 @@
   text-align: center;
   text-shadow: 1px 1px 1px #000;
   font-family: "MS Sans Serif", Arial, sans-serif;
+  pointer-events: none;
 }
