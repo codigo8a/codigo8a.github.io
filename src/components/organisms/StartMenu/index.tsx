@@ -101,7 +101,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
         {/* Search */}
         <button onClick={() => handleItemClick("search")}>
           {renderAppIcon(APPS.search.icon, APPS.search.title)}
-          {t("find" as any)}
+          {t("search" as any)}
         </button>
 
         {/* My Documents */}

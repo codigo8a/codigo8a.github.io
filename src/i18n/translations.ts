@@ -7,7 +7,7 @@ type TranslationKeys =
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
-  | 'programs' | 'find' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
+  | 'programs' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
   | 'iconView' | 'listView' | 'detailsView';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
@@ -179,10 +179,7 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
     es: "Programas",
     en: "Programs"
   },
-  find: {
-    es: "Buscar",
-    en: "Find"
-  },
+  // find removed — use 'search' key instead
   documents: {
     es: "Documentos",
     en: "Documents"

@@ -99,17 +99,37 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
+/**
+ * Grid positions for the first 6 icons:
+ *   col 0         | col 1
+ *   My Computer   | My Documents
+ *   Recycle Bin   | Search
+ *   Internet Exp. | Winamp
+ * Remaining icons flow below in col 0.
+ */
+const ICON_GRID: Record<string, [number, number]> = {
+  myComputer:    [0, 0],
+  recycleBin:    [0, 1],
+  browser:       [0, 2],
+  myDocuments:   [1, 0],
+  search:        [1, 1],
+  winamp:        [1, 2],
+};
+
 const DESKTOP_ICONS: DesktopIcon[] = [
+  // Column 0, top to bottom
   { id: 'myComputer', icon: 'myComputer', label: 'My Computer' },
-  { id: 'myDocuments', icon: 'myDocuments', label: 'My Documents' },
-  { id: 'network', icon: 'network', label: 'Network Neighborhood' },
   { id: 'recycleBin', icon: 'recycleBin', label: 'Recycle Bin' },
-  { id: 'find', icon: '🔍', label: 'Find' },
   { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
+  // Column 1, top to bottom (to the right of column 0)
+  { id: 'myDocuments', icon: 'myDocuments', label: 'My Documents' },
+  { id: 'search', icon: '🔍', label: 'Search' },
+  { id: 'winamp', icon: 'winamp', label: 'Winamp' },
+  // Rest
+  { id: 'network', icon: 'network', label: 'Network Neighborhood' },
   { id: 'notepad', icon: 'notepad', label: 'Notepad' },
   { id: 'soundRecorder', icon: 'soundRecorder', label: 'Sound Recorder' },
   { id: 'msdos', icon: 'msdos', label: 'MS-DOS Prompt' },
-  { id: 'winamp', icon: 'winamp', label: 'Winamp' },
   { id: 'prueba', icon: '🧪', label: 'Prueba' },
 ];
 
@@ -131,7 +151,21 @@ function savePositions(positions: Record<string, IconPosition>): void {
 function getDefaultPositions(): Record<string, IconPosition> {
   const positions: Record<string, IconPosition> = {};
   DESKTOP_ICONS.forEach((icon, i) => {
-    positions[icon.id] = { x: LEFT, y: TOP + i * (ICON_H + GAP) };
+    const grid = ICON_GRID[icon.id];
+    if (grid) {
+      const [col, row] = grid;
+      positions[icon.id] = {
+        x: LEFT + col * (ICON_W + GAP),
+        y: TOP + row * (ICON_H + GAP),
+      };
+    } else {
+      // Remaining icons flow below the grid in column 0
+      const row = 3 + (i - 6); // items 6+ go in rows 3+
+      positions[icon.id] = {
+        x: LEFT,
+        y: TOP + row * (ICON_H + GAP),
+      };
+    }
   });
   return positions;
 }
@@ -175,7 +209,7 @@ export const DesktopIcons: React.FC = () => {
   const handleOpenApp = useCallback((iconId: string) => {
     if (iconId === 'myDocuments') {
       openApp('fileExplorer');
-    } else if (iconId === 'find') {
+    } else if (iconId === 'search') {
       openApp('search');
     } else if (iconId === 'browser') {
       openApp('iexplorer');

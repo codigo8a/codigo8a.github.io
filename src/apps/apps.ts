@@ -53,7 +53,7 @@ export const APPS: Record<string, AppDefinition> = {
   },
   search: {
     id: 'search',
-    title: 'Find: Files',
+    title: 'Search: Files',
     icon: '/app/icons/search.svg',
     component: SearchApp,
     defaultSize: { width: 640, height: 460 },

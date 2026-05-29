@@ -113,7 +113,7 @@ export function launchSearch(): void {
 
   // ── Create the os-gui window ──
   const $win = $Window({
-    title: 'Find: Files',
+    title: 'Search: Files',
     icons: {
       16: '/app/icons/search.svg',
       any: '/app/icons/search.svg',
@@ -124,7 +124,7 @@ export function launchSearch(): void {
 
   $win.css({ width: '640px', height: '460px' });
   $win.center();
-  registerOsWindow($win, 'search', 'Find: Files', '/app/icons/search.svg');
+  registerOsWindow($win, 'search', 'Search: Files', '/app/icons/search.svg');
 
   // ── Root container ──
   const container = document.createElement('div');
@@ -154,10 +154,10 @@ export function launchSearch(): void {
     ],
     '&Help': [
       {
-        label: '&About Find: Files',
+        label: '&About Search: Files',
         action: () => {
           alert(
-            'Find: Files\n\nSearch through markdown files by name or content.\n\nVersion 1.0',
+            'Search: Files\n\nSearch through markdown files by name or content.\n\nVersion 1.0',
           );
         },
       },
@@ -175,7 +175,7 @@ export function launchSearch(): void {
   `;
 
   const label = document.createElement('label');
-  label.textContent = 'Find:';
+  label.textContent = 'Search:';
   label.style.whiteSpace = 'nowrap';
   inputArea.appendChild(label);
 

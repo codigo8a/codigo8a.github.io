@@ -52,8 +52,8 @@ export const getAppMenu = (appId: string, actions?: any): MenuDefinition | null 
     case 'search':
       return {
         '&Search': [
-          { label: '&Find Files...', shortcut: 'Ctrl+F', action: () => actions?.onFind?.() },
-          { label: 'Find &Next', shortcut: 'F3', action: () => actions?.onFindNext?.() },
+          { label: '&Search Files...', shortcut: 'Ctrl+F', action: () => actions?.onFind?.() },
+          { label: 'Search &Next', shortcut: 'F3', action: () => actions?.onFindNext?.() },
         ],
         '&Help': [
           { label: '&About Search', action: () => alert('Search\nWindows 98 Desktop Edition') },
