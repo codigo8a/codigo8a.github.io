@@ -833,7 +833,7 @@ function $Window(options = {}) {
 			const taskbar_height = $taskbar.length ? $taskbar.outerHeight() + 1 : 0;
 			$w.css({
 				position: "fixed",
-				top: 0,
+				top: taskbar_height,
 				left: 0,
 				width: `calc(100vw - ${scrollbar_width}px)`,
 				height: `calc(100vh - ${scrollbar_height}px - ${taskbar_height}px)`,
@@ -856,6 +856,8 @@ function $Window(options = {}) {
 		const before_rect = $w.$titlebar[0].getBoundingClientRect();
 		let after_rect;
 		$w.css("transform", "");
+		// Clear auto-maximized flag on manual interaction
+		$w._autoMaximized = false;
 		const restoring = $w.hasClass("maximized");
 		if (restoring) {
 			instantly_unmaximize();
@@ -1308,6 +1310,39 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 	};
 
 	$w.center = () => {
+		if (innerWidth < 768 && options.resizable !== false) {
+			if (!$w.hasClass("maximized")) {
+				$w.addClass("maximized");
+				$w.$maximize.removeClass("window-action-maximize");
+				$w.$maximize.addClass("window-action-restore");
+			}
+			// Always re-apply maximized CSS (apps set width/height after constructor, overriding maximized dimensions)
+			const $taskbar = $(".taskbar");
+			const scrollbar_width = window.innerWidth - $(window).width();
+			const scrollbar_height = window.innerHeight - $(window).height();
+			const taskbar_height = $taskbar.length ? $taskbar.outerHeight() + 1 : 0;
+			$w.css({
+				position: "fixed",
+				top: taskbar_height,
+				left: 0,
+				width: `calc(100vw - ${scrollbar_width}px)`,
+				height: `calc(100vh - ${scrollbar_height}px - ${taskbar_height}px)`,
+			});
+			$w._autoMaximized = true;
+			return;
+		}
+		if (innerWidth >= 768) {
+			if ($w._autoMaximized && $w.hasClass("maximized")) {
+				// Direct un-maximize without animation (avoids async callback overriding centering)
+				$w.removeClass("maximized");
+				$w.css({ width: "", height: "", position: "", left: "", top: "" });
+				$w.$maximize.removeClass("window-action-restore");
+				$w.$maximize.addClass("window-action-maximize");
+			}
+			$w._autoMaximized = false;
+		} else {
+			$w._autoMaximized = false;
+		}
 		$w.css({
 			left: (innerWidth - $w.width()) / 2 + window.scrollX,
 			top: (innerHeight - $w.height()) / 2 + window.scrollY,
@@ -1316,7 +1351,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 	};
 
 
-	$G.on("resize", $w.bringTitleBarInBounds);
+	$G.on("resize", $w.center);
 
 	/** @type {number} */
 	var drag_offset_x;
@@ -1739,6 +1774,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 
 	if (!$component) {
 		$w.center();
+		// Defer bringToFront to run after the source window's requestAnimationFrame callback
+		// (which refocuses the source window, bringing it back to front over this new window)
+		setTimeout(() => $w.bringToFront(), 0);
 	}
 
 	// mustHaveMethods($w, windowInterfaceMethods);
