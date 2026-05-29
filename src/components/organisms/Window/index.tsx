@@ -3,6 +3,7 @@ import { TitleBar } from '../../molecules/TitleBar';
 import { MenuBar } from '../../molecules/MenuBar';
 import { WindowProvider } from '../../../context/WindowContext';
 import { useIsMobile } from '../../../hooks/useMediaQuery';
+import { useWindowResize } from '../../../hooks/useWindowResize';
 import type { MenuDefinition } from '../../molecules/MenuBar';
 import './index.css';
 
@@ -24,7 +25,7 @@ interface WindowProps {
   onMaximize?: (id: string) => void;
   onClose?: (id: string) => void;
   onMove?: (id: string, position: { x: number; y: number }) => void;
-  onResize?: (id: string, size: { width: number; height: number }) => void;
+  onResize?: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
   icon?: string;
   menu?: MenuDefinition;
 }
@@ -51,23 +52,44 @@ export const Window: React.FC<WindowProps> = ({
   icon,
   menu
 }) => {
-  const [size, setSize] = useState(initialSize);
-  const [position, setPosition] = useState(() => {
-    if (currentPosition) return currentPosition;
-    if (centered) {
-      return {
-        x: (window.innerWidth - initialSize.width) / 2,
-        y: (window.innerHeight - initialSize.height) / 2
-      };
-    }
-    return initialPosition;
-  });
   const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, posX: 0, posY: 0, width: 0, height: 0 });
   const isMobile = useIsMobile();
 
+  // Compute default initial position (for newly opened windows)
+  const defaultPosition = currentPosition ?? (
+    centered
+      ? {
+          x: Math.max(0, (window.innerWidth - initialSize.width) / 2),
+          y: Math.max(30, (window.innerHeight - initialSize.height) / 2),
+        }
+      : initialPosition
+  );
 
+  const {
+    size,
+    position,
+    isResizing,
+    onResizeStart,
+    setSize,
+    setPosition,
+  } = useWindowResize({
+    initialSize,
+    initialPosition: defaultPosition,
+    minWidth: 200,
+    minHeight: 150,
+    taskbarHeight: 30,
+    id,
+    onResize,
+    onMove,
+  });
+
+  // Sync currentPosition prop → hook position (e.g. after restore/reopen)
+  useEffect(() => {
+    if (currentPosition) {
+      setPosition(currentPosition);
+    }
+  }, [currentPosition, setPosition]);
 
   // Reposicionar ventana si queda fuera de pantalla al hacer resize
   useEffect(() => {
@@ -123,19 +145,6 @@ export const Window: React.FC<WindowProps> = ({
     }
   };
 
-  const handleResizeMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsResizing(true);
-    dragStart.current = {
-      x: e.clientX,
-      y: e.clientY,
-      posX: position.x,
-      posY: position.y,
-      width: size.width,
-      height: size.height
-    };
-  };
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
       const dx = e.clientX - dragStart.current.x;
@@ -156,28 +165,12 @@ export const Window: React.FC<WindowProps> = ({
         y: boundedY
       });
     }
-    if (isResizing) {
-      const dx = e.clientX - dragStart.current.x;
-      const dy = e.clientY - dragStart.current.y;
-      
-      const maxWidth = window.innerWidth;
-      const maxHeight = window.innerHeight - 30;
-      
-      const newWidth = Math.max(200, Math.min(dragStart.current.width + dx, maxWidth - position.x));
-      const newHeight = Math.max(150, Math.min(dragStart.current.height + dy, maxHeight - position.y));
-      
-      setSize({ width: newWidth, height: newHeight });
-    }
   };
 
   const handleMouseUp = () => {
     if (isDragging) {
       setIsDragging(false);
       onMove?.(id, position);
-    }
-    if (isResizing) {
-      setIsResizing(false);
-      onResize?.(id, size);
     }
   };
 
@@ -202,7 +195,19 @@ export const Window: React.FC<WindowProps> = ({
       <div className="window-body">
         {children}
       </div>
-      {!effectiveMaximized && <div className="window-resize-handle" onMouseDown={handleResizeMouseDown} />}
+      {!effectiveMaximized && (
+        <>
+          <div className="window-resize-handle window-resize-n" onMouseDown={(e) => onResizeStart('n', e)} />
+          <div className="window-resize-handle window-resize-s" onMouseDown={(e) => onResizeStart('s', e)} />
+          <div className="window-resize-handle window-resize-e" onMouseDown={(e) => onResizeStart('e', e)} />
+          <div className="window-resize-handle window-resize-w" onMouseDown={(e) => onResizeStart('w', e)} />
+          <div className="window-resize-handle window-resize-ne" onMouseDown={(e) => onResizeStart('ne', e)} />
+          <div className="window-resize-handle window-resize-nw" onMouseDown={(e) => onResizeStart('nw', e)} />
+          <div className="window-resize-handle window-resize-se" onMouseDown={(e) => onResizeStart('se', e)} />
+          <div className="window-resize-handle window-resize-sw" onMouseDown={(e) => onResizeStart('sw', e)} />
+          <div className="window-resize-grip" />
+        </>
+      )}
     </WindowProvider>
   );
 
@@ -236,7 +241,7 @@ export const Window: React.FC<WindowProps> = ({
 
   return (
     <div
-      className={`window ${isActive ? 'active' : ''} ${getAnimationClass()}`}
+      className={`window ${isActive ? 'active' : ''} ${getAnimationClass()} ${isResizing ? 'window-resizing' : ''}`}
       style={{
         position: 'absolute',
         width: size.width,
@@ -245,7 +250,7 @@ export const Window: React.FC<WindowProps> = ({
         left: position.x,
         top: position.y,
         cursor: isDragging ? 'move' : 'default',
-        userSelect: isDragging || isResizing ? 'none' : 'auto'
+        userSelect: isDragging ? 'none' : 'auto'
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

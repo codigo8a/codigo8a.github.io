@@ -112,6 +112,10 @@ var minimize_slots = []; // for if there's no taskbar
 function $Window(options = {}) {
 	// @TODO: handle all option defaults here
 	// and validate options.
+	// Default resizable to true so resize handles work on all edges
+	if (options.resizable === undefined) {
+		options.resizable = true;
+	}
 
 	// WOW, this is ugly. It's kind of impressive, almost.
 	var $w = /** @type {OSGUI$Window} */(

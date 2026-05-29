@@ -38,7 +38,7 @@ interface DesktopContextType {
   handleClose: (id: string) => void;
   handleMaximize: (id: string) => void;
   handleWindowMove: (id: string, position: { x: number; y: number }) => void;
-  handleWindowResize: (id: string, size: { width: number; height: number }) => void;
+  handleWindowResize: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
   addWindow: (windowConfig: Partial<WindowConfig> & { appId: string; content: ReactNode }) => void;
   openApp: (appId: string, appData?: any) => void;
   isWindowOpen: (appId: string) => boolean;
@@ -251,16 +251,20 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     });
   }, [saveWindowState]);
 
-  const handleWindowResize = useCallback((id: string, size: { width: number; height: number }) => {
+  const handleWindowResize = useCallback((id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => {
     setWindows(prev => {
       const win = prev.find(w => w.id === id);
-      if (win && win.currentPosition) {
-        // Guardar estado de tamaño
-        saveWindowState(win.appId, win.currentPosition, size);
+      if (win) {
+        const finalPosition = position ?? win.currentPosition ?? win.initialPosition;
+        saveWindowState(win.appId, finalPosition, size);
       }
-      return prev.map(w =>
-        w.id === id ? { ...w, initialSize: size } : w
-      );
+      return prev.map(w => {
+        const updated = { ...w, initialSize: size };
+        if (position && w.id === id) {
+          updated.currentPosition = position;
+        }
+        return updated;
+      });
     });
   }, [saveWindowState]);
 
