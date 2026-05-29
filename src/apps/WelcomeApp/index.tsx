@@ -308,12 +308,14 @@ export function launchWelcome(): void {
 
   // ── Main content area (fills remaining space) ──
 
+  const isMobile = window.innerWidth < 768;
+
   const mainContent = document.createElement('div');
   mainContent.style.cssText = [
     'height:100%',
     'display:flex',
     'flex-direction:column',
-    'padding:20px',
+    isMobile ? 'padding:10px' : 'padding:20px',
     'overflow:hidden',
     'box-sizing:border-box',
     'background:var(--ButtonFace)',
@@ -338,10 +340,10 @@ export function launchWelcome(): void {
   leftCol.style.cssText = [
     'flex:1',
     'background:#fff',
-    'padding:20px',
+    isMobile ? 'padding:12px' : 'padding:20px',
     'display:flex',
     'flex-direction:column',
-    'gap:20px',
+    isMobile ? 'gap:10px' : 'gap:20px',
     'overflow-y:auto',
     'min-height:0',
   ].join(';');
@@ -386,7 +388,9 @@ export function launchWelcome(): void {
 
   // ── Right column: buttons panel ──
   const rightCol = document.createElement('div');
-  rightCol.style.cssText = 'width:200px;display:flex;flex-direction:column;gap:6px';
+  rightCol.style.cssText = isMobile
+    ? 'width:min-content;min-width:110px;display:flex;flex-direction:column;gap:4px'
+    : 'width:200px;display:flex;flex-direction:column;gap:6px';
 
   function createWinButton(
     text: string,

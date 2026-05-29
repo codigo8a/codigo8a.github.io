@@ -150,4 +150,16 @@
   margin-bottom: 0;
 }
 
+/* Danger / delete button */
+.settings-delete-btn {
+  background: #c0c0c0;
+  border: 2px outset #ff4444;
+  color: #a00;
+  font-weight: bold;
+  margin-top: 4px;
+}
+.settings-delete-btn:active {
+  border: 2px inset #ff4444;
+}
+
 

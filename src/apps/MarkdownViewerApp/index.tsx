@@ -306,6 +306,9 @@ export function launchFileViewer(appData?: any): void {
 
   // ── Append to window content ──
   $win.$content.append(explorer);
+  // Bring the new window to front and focus it (belt + suspenders on top of the nested RAF
+  // in Window.js constructor, since focus events during RAF may re-bring source window)
+  $win.focus();
 
   // ══════ View toggle logic ══════
 

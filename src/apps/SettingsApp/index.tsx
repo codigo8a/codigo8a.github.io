@@ -25,6 +25,7 @@ const STRINGS: Record<string, Record<string, string>> = {
   en: {
     general: 'General',
     desktop: 'Desktop',
+    advanced: 'Advanced',
     language: 'Language',
     english: 'English',
     spanish: 'Español',
@@ -37,10 +38,16 @@ const STRINGS: Record<string, Record<string, string>> = {
     changesInfo: 'Changes will be applied after clicking Apply.',
     wallpaperInfo: 'Wallpaper will be applied after clicking Apply.',
     settings: 'Settings',
+    deleteData: 'Delete Saved Data',
+    deleteDataDesc: 'Clear all saved preferences, window positions, and cached data. The page will reload.',
+    deleteDataConfirm: 'Are you sure you want to delete all saved data? This action cannot be undone.',
+    deleteDataDone: 'All saved data has been cleared. The page will now reload.',
+    dataDeleted: 'Data Cleared',
   },
   es: {
     general: 'General',
     desktop: 'Escritorio',
+    advanced: 'Avanzado',
     language: 'Idioma',
     english: 'English',
     spanish: 'Español',
@@ -53,6 +60,11 @@ const STRINGS: Record<string, Record<string, string>> = {
     changesInfo: 'Los cambios se aplicarán al hacer clic en Aplicar.',
     wallpaperInfo: 'El fondo se aplicará al hacer clic en Aplicar.',
     settings: 'Configuración',
+    deleteData: 'Eliminar datos guardados',
+    deleteDataDesc: 'Borra todas las preferencias, posiciones de ventanas y datos guardados. La página se recargará.',
+    deleteDataConfirm: '¿Estás seguro de eliminar todos los datos guardados? Esta acción no se puede deshacer.',
+    deleteDataDone: 'Todos los datos guardados han sido eliminados. La página se recargará.',
+    dataDeleted: 'Datos eliminados',
   },
 };
 
@@ -132,8 +144,17 @@ export function launchSettings(): void {
   tabDesktopLink.textContent = t('desktop');
   tabDesktop.appendChild(tabDesktopLink);
 
+  const tabAdvanced = document.createElement('li');
+  tabAdvanced.setAttribute('role', 'tab');
+  tabAdvanced.setAttribute('aria-selected', 'false');
+  const tabAdvancedLink = document.createElement('a');
+  tabAdvancedLink.href = '#';
+  tabAdvancedLink.textContent = t('advanced');
+  tabAdvanced.appendChild(tabAdvancedLink);
+
   tablist.appendChild(tabGeneral);
   tablist.appendChild(tabDesktop);
+  tablist.appendChild(tabAdvanced);
   container.appendChild(tablist);
 
   // ═══════════════════════════════════════════
@@ -312,21 +333,73 @@ export function launchSettings(): void {
   wpInfoText.textContent = t('wallpaperInfo');
   desktopPanel.appendChild(wpInfoText);
 
+  // ── Advanced panel ──
+  const advancedPanel = document.createElement('div');
+  advancedPanel.className = 'settings-panel';
+  advancedPanel.style.display = 'none';
+
+  // -- Delete Data fieldset --
+  const deleteFieldset = document.createElement('fieldset');
+  deleteFieldset.className = 'settings-section';
+
+  const deleteLegend = document.createElement('legend');
+  deleteLegend.textContent = t('dataDeleted');
+  deleteFieldset.appendChild(deleteLegend);
+
+  const deleteDesc = document.createElement('p');
+  deleteDesc.style.cssText = 'margin:8px 0 12px 0;line-height:1.4;';
+  deleteDesc.textContent = t('deleteDataDesc');
+  deleteFieldset.appendChild(deleteDesc);
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'settings-button settings-delete-btn';
+  deleteBtn.type = 'button';
+  deleteBtn.textContent = t('deleteData');
+  deleteBtn.addEventListener('click', () => {
+    if (confirm(t('deleteDataConfirm'))) {
+      // Clear all app-specific localStorage keys
+      const keysToRemove = [
+        'language',
+        'wallpaper',
+        'clippyEnabled',
+        'clippy_enabled',
+        'window_states',
+        'winamp_state',
+        'show_welcome',
+        'welcome_hidden_at',
+        'desktop-icon-positions',
+      ];
+      for (const key of keysToRemove) {
+        localStorage.removeItem(key);
+      }
+      // Reload to apply defaults
+      location.reload();
+    }
+  });
+  deleteFieldset.appendChild(deleteBtn);
+
+  advancedPanel.appendChild(deleteFieldset);
+
   // Attach panels to body
   body.appendChild(generalPanel);
   body.appendChild(desktopPanel);
+  body.appendChild(advancedPanel);
   panelContainer.appendChild(body);
   container.appendChild(panelContainer);
 
   // ═══════════════════════════════════════════
   // Tab switching
   // ═══════════════════════════════════════════
-  function switchTab(tab: 'general' | 'desktop'): void {
+  function switchTab(tab: 'general' | 'desktop' | 'advanced'): void {
     const isGeneral = tab === 'general';
+    const isDesktop = tab === 'desktop';
+    const isAdvanced = tab === 'advanced';
     tabGeneral.setAttribute('aria-selected', String(isGeneral));
-    tabDesktop.setAttribute('aria-selected', String(!isGeneral));
+    tabDesktop.setAttribute('aria-selected', String(isDesktop));
+    tabAdvanced.setAttribute('aria-selected', String(isAdvanced));
     generalPanel.style.display = isGeneral ? 'block' : 'none';
-    desktopPanel.style.display = isGeneral ? 'none' : 'block';
+    desktopPanel.style.display = isDesktop ? 'block' : 'none';
+    advancedPanel.style.display = isAdvanced ? 'block' : 'none';
   }
 
   tabGeneralLink.addEventListener('click', (e: MouseEvent) => {
@@ -337,6 +410,11 @@ export function launchSettings(): void {
   tabDesktopLink.addEventListener('click', (e: MouseEvent) => {
     e.preventDefault();
     switchTab('desktop');
+  });
+
+  tabAdvancedLink.addEventListener('click', (e: MouseEvent) => {
+    e.preventDefault();
+    switchTab('advanced');
   });
 
   // ═══════════════════════════════════════════

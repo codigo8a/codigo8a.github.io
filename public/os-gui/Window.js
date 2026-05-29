@@ -1774,9 +1774,16 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 
 	if (!$component) {
 		$w.center();
-		// Defer bringToFront to run after the source window's requestAnimationFrame callback
-		// (which refocuses the source window, bringing it back to front over this new window)
-		setTimeout(() => $w.bringToFront(), 0);
+		// Use nested requestAnimationFrame to run after ALL focus/refocus handlers
+		// from the source window's pointerdown → RAF → $content.focus() chain have completed.
+		// setTimeout(fn, 0) is not enough because RAF runs before macrotasks,
+		// and the RAF's $content.focus() triggers handle_focus_in_out which calls $w.bringToFront()
+		// on the source window. Nested RAF guarantees we run TWO frames after the source.
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				$w.bringToFront();
+			});
+		});
 	}
 
 	// mustHaveMethods($w, windowInterfaceMethods);
