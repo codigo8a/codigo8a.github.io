@@ -130,10 +130,6 @@ export function launchSettings(): void {
   const menuToolbar = document.createElement('div');
   menuToolbar.className = 'toolbar';
 
-  const dragHandle = document.createElement('div');
-  dragHandle.className = 'toolbar-drag-handle';
-  menuToolbar.appendChild(dragHandle);
-
   const MenuBar = (window as any).MenuBar;
   if (MenuBar) {
     const menu = new MenuBar({
