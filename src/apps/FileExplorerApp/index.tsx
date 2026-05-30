@@ -239,12 +239,12 @@ function createSeparator(): HTMLHRElement {
  * Adds the disabled-inset SVG filter to the document body.
  */
 function ensureDisabledFilter(): void {
-  if (document.getElementById('prueba-disabled-filter')) return;
+  if (document.getElementById('explorer-disabled-filter')) return;
   const svg = document.createElementNS(
     'http://www.w3.org/2000/svg',
     'svg',
   );
-  svg.id = 'prueba-disabled-filter';
+  svg.id = 'explorer-disabled-filter';
   svg.setAttribute(
     'style',
     'position: absolute; pointer-events: none; bottom: 100%;',

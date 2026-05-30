@@ -5,7 +5,7 @@ import { MarkdownViewerApp, launchFileViewer } from './MarkdownViewerApp';
 import { SearchApp, launchSearch } from './SearchApp';
 import { SettingsApp, launchSettings } from './SettingsApp';
 import { IExplorerApp, launchIExplorer } from './IExplorerApp';
-import { PruebaApp, launchPrueba } from './Prueba';
+import { PortfolioApp, launchPortfolio } from './Prueba';
 import { AppDefinition } from '../types';
 import { SoundRecorderApp, launchSoundRecorder } from './SoundRecorder';
 import { MSDOSApp, launchMSDOS } from './MSDOS';
@@ -123,14 +123,14 @@ export const APPS: Record<string, AppDefinition> = {
     centered: true,
     customLaunch: launchMSDOS,
   },
-  prueba: {
-    id: 'prueba',
-    title: 'Prueba',
-    icon: '/images/icons/prueba.svg',
-    component: PruebaApp,
+  portfolio: {
+    id: 'portfolio',
+    title: 'Portfolio',
+    icon: '/images/icons/folder-32x32.png',
+    component: PortfolioApp,
     defaultSize: { width: 600, height: 450 },
     centered: true,
-    customLaunch: launchPrueba,
+    customLaunch: launchPortfolio,
   },
 };
 

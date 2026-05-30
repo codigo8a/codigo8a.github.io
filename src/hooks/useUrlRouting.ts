@@ -5,6 +5,7 @@ import { WindowConfig } from '../types';
 export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, appData?: any) => void) => {
   const { findFileByUrl } = useFileSystem();
   const initialPathRef = useRef<string | null>(null);
+  const launchedRef = useRef<Set<string>>(new Set());
 
   // Handle initial URL routing on mount
   useEffect(() => {
@@ -12,10 +13,18 @@ export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, 
     if (path) {
       initialPathRef.current = path;
       const parts = path.split('/');
+      
+      // Direct app launch routes (guard against double-launch, delay to stack above Welcome)
+      if (parts.length === 1 && parts[0] === 'portfolio' && !launchedRef.current.has('portfolio')) {
+        launchedRef.current.add('portfolio');
+        setTimeout(() => openApp('portfolio'), 200);
+        return;
+      }
+
       if (parts.length >= 2) {
         const folder = parts[0];
         const filename = parts[1];
-        
+
         const fileData = findFileByUrl(folder, filename);
         if (fileData) {
           const displayTitle = fileData.name.replace('.md', '');

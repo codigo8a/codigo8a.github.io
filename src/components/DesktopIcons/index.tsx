@@ -105,14 +105,23 @@ const APP_ICONS: Record<string, React.ReactNode> = {
       height={32} 
     />
   ),
+  portfolio: (
+    <img 
+      src="/images/icons/paint-32x32.png" 
+      alt="Portfolio" 
+      width={32} 
+      height={32} 
+    />
+  ),
 };
 
 /**
- * Grid positions for the first 6 icons:
+ * Grid positions (2 columns):
  *   col 0         | col 1
  *   My Computer   | My Documents
  *   Recycle Bin   | Search
- *   Internet Exp. | Winamp
+ *   Internet Exp. | Portfolio
+ *   Network...    | Winamp
  * Remaining icons flow below in col 0.
  */
 const ICON_GRID: Record<string, [number, number]> = {
@@ -121,7 +130,8 @@ const ICON_GRID: Record<string, [number, number]> = {
   browser:       [0, 2],
   myDocuments:   [1, 0],
   search:        [1, 1],
-  winamp:        [1, 2],
+  portfolio:     [1, 2],
+  winamp:        [1, 3],
 };
 
 const DESKTOP_ICONS: DesktopIcon[] = [
@@ -131,14 +141,14 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
   // Column 1, top to bottom (to the right of column 0)
   { id: 'myDocuments', icon: 'myDocuments', label: 'My Documents' },
-  { id: 'search', icon: 'search', label: 'Search' },
+  { id: 'search', icon: 'search', label: 'Search documents' },
+  { id: 'portfolio', icon: 'portfolio', label: 'Portfolio' },
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },
   // Rest
   { id: 'network', icon: 'network', label: 'Network Neighborhood' },
   { id: 'notepad', icon: 'notepad', label: 'Notepad' },
   { id: 'soundRecorder', icon: 'soundRecorder', label: 'Sound Recorder' },
   { id: 'msdos', icon: 'msdos', label: 'MS-DOS Prompt' },
-  { id: 'prueba', icon: '🧪', label: 'Prueba' },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -168,7 +178,7 @@ function getDefaultPositions(): Record<string, IconPosition> {
       };
     } else {
       // Remaining icons flow below the grid in column 0
-      const row = 3 + (i - 6); // items 6+ go in rows 3+
+      const row = 3 + (i - 7); // items 7+ go in rows 3+
       positions[icon.id] = {
         x: LEFT,
         y: TOP + row * (ICON_H + GAP),
@@ -223,8 +233,8 @@ export const DesktopIcons: React.FC = () => {
       openApp('iexplorer');
     } else if (iconId === 'winamp') {
       launchWinamp();
-    } else if (iconId === 'prueba') {
-      openApp('prueba');
+    } else if (iconId === 'portfolio') {
+      openApp('portfolio');
     } else if (iconId === 'myComputer') {
       openApp('myComputer');
     } else if (iconId === 'network') {

@@ -6,7 +6,7 @@ import { showMessageBox } from '../../utils/messageBox';
  * Placeholder React component - the Prueba app uses os-gui natively.
  * This component is never rendered via the React window system.
  */
-export const PruebaApp: React.FC = () => {
+export const PortfolioApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
 };
 
@@ -105,9 +105,9 @@ function createSeparator(): HTMLHRElement {
  * toolbar icons that authentic Win98 "sunken" look.
  */
 function ensureDisabledFilter(): void {
-  if (document.getElementById('prueba-disabled-filter')) return;
+  if (document.getElementById('portfolio-disabled-filter')) return;
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.id = 'prueba-disabled-filter';
+  svg.id = 'portfolio-disabled-filter';
   svg.setAttribute('style', 'position: absolute; pointer-events: none; bottom: 100%;');
   svg.innerHTML = `
     <defs>
@@ -208,9 +208,9 @@ function getFileIcon(type: string): string {
 
 /**
  * Custom launch function that creates a faithful replica
- * of the 98.js Explorer "My Documents" window using os-gui.
+ * of the 98.js Explorer "Portfolio" window using os-gui.
  */
-export function launchPrueba(): void {
+export function launchPortfolio(): void {
   const $Window = (window as any).$Window;
   const MenuBar = (window as any).MenuBar;
 
@@ -224,7 +224,7 @@ export function launchPrueba(): void {
 
   // ── Create the os-gui window ──
   const $win = $Window({
-    title: 'My Documents',
+    title: 'Portfolio',
     icons: {
       16: '/images/icons/folder-16x16.png',
       any: '/images/icons/folder-32x32.png',
@@ -238,7 +238,7 @@ export function launchPrueba(): void {
     height: '480px',
   });
   $win.center();
-  registerOsWindow($win, 'prueba', 'My Documents', '/images/icons/folder-32x32.png');
+  registerOsWindow($win, 'portfolio', 'Portfolio', '/images/icons/folder-32x32.png');
 
   // ── Build Explorer layout ──
   const explorer = document.createElement('div');
@@ -265,7 +265,7 @@ export function launchPrueba(): void {
       },
       { separator: true },
       { label: 'Create &Shortcut', enabled: false },
-      { label: '&Delete', action: () => showMessageBox({ title: 'My Documents', message: 'Delete', icon: 'info' }) },
+      { label: '&Delete', action: () => showMessageBox({ title: 'Portfolio', message: 'Delete', icon: 'info' }) },
       { label: 'Rena&me', enabled: false },
       { label: 'P&roperties', enabled: false },
       { separator: true },
@@ -278,40 +278,40 @@ export function launchPrueba(): void {
       { label: '&Copy', shortcutLabel: 'Ctrl+C', enabled: false },
       { label: '&Paste', shortcutLabel: 'Ctrl+V', enabled: false },
       { separator: true },
-      { label: 'Select &All', shortcutLabel: 'Ctrl+A', action: () => showMessageBox({ title: 'My Documents', message: 'Select All', icon: 'info' }) },
-      { label: '&Invert Selection', action: () => showMessageBox({ title: 'My Documents', message: 'Invert Selection', icon: 'info' }) },
+      { label: 'Select &All', shortcutLabel: 'Ctrl+A', action: () => showMessageBox({ title: 'Portfolio', message: 'Select All', icon: 'info' }) },
+      { label: '&Invert Selection', action: () => showMessageBox({ title: 'Portfolio', message: 'Invert Selection', icon: 'info' }) },
     ],
     '&View': [
       {
         label: '&Toolbars',
         submenu: [
-          { label: '&Standard Buttons', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Standard Buttons', icon: 'info' }) },
-          { label: '&Address Bar', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Address Bar', icon: 'info' }) },
-          { label: '&Text Labels', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Text Labels', icon: 'info' }) },
+          { label: '&Standard Buttons', checked: true, action: () => showMessageBox({ title: 'Portfolio', message: 'Toggle Standard Buttons', icon: 'info' }) },
+          { label: '&Address Bar', checked: true, action: () => showMessageBox({ title: 'Portfolio', message: 'Toggle Address Bar', icon: 'info' }) },
+          { label: '&Text Labels', checked: true, action: () => showMessageBox({ title: 'Portfolio', message: 'Toggle Text Labels', icon: 'info' }) },
         ],
       },
-      { label: 'Status &Bar', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Status Bar', icon: 'info' }) },
+      { label: 'Status &Bar', checked: true, action: () => showMessageBox({ title: 'Portfolio', message: 'Toggle Status Bar', icon: 'info' }) },
       { separator: true },
-      { label: 'as &Web Page', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Web View', icon: 'info' }) },
+      { label: 'as &Web Page', checked: true, action: () => showMessageBox({ title: 'Portfolio', message: 'Toggle Web View', icon: 'info' }) },
       { separator: true },
       {
         label: 'Arrange &Icons',
         submenu: [
-          { label: 'by &Name', type: 'radio', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Name', icon: 'info' }) },
-          { label: 'by &Type', type: 'radio', action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Type', icon: 'info' }) },
-          { label: 'by &Size', type: 'radio', action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Size', icon: 'info' }) },
-          { label: 'by &Date', type: 'radio', action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Date', icon: 'info' }) },
+          { label: 'by &Name', type: 'radio', checked: true, action: () => showMessageBox({ title: 'Portfolio', message: 'Sort by Name', icon: 'info' }) },
+          { label: 'by &Type', type: 'radio', action: () => showMessageBox({ title: 'Portfolio', message: 'Sort by Type', icon: 'info' }) },
+          { label: 'by &Size', type: 'radio', action: () => showMessageBox({ title: 'Portfolio', message: 'Sort by Size', icon: 'info' }) },
+          { label: 'by &Date', type: 'radio', action: () => showMessageBox({ title: 'Portfolio', message: 'Sort by Date', icon: 'info' }) },
         ],
       },
       { separator: true },
-      { label: '&Refresh', shortcutLabel: 'F5', action: () => showMessageBox({ title: 'My Documents', message: 'Refresh', icon: 'info' }) },
+      { label: '&Refresh', shortcutLabel: 'F5', action: () => showMessageBox({ title: 'Portfolio', message: 'Refresh', icon: 'info' }) },
     ],
     '&Go': [
       { label: '&Back', shortcutLabel: 'Alt+Left Arrow', enabled: false },
       { label: '&Forward', shortcutLabel: 'Alt+Right Arrow', enabled: false },
       { label: '&Up One Level', enabled: false },
       { separator: true },
-      { label: 'My &Computer', action: () => showMessageBox({ title: 'My Documents', message: 'My Computer', icon: 'info' }) },
+      { label: 'My &Computer', action: () => showMessageBox({ title: 'Portfolio', message: 'My Computer', icon: 'info' }) },
     ],
     'F&avorites': [
       { label: '&Add to Favorites...', enabled: false },
@@ -345,60 +345,60 @@ export function launchPrueba(): void {
 
   // Back (compound) — sprite index 0
   stdButtons.appendChild(
-    createCompoundButton('Back', SPRITE_BACK, () => showMessageBox({ title: 'My Documents', message: 'Back', icon: 'info' }), () => showMessageBox({ title: 'My Documents', message: 'Back history', icon: 'info' }), true),
+    createCompoundButton('Back', SPRITE_BACK, () => showMessageBox({ title: 'Portfolio', message: 'Back', icon: 'info' }), () => showMessageBox({ title: 'Portfolio', message: 'Back history', icon: 'info' }), true),
   );
 
   // Forward (compound) — sprite index 1
   stdButtons.appendChild(
-    createCompoundButton('Forward', SPRITE_FORWARD, () => showMessageBox({ title: 'My Documents', message: 'Forward', icon: 'info' }), () => showMessageBox({ title: 'My Documents', message: 'Forward history', icon: 'info' }), true),
+    createCompoundButton('Forward', SPRITE_FORWARD, () => showMessageBox({ title: 'Portfolio', message: 'Forward', icon: 'info' }), () => showMessageBox({ title: 'Portfolio', message: 'Forward history', icon: 'info' }), true),
   );
 
   // Up — sprite index 44
   const upBtn = createToolbarButton('Up', SPRITE_UP);
-  upBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Up one level', icon: 'info' }));
+  upBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Up one level', icon: 'info' }));
   stdButtons.appendChild(upBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Cut — sprite index 21
   const cutBtn = createToolbarButton('Cut', SPRITE_CUT);
-  cutBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Cut', icon: 'info' }));
+  cutBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Cut', icon: 'info' }));
   stdButtons.appendChild(cutBtn);
 
   // Copy — sprite index 22
   const copyBtn = createToolbarButton('Copy', SPRITE_COPY);
-  copyBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Copy', icon: 'info' }));
+  copyBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Copy', icon: 'info' }));
   stdButtons.appendChild(copyBtn);
 
   // Paste — sprite index 23
   const pasteBtn = createToolbarButton('Paste', SPRITE_PASTE);
-  pasteBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Paste', icon: 'info' }));
+  pasteBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Paste', icon: 'info' }));
   stdButtons.appendChild(pasteBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Undo — sprite index 24
   const undoBtn = createToolbarButton('Undo', SPRITE_UNDO);
-  undoBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Undo', icon: 'info' }));
+  undoBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Undo', icon: 'info' }));
   stdButtons.appendChild(undoBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Delete — sprite index 26
   const deleteBtn = createToolbarButton('Delete', SPRITE_DELETE);
-  deleteBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Delete', icon: 'info' }));
+  deleteBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Delete', icon: 'info' }));
   stdButtons.appendChild(deleteBtn);
 
   // Properties — sprite index 31
   const propsBtn = createToolbarButton('Properties', SPRITE_PROPERTIES);
-  propsBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Properties', icon: 'info' }));
+  propsBtn.addEventListener('click', () => showMessageBox({ title: 'Portfolio', message: 'Properties', icon: 'info' }));
   stdButtons.appendChild(propsBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Views (compound) — sprite index 38
   stdButtons.appendChild(
-    createCompoundButton('Views', SPRITE_VIEWS, () => showMessageBox({ title: 'My Documents', message: 'Cycle view mode', icon: 'info' }), () => showMessageBox({ title: 'My Documents', message: 'Views dropdown', icon: 'info' })),
+    createCompoundButton('Views', SPRITE_VIEWS, () => showMessageBox({ title: 'Portfolio', message: 'Cycle view mode', icon: 'info' }), () => showMessageBox({ title: 'Portfolio', message: 'Views dropdown', icon: 'info' })),
   );
 
   stdToolbar.appendChild(stdButtons);
@@ -436,7 +436,7 @@ export function launchPrueba(): void {
   const addrInput = document.createElement('input');
   addrInput.type = 'text';
   addrInput.id = 'address';
-  addrInput.value = 'My Documents';
+  addrInput.value = 'Portfolio';
   addrInput.autocomplete = 'off';
   compoundInput.appendChild(addrInput);
 
@@ -480,7 +480,7 @@ export function launchPrueba(): void {
       user-select: none;
     `;
     iconDiv.addEventListener('dblclick', () => {
-      showMessageBox({ title: 'My Documents', message: `Open: ${item.name}`, icon: 'info' });
+      showMessageBox({ title: 'Portfolio', message: `Open: ${item.name}`, icon: 'info' });
     });
 
     const iconSvg = document.createElement('div');

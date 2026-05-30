@@ -26,6 +26,11 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   close: { es: '&Cerrar', en: '&Close' },
   statusPreview: { es: 'Vista Previa', en: 'Preview' },
   statusSource: { es: 'Código Fuente', en: 'Source' },
+  share: { es: 'Compartir', en: 'Share' },
+  shareCopied: {
+    es: 'URL copiada al portapapeles\n\nPegala en WhatsApp, Telegram o donde quieras para compartir este documento.',
+    en: 'URL copied to clipboard\n\nPaste it in WhatsApp, Telegram or anywhere to share this document.',
+  },
   aboutMarkdownViewer: { es: 'Acerca de Visor Markdown', en: 'About Markdown Viewer' },
   markdownViewerDesc: {
     es: 'Visor Markdown\n\nUn visor de documentos markdown.\nBasado en Windows 98.',
@@ -67,6 +72,7 @@ function renderHtml(md: string): string {
 // ══════════════════════════════════════════
 
 const SPRITE_VIEWS = 38;
+const SPRITE_SHARE = 29;
 
 /**
  * Shared SVG for dropdown arrow (▶ rotated 90° — identical to 98.js).
@@ -253,6 +259,23 @@ export function launchFileViewer(appData?: any): void {
   );
   stdButtons.appendChild(viewCompound);
 
+  // Separator
+  const sep1 = document.createElement('hr');
+  sep1.setAttribute('aria-orientation', 'vertical');
+  stdButtons.appendChild(sep1);
+
+  // Share button — sprite index 29, copies full URL to clipboard
+  const shareBtn = createToolbarButton(tr('share'), SPRITE_SHARE);
+  shareBtn.addEventListener('click', () => {
+    const path = file ? `${file.folder}/${file.name}` : '';
+    if (path) {
+      const url = `https://juandavid.site/${path}`;
+      navigator.clipboard.writeText(url).catch(() => {});
+      showMessageBox({ title: tr('share'), message: tr('shareCopied'), icon: 'info' });
+    }
+  });
+  stdButtons.appendChild(shareBtn);
+
   stdToolbar.appendChild(stdButtons);
   toolbars.appendChild(stdToolbar);
 
@@ -288,7 +311,7 @@ export function launchFileViewer(appData?: any): void {
   const addressInput = document.createElement('input');
   addressInput.type = 'text';
   addressInput.id = 'address';
-  const displayPath = file ? `${file.folder}\\${file.name}` : '';
+  const displayPath = file ? `${file.folder}/${file.name}` : '';
   addressInput.value = displayPath;
   addressInput.readOnly = true;
   addressInput.autocomplete = 'off';
