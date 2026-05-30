@@ -1,6 +1,7 @@
 import React from 'react';
 import { extractRawContent, extractDate, extractContentWithoutDate } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -299,7 +300,7 @@ export function launchWelcome(): void {
       {
         label: '&About',
         action: () => {
-          window.alert(tr('aboutMessage', currentLang));
+          showMessageBox({ title: 'About', message: tr('aboutMessage', currentLang), icon: 'info' });
         },
       },
     ],

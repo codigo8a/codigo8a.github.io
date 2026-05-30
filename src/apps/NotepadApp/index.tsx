@@ -1,6 +1,7 @@
 import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * Placeholder React component — Notepad uses os-gui natively via launchNotepad().
@@ -66,12 +67,12 @@ export function launchNotepad(): void {
       {
         label: '&Open...',
         shortcutLabel: 'Ctrl+O',
-        action: () => alert('Open file dialog (not implemented)'),
+        action: () => showMessageBox({ title: 'Notepad', message: 'Open file dialog (not implemented)', icon: 'info' }),
       },
       {
         label: '&Save',
         shortcutLabel: 'Ctrl+S',
-        action: () => alert('Save dialog (not implemented)'),
+        action: () => showMessageBox({ title: 'Notepad', message: 'Save dialog (not implemented)', icon: 'info' }),
       },
       { separator: true },
       { label: 'E&xit', action: () => $win.close() },
@@ -110,11 +111,7 @@ export function launchNotepad(): void {
       {
         label: '&About Notepad',
         action: () =>
-          alert(
-            'Notepad for 98.js.org\n\n' +
-              'A simple text editor built with os-gui.\n' +
-              'Based on Windows 98 Notepad.',
-          ),
+          showMessageBox({ title: 'About Notepad', message: 'Notepad for 98.js.org\n\nA simple text editor built with os-gui.\nBased on Windows 98 Notepad.', icon: 'info' }),
       },
     ],
   });

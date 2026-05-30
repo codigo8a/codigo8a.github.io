@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * Placeholder React component - the Prueba app uses os-gui natively.
@@ -278,7 +279,7 @@ export function launchPrueba(): void {
       },
       { separator: true },
       { label: 'Create &Shortcut', enabled: false },
-      { label: '&Delete', action: () => alert('Delete') },
+      { label: '&Delete', action: () => showMessageBox({ title: 'My Documents', message: 'Delete', icon: 'info' }) },
       { label: 'Rena&me', enabled: false },
       { label: 'P&roperties', enabled: false },
       { separator: true },
@@ -291,40 +292,40 @@ export function launchPrueba(): void {
       { label: '&Copy', shortcutLabel: 'Ctrl+C', enabled: false },
       { label: '&Paste', shortcutLabel: 'Ctrl+V', enabled: false },
       { separator: true },
-      { label: 'Select &All', shortcutLabel: 'Ctrl+A', action: () => alert('Select All') },
-      { label: '&Invert Selection', action: () => alert('Invert Selection') },
+      { label: 'Select &All', shortcutLabel: 'Ctrl+A', action: () => showMessageBox({ title: 'My Documents', message: 'Select All', icon: 'info' }) },
+      { label: '&Invert Selection', action: () => showMessageBox({ title: 'My Documents', message: 'Invert Selection', icon: 'info' }) },
     ],
     '&View': [
       {
         label: '&Toolbars',
         submenu: [
-          { label: '&Standard Buttons', checked: true, action: () => alert('Toggle Standard Buttons') },
-          { label: '&Address Bar', checked: true, action: () => alert('Toggle Address Bar') },
-          { label: '&Text Labels', checked: true, action: () => alert('Toggle Text Labels') },
+          { label: '&Standard Buttons', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Standard Buttons', icon: 'info' }) },
+          { label: '&Address Bar', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Address Bar', icon: 'info' }) },
+          { label: '&Text Labels', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Text Labels', icon: 'info' }) },
         ],
       },
-      { label: 'Status &Bar', checked: true, action: () => alert('Toggle Status Bar') },
+      { label: 'Status &Bar', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Status Bar', icon: 'info' }) },
       { separator: true },
-      { label: 'as &Web Page', checked: true, action: () => alert('Toggle Web View') },
+      { label: 'as &Web Page', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Toggle Web View', icon: 'info' }) },
       { separator: true },
       {
         label: 'Arrange &Icons',
         submenu: [
-          { label: 'by &Name', type: 'radio', checked: true, action: () => alert('Sort by Name') },
-          { label: 'by &Type', type: 'radio', action: () => alert('Sort by Type') },
-          { label: 'by &Size', type: 'radio', action: () => alert('Sort by Size') },
-          { label: 'by &Date', type: 'radio', action: () => alert('Sort by Date') },
+          { label: 'by &Name', type: 'radio', checked: true, action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Name', icon: 'info' }) },
+          { label: 'by &Type', type: 'radio', action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Type', icon: 'info' }) },
+          { label: 'by &Size', type: 'radio', action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Size', icon: 'info' }) },
+          { label: 'by &Date', type: 'radio', action: () => showMessageBox({ title: 'My Documents', message: 'Sort by Date', icon: 'info' }) },
         ],
       },
       { separator: true },
-      { label: '&Refresh', shortcutLabel: 'F5', action: () => alert('Refresh') },
+      { label: '&Refresh', shortcutLabel: 'F5', action: () => showMessageBox({ title: 'My Documents', message: 'Refresh', icon: 'info' }) },
     ],
     '&Go': [
       { label: '&Back', shortcutLabel: 'Alt+Left Arrow', enabled: false },
       { label: '&Forward', shortcutLabel: 'Alt+Right Arrow', enabled: false },
       { label: '&Up One Level', enabled: false },
       { separator: true },
-      { label: 'My &Computer', action: () => alert('My Computer') },
+      { label: 'My &Computer', action: () => showMessageBox({ title: 'My Documents', message: 'My Computer', icon: 'info' }) },
     ],
     'F&avorites': [
       { label: '&Add to Favorites...', enabled: false },
@@ -358,60 +359,60 @@ export function launchPrueba(): void {
 
   // Back (compound) — sprite index 0
   stdButtons.appendChild(
-    createCompoundButton('Back', SPRITE_BACK, () => alert('Back'), () => alert('Back history'), true),
+    createCompoundButton('Back', SPRITE_BACK, () => showMessageBox({ title: 'My Documents', message: 'Back', icon: 'info' }), () => showMessageBox({ title: 'My Documents', message: 'Back history', icon: 'info' }), true),
   );
 
   // Forward (compound) — sprite index 1
   stdButtons.appendChild(
-    createCompoundButton('Forward', SPRITE_FORWARD, () => alert('Forward'), () => alert('Forward history'), true),
+    createCompoundButton('Forward', SPRITE_FORWARD, () => showMessageBox({ title: 'My Documents', message: 'Forward', icon: 'info' }), () => showMessageBox({ title: 'My Documents', message: 'Forward history', icon: 'info' }), true),
   );
 
   // Up — sprite index 44
   const upBtn = createToolbarButton('Up', SPRITE_UP);
-  upBtn.addEventListener('click', () => alert('Up one level'));
+  upBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Up one level', icon: 'info' }));
   stdButtons.appendChild(upBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Cut — sprite index 21
   const cutBtn = createToolbarButton('Cut', SPRITE_CUT);
-  cutBtn.addEventListener('click', () => alert('Cut'));
+  cutBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Cut', icon: 'info' }));
   stdButtons.appendChild(cutBtn);
 
   // Copy — sprite index 22
   const copyBtn = createToolbarButton('Copy', SPRITE_COPY);
-  copyBtn.addEventListener('click', () => alert('Copy'));
+  copyBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Copy', icon: 'info' }));
   stdButtons.appendChild(copyBtn);
 
   // Paste — sprite index 23
   const pasteBtn = createToolbarButton('Paste', SPRITE_PASTE);
-  pasteBtn.addEventListener('click', () => alert('Paste'));
+  pasteBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Paste', icon: 'info' }));
   stdButtons.appendChild(pasteBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Undo — sprite index 24
   const undoBtn = createToolbarButton('Undo', SPRITE_UNDO);
-  undoBtn.addEventListener('click', () => alert('Undo'));
+  undoBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Undo', icon: 'info' }));
   stdButtons.appendChild(undoBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Delete — sprite index 26
   const deleteBtn = createToolbarButton('Delete', SPRITE_DELETE);
-  deleteBtn.addEventListener('click', () => alert('Delete'));
+  deleteBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Delete', icon: 'info' }));
   stdButtons.appendChild(deleteBtn);
 
   // Properties — sprite index 31
   const propsBtn = createToolbarButton('Properties', SPRITE_PROPERTIES);
-  propsBtn.addEventListener('click', () => alert('Properties'));
+  propsBtn.addEventListener('click', () => showMessageBox({ title: 'My Documents', message: 'Properties', icon: 'info' }));
   stdButtons.appendChild(propsBtn);
 
   stdButtons.appendChild(createSeparator());
 
   // Views (compound) — sprite index 38
   stdButtons.appendChild(
-    createCompoundButton('Views', SPRITE_VIEWS, () => alert('Cycle view mode'), () => alert('Views dropdown')),
+    createCompoundButton('Views', SPRITE_VIEWS, () => showMessageBox({ title: 'My Documents', message: 'Cycle view mode', icon: 'info' }), () => showMessageBox({ title: 'My Documents', message: 'Views dropdown', icon: 'info' })),
   );
 
   stdToolbar.appendChild(stdButtons);
@@ -493,7 +494,7 @@ export function launchPrueba(): void {
       user-select: none;
     `;
     iconDiv.addEventListener('dblclick', () => {
-      alert(`Open: ${item.name}`);
+      showMessageBox({ title: 'My Documents', message: `Open: ${item.name}`, icon: 'info' });
     });
 
     const iconSvg = document.createElement('div');

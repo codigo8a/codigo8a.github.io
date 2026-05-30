@@ -5,6 +5,7 @@ import {
   extractRawContent,
 } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -651,12 +652,7 @@ export function launchFileExplorer(): void {
       {
         label: '&About My Documents',
         action: () => {
-          alert(
-            'My Documents\n\n' +
-              'Browse, search, and view markdown files organized by folder.\n\n' +
-              'Four view modes: Large Icons, Small Icons, List, Details.\n\n' +
-              'Version 1.0',
-          );
+          showMessageBox({ title: 'About My Documents', message: 'My Documents\n\nBrowse, search, and view markdown files organized by folder.\n\nFour view modes: Large Icons, Small Icons, List, Details.\n\nVersion 1.0', icon: 'info' });
         },
       },
     ],

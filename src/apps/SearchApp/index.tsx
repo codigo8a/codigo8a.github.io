@@ -5,6 +5,7 @@ import {
   extractRawContent,
 } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -156,9 +157,7 @@ export function launchSearch(): void {
       {
         label: '&About Search: Files',
         action: () => {
-          alert(
-            'Search: Files\n\nSearch through markdown files by name or content.\n\nVersion 1.0',
-          );
+          showMessageBox({ title: 'About Search: Files', message: 'Search: Files\n\nSearch through markdown files by name or content.\n\nVersion 1.0', icon: 'info' });
         },
       },
     ],

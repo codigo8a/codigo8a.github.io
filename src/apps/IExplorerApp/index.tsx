@@ -1,6 +1,7 @@
 import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 const PROXY_BASE = 'https://corsproxy.io/?url=';
 
@@ -342,7 +343,7 @@ export function launchIExplorer(): void {
         label: '&New',
         submenu: [
           { label: '&Window', action: () => launchIExplorer() },
-          { label: '&Message', action: () => alert('No mail client configured.') },
+          { label: '&Message', action: () => showMessageBox({ title: 'Internet Explorer', message: 'No mail client configured.', icon: 'info' }) },
           { label: '&Post', enabled: false },
           { label: '&Contact', enabled: false },
           { separator: true },
@@ -378,7 +379,7 @@ export function launchIExplorer(): void {
         shortcutLabel: 'Ctrl+P',
         action: () => {
           try { if (iframeEl?.contentWindow) iframeEl.contentWindow.print(); }
-          catch (_e) { alert('Print is not available for this page.'); }
+          catch (_e) { showMessageBox({ title: 'Internet Explorer', message: 'Print is not available for this page.', icon: 'warning' }); }
         },
       },
       { separator: true },
@@ -471,7 +472,7 @@ export function launchIExplorer(): void {
                 w.document.close();
               }
             }
-          } catch (_e) { alert('Cannot view source for cross-origin pages.'); }
+          } catch (_e) { showMessageBox({ title: 'Internet Explorer', message: 'Cannot view source for cross-origin pages.', icon: 'warning' }); }
         },
       },
       {
@@ -503,7 +504,7 @@ export function launchIExplorer(): void {
     'F&avorites': [
       {
         label: '&Add to Favorites...',
-        action: () => alert('Add to Favorites is not supported.'),
+        action: () => showMessageBox({ title: 'Internet Explorer', message: 'Add to Favorites is not supported.', icon: 'info' }),
       },
       {
         label: '&Organize Favorites...',
@@ -530,12 +531,7 @@ export function launchIExplorer(): void {
       {
         label: '&About Internet Explorer',
         action: () => {
-          alert(
-            'Internet Explorer\n\n' +
-            'Based on 98.js.org and os-gui\n' +
-            'Embedded web browser with CORS proxy support.\n\n' +
-            'Version 5.0\n© 2024-2026 Código 8A',
-          );
+          showMessageBox({ title: 'About Internet Explorer', message: 'Internet Explorer\n\nBased on 98.js.org and os-gui\nEmbedded web browser with CORS proxy support.\n\nVersion 5.0\n© 2024-2026 Código 8A', icon: 'info' })
         },
       },
     ],
@@ -596,12 +592,12 @@ export function launchIExplorer(): void {
 
   // Favorites
   const favBtn = createToolbarBtn('Favorites', SPRITE_FAVORITES);
-  favBtn.addEventListener('click', () => alert('Favorites not supported.'));
+  favBtn.addEventListener('click', () => showMessageBox({ title: 'Internet Explorer', message: 'Favorites not supported.', icon: 'info' }));
   stdButtons.appendChild(favBtn);
 
   // History — uses sprite 12 from browse-ui-icons (same as 98.js.org demo)
   const histBtn = createToolbarBtn('History', 12);
-  histBtn.addEventListener('click', () => alert('History not supported.'));
+  histBtn.addEventListener('click', () => showMessageBox({ title: 'Internet Explorer', message: 'History not supported.', icon: 'info' }));
   stdButtons.appendChild(histBtn);
 
   stdButtons.appendChild(createSeparator());
@@ -610,7 +606,7 @@ export function launchIExplorer(): void {
   const printBtn = createToolbarBtn('Print', SPRITE_PRINT);
   printBtn.addEventListener('click', () => {
     try { if (iframeEl?.contentWindow) iframeEl.contentWindow.print(); }
-    catch (_e) { alert('Print is not available for this page.'); }
+    catch (_e) { showMessageBox({ title: 'Internet Explorer', message: 'Print is not available for this page.', icon: 'warning' }); }
   });
   stdButtons.appendChild(printBtn);
 

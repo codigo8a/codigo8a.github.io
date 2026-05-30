@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * Placeholder React component — MarkdownViewerApp uses os-gui natively via launchFileViewer().
@@ -218,7 +219,7 @@ export function launchFileViewer(appData?: any): void {
     '&Help': [
       {
         label: tr('aboutMarkdownViewer'),
-        action: () => alert(tr('markdownViewerDesc')),
+        action: () => showMessageBox({ title: tr('aboutMarkdownViewer'), message: tr('markdownViewerDesc'), icon: 'info' }),
       },
     ],
   });
