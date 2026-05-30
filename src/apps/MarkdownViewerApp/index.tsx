@@ -256,6 +256,48 @@ export function launchFileViewer(appData?: any): void {
   stdToolbar.appendChild(stdButtons);
   toolbars.appendChild(stdToolbar);
 
+  // ── Address bar toolbar (with drag handle) ──
+  const addrToolbar = document.createElement('div');
+  addrToolbar.className = 'toolbar';
+  addrToolbar.id = 'address-bar-toolbar';
+
+  const addrDragHandle = document.createElement('div');
+  addrDragHandle.className = 'toolbar-drag-handle';
+  addrToolbar.appendChild(addrDragHandle);
+
+  const addrBar = document.createElement('div');
+  addrBar.id = 'address-bar';
+
+  const addrLabel = document.createElement('label');
+  addrLabel.setAttribute('for', 'address');
+  addrLabel.textContent = 'Address';
+  addrBar.appendChild(addrLabel);
+
+  const compoundInput = document.createElement('div');
+  compoundInput.id = 'address-compound-input';
+  compoundInput.className = 'inset-deep';
+
+  const addrIcon = document.createElement('img');
+  addrIcon.id = 'address-icon';
+  addrIcon.width = 16;
+  addrIcon.height = 16;
+  addrIcon.src = '/app/icons/file-viewer.svg';
+  addrIcon.alt = '';
+  compoundInput.appendChild(addrIcon);
+
+  const addressInput = document.createElement('input');
+  addressInput.type = 'text';
+  addressInput.id = 'address';
+  const displayPath = file ? `${file.folder}\\${file.name}` : '';
+  addressInput.value = displayPath;
+  addressInput.readOnly = true;
+  addressInput.autocomplete = 'off';
+  compoundInput.appendChild(addressInput);
+
+  addrBar.appendChild(compoundInput);
+  addrToolbar.appendChild(addrBar);
+  toolbars.appendChild(addrToolbar);
+
   explorer.appendChild(toolbars);
 
   // ══════ Content area ══════
