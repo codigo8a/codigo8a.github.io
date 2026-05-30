@@ -21,6 +21,16 @@ export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, 
         return;
       }
 
+      // /portfolio/web or /portfolio/system → open portfolio inside that folder
+      if (parts.length === 2 && parts[0] === 'portfolio' && !launchedRef.current.has('portfolio')) {
+        const folder = parts[1];
+        if (folder === 'web' || folder === 'system') {
+          launchedRef.current.add('portfolio');
+          setTimeout(() => openApp('portfolio', { folder }), 200);
+          return;
+        }
+      }
+
       if (parts.length >= 2) {
         const folder = parts[0];
         const filename = parts[1];

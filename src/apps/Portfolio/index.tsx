@@ -192,10 +192,39 @@ function getFileIcon(size: 16 | 32): string {
 }
 
 /**
+ * Dispatches a custom event to open a file in the Markdown viewer.
+ */
+function openFileViewer(name: string, folder: string, date: string): void {
+  const contentPath = `../../data/files/${folder}/${name}`;
+  const content = allFiles[contentPath] as string | undefined;
+  const rawContent = content ? extractRawContent(content) : '';
+  const processedContent = content ? extractContentWithoutDate(content) : '';
+
+  window.dispatchEvent(
+    new CustomEvent('desktop-open-app', {
+      detail: {
+        appId: 'markdownViewer',
+        appData: {
+          file: {
+            name: name.replace('.md', ''),
+            content: processedContent,
+            rawContent,
+            folder,
+            date,
+          },
+          windowKey: `${folder}/${name}`,
+          title: name.replace('.md', ''),
+        },
+      },
+    }),
+  );
+}
+
+/**
  * Custom launch function that creates a faithful replica
  * of the 98.js Explorer "Portfolio" window using os-gui.
  */
-export function launchPortfolio(): void {
+export function launchPortfolio(appData?: { folder?: string }): void {
   const $Window = (window as any).$Window;
   const MenuBar = (window as any).MenuBar;
 
@@ -345,12 +374,22 @@ export function launchPortfolio(): void {
   stdButtons.appendChild(createSeparator());
 
   // Views (compound) — sprite 38, with dropdown
-  let currentView: 'large' | 'small' = 'large';
+  type ViewMode = 'LARGE_ICONS' | 'SMALL_ICONS' | 'LIST' | 'DETAILS';
+  let currentView: ViewMode = 'LARGE_ICONS';
   let currentFolder: string | null = null;
 
+  /**
+   * Cycles through view modes: LARGE_ICONS → SMALL_ICONS → LIST → LARGE_ICONS.
+   * DETAILS is excluded from the cycle, matching 98.js behavior.
+   */
   function cycleViewMode(): void {
-    if (currentFolder === null) return; // root always large
-    currentView = currentView === 'large' ? 'small' : 'large';
+    const cycle: ViewMode[] = ['LARGE_ICONS', 'SMALL_ICONS', 'LIST'];
+    const idx = cycle.indexOf(currentView);
+    if (idx === -1) {
+      currentView = 'LARGE_ICONS';
+    } else {
+      currentView = cycle[(idx + 1) % cycle.length];
+    }
     renderContent();
   }
 
@@ -362,11 +401,19 @@ export function launchPortfolio(): void {
     const dummyMenuBar = new MenuBar({
       "Views": [
         {
+          label: "as &Web Page",
+          enabled: false,
+          type: 'checkbox',
+          checked: false,
+          action: () => {},
+        },
+        { separator: true },
+        {
           label: 'Lar&ge Icons',
           type: 'radio',
-          checked: currentView === 'large',
+          checked: currentView === 'LARGE_ICONS',
           action: () => {
-            currentView = 'large';
+            currentView = 'LARGE_ICONS';
             renderContent();
             cleanup();
           },
@@ -374,9 +421,30 @@ export function launchPortfolio(): void {
         {
           label: 'S&mall Icons',
           type: 'radio',
-          checked: currentView === 'small',
+          checked: currentView === 'SMALL_ICONS',
           action: () => {
-            currentView = 'small';
+            currentView = 'SMALL_ICONS';
+            renderContent();
+            cleanup();
+          },
+        },
+        {
+          label: '&List',
+          type: 'radio',
+          checked: currentView === 'LIST',
+          action: () => {
+            currentView = 'LIST';
+            renderContent();
+            cleanup();
+          },
+        },
+        {
+          label: '&Details',
+          type: 'radio',
+          checked: currentView === 'DETAILS',
+          enabled: false,
+          action: () => {
+            currentView = 'DETAILS';
             renderContent();
             cleanup();
           },
@@ -418,14 +486,15 @@ export function launchPortfolio(): void {
 
   stdButtons.appendChild(createSeparator());
 
-  // Share — sprite 29, copies portfolio URL
+  // Share — sprite 29, copies portfolio URL (includes folder path if inside a folder)
   const shareBtn = createToolbarButton('Compartir', SPRITE_SHARE);
   shareBtn.addEventListener('click', () => {
-    const url = 'https://juandavid.site/portfolio';
+    const baseUrl = 'https://juandavid.site/portfolio';
+    const url = currentFolder ? `${baseUrl}/${currentFolder}` : baseUrl;
     navigator.clipboard.writeText(url).catch(() => {});
     showMessageBox({
       title: 'Compartir',
-      message: 'URL copiada al portapapeles\n\nPégala en WhatsApp, Telegram o donde quieras para compartir tu portafolio.',
+      message: `URL copiada al portapapeles\n\n${url}\n\nPégala en WhatsApp, Telegram o donde quieras para compartir tu portafolio.`,
       icon: 'info',
     });
   });
@@ -459,7 +528,7 @@ export function launchPortfolio(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/images/icons/folder-16x16.png';
+  addrIcon.src = '/images/icons/paint-32x32.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 
@@ -504,7 +573,7 @@ export function launchPortfolio(): void {
 
   panelIcon = document.createElement('img');
   panelIcon.className = 'panel-folder-icon';
-  panelIcon.src = '/images/icons/my-documents-folder-32x32.png';
+  panelIcon.src = '/images/icons/paint-32x32.png';
   panelIcon.width = 32;
   panelIcon.height = 32;
   panelIcon.alt = '';
@@ -570,37 +639,45 @@ export function launchPortfolio(): void {
   // RENDER FUNCTIONS
   // ══════════════════════════════════════════════════════════════════
 
-  /** Renders the root view: large icons for web/system folders */
+  /** Renders the root view based on current view mode */
   function renderRoot(): void {
     currentFolder = null;
     upBtn.disabled = true;
     addrInput.value = 'Portfolio';
-    panelIcon.src = '/images/icons/my-documents-folder-32x32.png';
+    panelIcon.src = '/images/icons/paint-32x32.png';
     panelTitle.textContent = 'Portfolio';
     panelInfo.textContent = 'Selecciona una carpeta para ver su contenido.';
 
+    contentEl.innerHTML = '';
+
+    switch (currentView) {
+      case 'SMALL_ICONS':
+        contentEl.appendChild(buildRootSmallIconsView());
+        break;
+      case 'LIST':
+        contentEl.appendChild(buildRootListView());
+        break;
+      case 'DETAILS':
+        contentEl.appendChild(buildRootDetailsView());
+        break;
+      case 'LARGE_ICONS':
+      default:
+        contentEl.appendChild(buildRootLargeIconsView());
+        break;
+    }
+
+    statusLeftEl.textContent = `${PORTFOLIO_FOLDERS.length} folder(s)`;
+    statusRight.textContent = 'Portfolio';
+  }
+
+  /** Root: large icons grid for web/system folders */
+  function buildRootLargeIconsView(): HTMLElement {
     const grid = document.createElement('div');
-    grid.style.cssText = `
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 8px;
-      align-content: flex-start;
-    `;
+    grid.style.cssText = `display:flex;flex-wrap:wrap;gap:4px;padding:8px;align-content:flex-start;`;
 
     for (const folder of PORTFOLIO_FOLDERS) {
       const div = document.createElement('div');
-      div.style.cssText = `
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 72px;
-        padding: 4px;
-        cursor: pointer;
-        user-select: none;
-        border: 1px solid transparent;
-        border-radius: 2px;
-      `;
+      div.style.cssText = `display:flex;flex-direction:column;align-items:center;width:72px;padding:4px;cursor:pointer;user-select:none;border:1px solid transparent;border-radius:2px;`;
 
       div.addEventListener('mouseenter', () => {
         div.style.background = '#c0e0ff';
@@ -612,41 +689,154 @@ export function launchPortfolio(): void {
       div.addEventListener('mouseleave', () => {
         div.style.background = '';
         div.style.borderColor = 'transparent';
-        panelIcon.src = '/images/icons/my-documents-folder-32x32.png';
+        panelIcon.src = '/images/icons/paint-32x32.png';
         panelTitle.textContent = 'Portfolio';
         panelInfo.textContent = 'Selecciona una carpeta para ver su contenido.';
       });
-
       div.addEventListener('click', () => renderFolder(folder));
 
       const icon = document.createElement('div');
-      icon.style.cssText = 'width: 32px; height: 32px; margin-bottom: 2px; pointer-events: none;';
-      icon.innerHTML = `<img src="/images/icons/folder-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
+      icon.style.cssText = 'width:32px;height:32px;margin-bottom:2px;pointer-events:none;';
+      icon.innerHTML = '<img src="/images/icons/folder-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">';
       div.appendChild(icon);
 
       const label = document.createElement('span');
-      label.style.cssText = `
-        font-size: 11px;
-        font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
-        text-align: center;
-        word-wrap: break-word;
-        max-width: 68px;
-        pointer-events: none;
-        line-height: 1.2;
-      `;
+      label.style.cssText = 'font-size:11px;font-family:\'MS Sans Serif\',\'Segoe UI\',sans-serif;text-align:center;word-wrap:break-word;max-width:68px;pointer-events:none;line-height:1.2;';
       label.textContent = folder === 'web' ? 'Web' : 'System';
       div.appendChild(label);
 
       grid.appendChild(div);
     }
-
-    contentEl.innerHTML = '';
-    contentEl.appendChild(grid);
-    statusLeftEl.textContent = `${PORTFOLIO_FOLDERS.length} folder(s)`;
-    statusRight.textContent = 'Portfolio';
+    return grid;
   }
 
-  /** Renders a folder view: large icons for files inside the given folder */
+  /** Root: small icons with label to the right for web/system folders */
+  function buildRootSmallIconsView(): HTMLElement {
+    const grid = document.createElement('div');
+    grid.style.cssText = `display:flex;flex-wrap:wrap;gap:2px;padding:4px;align-content:flex-start;`;
+
+    for (const folder of PORTFOLIO_FOLDERS) {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:3px;width:140px;padding:2px 4px;cursor:pointer;user-select:none;border:1px solid transparent;border-radius:2px;';
+
+      item.addEventListener('mouseenter', () => {
+        item.style.background = '#c0e0ff';
+        item.style.borderColor = '#000080';
+        panelIcon.src = '/images/icons/folder-32x32.png';
+        panelTitle.textContent = folder === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folder];
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = '';
+        item.style.borderColor = 'transparent';
+        panelIcon.src = '/images/icons/paint-32x32.png';
+        panelTitle.textContent = 'Portfolio';
+        panelInfo.textContent = 'Selecciona una carpeta para ver su contenido.';
+      });
+      item.addEventListener('click', () => renderFolder(folder));
+
+      const icon = document.createElement('span');
+      icon.style.cssText = 'width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;pointer-events:none;';
+      icon.innerHTML = '<img src="/images/icons/folder-16x16.png" width="16" height="16" alt="" style="pointer-events:none;image-rendering:pixelated">';
+      item.appendChild(icon);
+
+      const label = document.createElement('span');
+      label.style.cssText = 'font-size:11px;font-family:\'MS Sans Serif\',\'Segoe UI\',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;line-height:1.2;';
+      label.textContent = folder === 'web' ? 'Web' : 'System';
+      item.appendChild(label);
+
+      grid.appendChild(item);
+    }
+    return grid;
+  }
+
+  /** Root: vertical list of folders */
+  function buildRootListView(): HTMLElement {
+    const table = document.createElement('table');
+    table.style.cssText = 'width:100%;border-collapse:collapse;border:none;font-size:11px;font-family:\'MS Sans Serif\',\'Segoe UI\',sans-serif;table-layout:fixed;';
+
+    for (const folder of PORTFOLIO_FOLDERS) {
+      const row = document.createElement('tr');
+      row.style.cssText = 'cursor:pointer;';
+
+      row.addEventListener('mouseenter', () => {
+        row.style.outline = '1px dotted #000080';
+        panelIcon.src = '/images/icons/folder-32x32.png';
+        panelTitle.textContent = folder === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folder];
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.outline = '';
+        panelIcon.src = '/images/icons/paint-32x32.png';
+        panelTitle.textContent = 'Portfolio';
+        panelInfo.textContent = 'Selecciona una carpeta para ver su contenido.';
+      });
+      row.addEventListener('click', () => renderFolder(folder));
+
+      const nameCell = document.createElement('td');
+      nameCell.style.cssText = 'padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      nameCell.innerHTML = '<img src="/images/icons/folder-16x16.png" width="16" height="16" alt="" style="pointer-events:none;image-rendering:pixelated;vertical-align:middle;margin-right:4px;"> ' + (folder === 'web' ? 'Web' : 'System');
+      row.appendChild(nameCell);
+
+      table.appendChild(row);
+    }
+    return table;
+  }
+
+  /** Root: details table with Name and Type columns */
+  function buildRootDetailsView(): HTMLElement {
+    const table = document.createElement('table');
+    table.style.cssText = 'width:100%;border-collapse:collapse;border:none;font-size:11px;font-family:\'MS Sans Serif\',\'Segoe UI\',sans-serif;table-layout:fixed;';
+
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.cssText = 'position:sticky;top:0;z-index:1;';
+
+    [{label:'Name',width:'60%'},{label:'Type',width:'40%'}].forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h.label;
+      th.style.cssText = `text-align:left;background:#c0c0c0;padding:3px 6px;font-weight:normal;font-size:11px;border-bottom:1px solid #808080;width:${h.width};`;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (const folder of PORTFOLIO_FOLDERS) {
+      const row = document.createElement('tr');
+      row.style.cssText = 'cursor:pointer;';
+
+      row.addEventListener('mouseenter', () => {
+        row.style.background = '#c0e0ff';
+        panelIcon.src = '/images/icons/folder-32x32.png';
+        panelTitle.textContent = folder === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folder];
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.background = '';
+        panelIcon.src = '/images/icons/paint-32x32.png';
+        panelTitle.textContent = 'Portfolio';
+        panelInfo.textContent = 'Selecciona una carpeta para ver su contenido.';
+      });
+      row.addEventListener('click', () => renderFolder(folder));
+
+      const nameCell = document.createElement('td');
+      nameCell.style.cssText = 'padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      nameCell.textContent = folder === 'web' ? 'Web' : 'System';
+      row.appendChild(nameCell);
+
+      const typeCell = document.createElement('td');
+      typeCell.style.cssText = 'padding:2px 4px;';
+      typeCell.textContent = 'Folder';
+      row.appendChild(typeCell);
+
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+
+  /** Renders a folder view based on current view mode */
   function renderFolder(folder: string): void {
     currentFolder = folder;
     upBtn.disabled = false;
@@ -656,6 +846,30 @@ export function launchPortfolio(): void {
     panelInfo.textContent = FOLDER_DESCRIPTIONS[folder];
 
     const files = portfolioFiles.filter(f => f.folder === folder);
+    contentEl.innerHTML = '';
+
+    switch (currentView) {
+      case 'SMALL_ICONS':
+        contentEl.appendChild(buildSmallIconsView(files, folder));
+        break;
+      case 'LIST':
+        contentEl.appendChild(buildListView(files, folder));
+        break;
+      case 'DETAILS':
+        contentEl.appendChild(buildDetailsView(files, folder));
+        break;
+      case 'LARGE_ICONS':
+      default:
+        contentEl.appendChild(buildLargeIconsView(files, folder));
+        break;
+    }
+
+    statusLeftEl.textContent = `${files.length} object(s)`;
+    statusRight.textContent = `Portfolio\\${folder === 'web' ? 'Web' : 'System'}`;
+  }
+
+  /** Builds the large icons view — 32×32 grid of file icons */
+  function buildLargeIconsView(files: PortfolioFile[], folderName: string): HTMLElement {
     const grid = document.createElement('div');
     grid.style.cssText = `
       display: flex;
@@ -695,23 +909,18 @@ export function launchPortfolio(): void {
         div.style.background = '';
         div.style.borderColor = 'transparent';
         panelIcon.src = '/images/icons/folder-32x32.png';
-        panelTitle.textContent = folder === 'web' ? 'Web' : 'System';
-        panelInfo.textContent = FOLDER_DESCRIPTIONS[folder];
+        panelTitle.textContent = folderName === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folderName];
       });
 
       div.addEventListener('click', () => {
-        const displayTitle = file.name.replace('.md', '');
-        showMessageBox({
-          title: displayTitle,
-          message: `<strong>${displayTitle}</strong><br><br>${file.content.substring(0, 200)}...`,
-          icon: 'info',
-        });
+        openFileViewer(file.name, file.folder, file.date);
       });
 
       // Large icon
       const iconContainer = document.createElement('div');
       iconContainer.style.cssText = 'width: 32px; height: 32px; margin-bottom: 2px; pointer-events: none;';
-      iconContainer.innerHTML = `<img src="/images/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
+      iconContainer.innerHTML = getFileIcon(32);
       div.appendChild(iconContainer);
 
       // Label
@@ -731,10 +940,234 @@ export function launchPortfolio(): void {
       grid.appendChild(div);
     }
 
-    contentEl.innerHTML = '';
-    contentEl.appendChild(grid);
-    statusLeftEl.textContent = `${files.length} object(s)`;
-    statusRight.textContent = `Portfolio\\${folder === 'web' ? 'Web' : 'System'}`;
+    return grid;
+  }
+
+  /** Builds the small icons view — 16×16 icons with label to the right */
+  function buildSmallIconsView(files: PortfolioFile[], folderName: string): HTMLElement {
+    const grid = document.createElement('div');
+    grid.style.cssText = `
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      padding: 4px;
+      align-content: flex-start;
+    `;
+
+    for (const file of files) {
+      const item = document.createElement('div');
+      item.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        width: 160px;
+        padding: 2px 4px;
+        cursor: pointer;
+        user-select: none;
+        border: 1px solid transparent;
+        border-radius: 2px;
+      `;
+
+      item.addEventListener('mouseenter', () => {
+        item.style.background = '#c0e0ff';
+        item.style.borderColor = '#000080';
+        panelIcon.src = '/images/icons/notepad-file-32x32.png';
+        panelTitle.textContent = file.name.replace('.md', '');
+        panelInfo.innerHTML = `
+          <strong>${file.name.replace('.md', '')}</strong><br>
+          Carpeta: ${file.folder}<br>
+          Fecha: ${file.date}<br>
+          Tipo: Documento Markdown
+        `;
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = '';
+        item.style.borderColor = 'transparent';
+        panelIcon.src = '/images/icons/folder-32x32.png';
+        panelTitle.textContent = folderName === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folderName];
+      });
+
+      item.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
+
+      // 16×16 icon
+      const icon = document.createElement('span');
+      icon.style.cssText = `
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        pointer-events: none;
+      `;
+      icon.innerHTML = getFileIcon(16);
+
+      // Label
+      const label = document.createElement('span');
+      label.style.cssText = `
+        font-size: 11px;
+        font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        pointer-events: none;
+        line-height: 1.2;
+      `;
+      label.textContent = file.name.replace('.md', '');
+
+      item.appendChild(icon);
+      item.appendChild(label);
+      grid.appendChild(item);
+    }
+
+    return grid;
+  }
+
+  /** Builds the list view — single-column vertical list of files */
+  function buildListView(files: PortfolioFile[], folderName: string): HTMLElement {
+    const table = document.createElement('table');
+    table.style.cssText = `
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+      table-layout: fixed;
+    `;
+
+    for (const file of files) {
+      const row = document.createElement('tr');
+      row.style.cssText = 'cursor: pointer;';
+
+      row.addEventListener('mouseenter', () => {
+        row.style.outline = '1px dotted #000080';
+        panelIcon.src = '/images/icons/notepad-file-32x32.png';
+        panelTitle.textContent = file.name.replace('.md', '');
+        panelInfo.innerHTML = `
+          <strong>${file.name.replace('.md', '')}</strong><br>
+          Carpeta: ${file.folder}<br>
+          Fecha: ${file.date}<br>
+          Tipo: Documento Markdown
+        `;
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.outline = '';
+        panelIcon.src = '/images/icons/folder-32x32.png';
+        panelTitle.textContent = folderName === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folderName];
+      });
+
+      row.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
+
+      const nameCell = document.createElement('td');
+      nameCell.style.cssText = `
+        padding: 2px 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      `;
+      nameCell.innerHTML = getFileIcon(16) + ' ' + file.name.replace('.md', '');
+      row.appendChild(nameCell);
+
+      table.appendChild(row);
+    }
+
+    return table;
+  }
+
+  /** Builds the details view — table with Name, Date, Type columns */
+  function buildDetailsView(files: PortfolioFile[], folderName: string): HTMLElement {
+    const table = document.createElement('table');
+    table.style.cssText = `
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+      table-layout: fixed;
+    `;
+
+    // Header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.cssText = 'position: sticky; top: 0; z-index: 1;';
+
+    const headers = [
+      { label: 'Name', width: '40%' },
+      { label: 'Date', width: '25%' },
+      { label: 'Type', width: '35%' },
+    ];
+
+    headers.forEach((h) => {
+      const th = document.createElement('th');
+      th.textContent = h.label;
+      th.style.cssText = `
+        text-align: left;
+        background: #c0c0c0;
+        padding: 3px 6px;
+        font-weight: normal;
+        font-size: 11px;
+        border-bottom: 1px solid #808080;
+        width: ${h.width};
+      `;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Body
+    const tbody = document.createElement('tbody');
+    for (const file of files) {
+      const row = document.createElement('tr');
+      row.style.cssText = 'cursor: pointer;';
+
+      row.addEventListener('mouseenter', () => {
+        row.style.background = '#c0e0ff';
+        panelIcon.src = '/images/icons/notepad-file-32x32.png';
+        panelTitle.textContent = file.name.replace('.md', '');
+        panelInfo.innerHTML = `
+          <strong>${file.name.replace('.md', '')}</strong><br>
+          Carpeta: ${file.folder}<br>
+          Fecha: ${file.date}<br>
+          Tipo: Documento Markdown
+        `;
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.background = '';
+        panelIcon.src = '/images/icons/folder-32x32.png';
+        panelTitle.textContent = folderName === 'web' ? 'Web' : 'System';
+        panelInfo.textContent = FOLDER_DESCRIPTIONS[folderName];
+      });
+
+      row.addEventListener('click', () => {
+        openFileViewer(file.name, file.folder, file.date);
+      });
+
+      const nameCell = document.createElement('td');
+      nameCell.style.cssText = 'padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;';
+      nameCell.textContent = file.name.replace('.md', '');
+      row.appendChild(nameCell);
+
+      const dateCell = document.createElement('td');
+      dateCell.style.cssText = 'padding: 2px 4px;';
+      dateCell.textContent = file.date;
+      row.appendChild(dateCell);
+
+      const typeCell = document.createElement('td');
+      typeCell.style.cssText = 'padding: 2px 4px;';
+      typeCell.textContent = 'Markdown Document';
+      row.appendChild(typeCell);
+
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+
+    return table;
   }
 
   /**
@@ -766,5 +1199,9 @@ export function launchPortfolio(): void {
   };
 
   // ── Initial render ──
-  renderRoot();
+  if (appData?.folder && (appData.folder === 'web' || appData.folder === 'system')) {
+    renderFolder(appData.folder);
+  } else {
+    renderRoot();
+  }
 }
