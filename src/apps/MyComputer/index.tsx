@@ -6,6 +6,7 @@ import {
 } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import './index.css';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -244,6 +245,10 @@ export function launchMyComputer(): void {
 
   // DOM references
   let contentEl: HTMLElement;
+  let panelEl: HTMLElement;
+  let panelFolderIcon: HTMLImageElement;
+  let panelTitle: HTMLParagraphElement;
+  let panelInfo: HTMLSpanElement;
   let statusBarEl: HTMLElement;
   let statusLeftEl: HTMLElement;
   let statusMiddleEl: HTMLElement;
@@ -572,12 +577,54 @@ export function launchMyComputer(): void {
   explorer.appendChild(toolbars);
 
   // ══════════════════════════════════════════════════════════════════
-  // CONTENT AREA
+  // CONTENT AREA (with left info panel — faithful 98.js folder template)
   // ══════════════════════════════════════════════════════════════════
+  const contentArea = document.createElement('div');
+  contentArea.className = 'content-with-panel inset-deep';
+
+  // ── Left panel (matches FOLDER.HTT structure) ──
+  panelEl = document.createElement('div');
+  panelEl.id = 'panel';
+
+  panelFolderIcon = document.createElement('img');
+  panelFolderIcon.className = 'panel-folder-icon';
+  panelFolderIcon.src = '/app/icons/folder-32x32.png';
+  panelFolderIcon.width = 32;
+  panelFolderIcon.height = 32;
+  panelFolderIcon.alt = '';
+  panelEl.appendChild(panelFolderIcon);
+
+  panelTitle = document.createElement('p');
+  panelTitle.className = 'panel-title';
+  panelTitle.textContent = 'My Computer';
+  panelEl.appendChild(panelTitle);
+
+  const logoLine = document.createElement('p');
+  logoLine.className = 'panel-logoline';
+  const logoImg = document.createElement('img');
+  logoImg.src = '/images/wvline.gif';
+  logoImg.width = 100;
+  logoImg.height = 1;
+  logoImg.style.width = '100%';
+  logoLine.appendChild(logoImg);
+  panelEl.appendChild(logoLine);
+
+  const infoP = document.createElement('p');
+  infoP.className = 'panel-info';
+  panelInfo = document.createElement('span');
+  panelInfo.id = 'panel-info';
+  panelInfo.textContent = 'Select an item to view its description.';
+  infoP.appendChild(panelInfo);
+  panelEl.appendChild(infoP);
+
+  contentArea.appendChild(panelEl);
+
+  // ── Right content (file list area) ──
   contentEl = document.createElement('div');
   contentEl.id = 'content';
-  contentEl.className = 'inset-deep';
-  explorer.appendChild(contentEl);
+  contentArea.appendChild(contentEl);
+
+  explorer.appendChild(contentArea);
 
   // ══════════════════════════════════════════════════════════════════
   // STATUS BAR
@@ -657,6 +704,25 @@ export function launchMyComputer(): void {
     statusRightEl.textContent = 'Ready';
   }
 
+  function updatePanelForFolder(folder: string | null): void {
+    if (folder === null) {
+      // Root view — My Computer icon + default description
+      panelFolderIcon.src = '/app/icons/my-computer-32x32.png';
+      panelTitle.textContent = 'My Computer';
+      panelInfo.textContent = 'Select an item to view its description.';
+    } else {
+      // Inside a folder — folder icon + folder info
+      panelFolderIcon.src = '/app/icons/folder-32x32.png';
+      panelTitle.textContent = folder;
+      const fileList = getFilesInFolder(folder);
+      panelInfo.innerHTML = `
+        <strong>${folder}</strong><br>
+        Folder containing ${fileList.length} markdown file${fileList.length !== 1 ? 's' : ''}.<br><br>
+        To view the contents, double-click a file icon.
+      `;
+    }
+  }
+
   function renderCurrentFolder(): void {
     // Clear content
     while (contentEl.firstChild) {
@@ -668,9 +734,11 @@ export function launchMyComputer(): void {
     const folder = currentFolder();
     if (folder === null) {
       addrInput.value = 'My Computer';
+      updatePanelForFolder(null);
       renderRootView();
     } else {
       addrInput.value = `My Computer \\ ${folder}`;
+      updatePanelForFolder(folder);
       renderFolderView(folder);
     }
   }
@@ -700,13 +768,31 @@ export function launchMyComputer(): void {
         border-radius: 2px;
       `;
 
+      const folderDescriptions: Record<string, string> = {
+        content: 'Content files and documents.',
+        internet: 'Internet resources and useful links.',
+        system: 'System files and technical documentation.',
+        web: 'Web projects and portfolios.',
+        youtube: 'YouTube tutorials and guides.',
+      };
+
       iconDiv.addEventListener('mouseenter', () => {
         iconDiv.style.background = '#c0e0ff';
         iconDiv.style.borderColor = '#000080';
+        // Update panel
+        panelFolderIcon.src = '/app/icons/folder-32x32.png';
+        panelTitle.textContent = f.name;
+        panelInfo.innerHTML = `
+          <strong>${f.name}</strong><br>
+          ${folderDescriptions[f.name] || 'Folder.'}<br><br>
+          Click to open.
+        `;
       });
       iconDiv.addEventListener('mouseleave', () => {
         iconDiv.style.background = '';
         iconDiv.style.borderColor = 'transparent';
+        // Restore panel to default
+        updatePanelForFolder(null);
       });
       iconDiv.addEventListener('mousedown', () => {
         iconDiv.style.background = '#000080';
@@ -800,12 +886,21 @@ export function launchMyComputer(): void {
       item.addEventListener('mouseenter', () => {
         item.style.background = '#c0e0ff';
         item.style.borderColor = '#000080';
+        // Update panel
+        panelFolderIcon.src = '/app/icons/folder-32x32.png';
+        panelTitle.textContent = f.name;
+        panelInfo.innerHTML = `
+          <strong>${f.name}</strong><br>
+          Folder.<br><br>
+          Click to open.
+        `;
       });
       item.addEventListener('mouseleave', () => {
         item.style.background = '';
         item.style.borderColor = 'transparent';
+        updatePanelForFolder(null);
       });
-      item.addEventListener('dblclick', () => {
+      item.addEventListener('click', () => {
         navigateTo(f.name);
       });
 
@@ -885,9 +980,23 @@ export function launchMyComputer(): void {
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
 
-      row.addEventListener('mouseenter', () => { row.style.background = '#c0e0ff'; });
-      row.addEventListener('mouseleave', () => { row.style.background = ''; });
-      row.addEventListener('dblclick', () => { navigateTo(f.name); });
+      row.addEventListener('mouseenter', () => {
+        row.style.background = '#c0e0ff';
+        panelFolderIcon.src = '/app/icons/folder-32x32.png';
+        panelTitle.textContent = f.name;
+        const filesCount = getFilesInFolder(f.name).length;
+        panelInfo.innerHTML = `
+          <strong>${f.name}</strong><br>
+          File Folder<br>
+          ${filesCount} object(s)<br><br>
+          Click to open.
+        `;
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.background = '';
+        updatePanelForFolder(null);
+      });
+      row.addEventListener('click', () => { navigateTo(f.name); });
 
       const filesInFolder = getFilesInFolder(f.name);
 

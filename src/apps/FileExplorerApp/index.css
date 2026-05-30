@@ -182,3 +182,79 @@
 .fileexplorer-folder ul {
   margin-left: 20px;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   LEFT INFO PANEL (FOLDER.HTT style — matching MyComputer)
+   ══════════════════════════════════════════════════════════════════ */
+
+.os-explorer .content-with-panel {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.os-explorer .content-with-panel #panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 30%;
+  height: 100%;
+  overflow: auto;
+  background: white url('/images/wvleft.bmp') no-repeat;
+  font: 8pt/10pt verdana;
+  color: #000;
+}
+
+.os-explorer .content-with-panel #panel p {
+  margin-left: 15px;
+  margin-top: 15px;
+  margin-right: 15px;
+}
+
+.os-explorer .content-with-panel #panel p.panel-title {
+  font: 16pt verdana;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 0;
+  color: #000;
+}
+
+.os-explorer .content-with-panel #panel p.panel-logoline {
+  margin-left: 0;
+  margin-top: -5px;
+  margin-right: 0;
+  margin-bottom: 35px;
+}
+
+.os-explorer .content-with-panel #panel p.panel-logoline img {
+  display: block;
+  width: 100%;
+  height: 1px;
+}
+
+.os-explorer .content-with-panel #panel p.panel-info {
+  font: 8pt/10pt verdana;
+  color: #000;
+}
+
+.os-explorer .content-with-panel #panel .panel-folder-icon {
+  margin-left: 15px;
+  margin-top: 15px;
+  width: 32px;
+  height: 32px;
+}
+
+.os-explorer .content-with-panel #content {
+  position: absolute;
+  left: 30%;
+  top: 0;
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--Window);
+  color: var(--WindowText);
+  overflow: auto;
+}

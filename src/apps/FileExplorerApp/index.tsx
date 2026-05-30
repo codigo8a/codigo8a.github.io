@@ -422,6 +422,10 @@ export function launchFileExplorer(): void {
 
   // DOM element references (assigned after creation)
   let contentEl: HTMLElement;
+  let panelEl: HTMLElement;
+  let panelFolderIcon: HTMLImageElement;
+  let panelTitle: HTMLParagraphElement;
+  let panelInfo: HTMLSpanElement;
   let statusBarEl: HTMLElement;
   let statusLeftEl: HTMLElement;
   let statusMiddleEl: HTMLElement;
@@ -485,6 +489,8 @@ export function launchFileExplorer(): void {
       contentEl.removeChild(contentEl.firstChild);
     }
 
+    resetPanel();
+
     const currentFiles = getAllFilesFlat(currentSort);
     const stats = getStats();
 
@@ -517,6 +523,32 @@ export function launchFileExplorer(): void {
     statusLeftEl.textContent = `${folderCount} folder(s)`;
     statusMiddleEl.textContent = `${fileCount} object(s)`;
     statusRightEl.textContent = 'Ready';
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // PANEL HELPERS
+  // ══════════════════════════════════════════════════════════════════
+
+  function resetPanel(): void {
+    panelFolderIcon.src = '/app/icons/my-documents-folder-32x32.png';
+    panelTitle.textContent = 'My Documents';
+    panelInfo.textContent = 'Select an item to view its description.';
+  }
+
+  function updatePanelForFile(file: FileItem | null): void {
+    if (file === null) {
+      resetPanel();
+      return;
+    }
+    panelFolderIcon.src = '/app/icons/notepad-file-32x32.png';
+    panelTitle.textContent = file.name.replace('.md', '');
+    panelInfo.innerHTML = `
+      <strong>${file.name.replace('.md', '')}</strong><br>
+      Folder: ${file.folder}<br>
+      Date: ${file.date}<br>
+      Type: Markdown Document<br><br>
+      Click to open.
+    `;
   }
 
   // Build menus
@@ -770,13 +802,54 @@ export function launchFileExplorer(): void {
   explorer.appendChild(toolbars);
 
   // ══════════════════════════════════════════════════════════════════
-  // CONTENT AREA
+  // CONTENT AREA (with left info panel — faithful 98.js folder template)
   // ══════════════════════════════════════════════════════════════════
+  const contentArea = document.createElement('div');
+  contentArea.className = 'content-with-panel inset-deep';
+
+  // ── Left panel (matches FOLDER.HTT structure) ──
+  panelEl = document.createElement('div');
+  panelEl.id = 'panel';
+
+  panelFolderIcon = document.createElement('img');
+  panelFolderIcon.className = 'panel-folder-icon';
+  panelFolderIcon.src = '/app/icons/my-documents-folder-32x32.png';
+  panelFolderIcon.width = 32;
+  panelFolderIcon.height = 32;
+  panelFolderIcon.alt = '';
+  panelEl.appendChild(panelFolderIcon);
+
+  panelTitle = document.createElement('p');
+  panelTitle.className = 'panel-title';
+  panelTitle.textContent = 'My Documents';
+  panelEl.appendChild(panelTitle);
+
+  const logoLine = document.createElement('p');
+  logoLine.className = 'panel-logoline';
+  const logoImg = document.createElement('img');
+  logoImg.src = '/images/wvline.gif';
+  logoImg.width = 100;
+  logoImg.height = 1;
+  logoImg.style.width = '100%';
+  logoLine.appendChild(logoImg);
+  panelEl.appendChild(logoLine);
+
+  const infoP = document.createElement('p');
+  infoP.className = 'panel-info';
+  panelInfo = document.createElement('span');
+  panelInfo.id = 'panel-info';
+  panelInfo.textContent = 'Select an item to view its description.';
+  infoP.appendChild(panelInfo);
+  panelEl.appendChild(infoP);
+
+  contentArea.appendChild(panelEl);
+
+  // ── Right content (file list area) ──
   contentEl = document.createElement('div');
   contentEl.id = 'content';
-  contentEl.className = 'inset-deep';
+  contentArea.appendChild(contentEl);
 
-  explorer.appendChild(contentEl);
+  explorer.appendChild(contentArea);
 
   // ══════════════════════════════════════════════════════════════════
   // STATUS BAR
@@ -839,10 +912,12 @@ export function launchFileExplorer(): void {
       iconDiv.addEventListener('mouseenter', () => {
         iconDiv.style.background = '#c0e0ff';
         iconDiv.style.borderColor = '#000080';
+        updatePanelForFile(file);
       });
       iconDiv.addEventListener('mouseleave', () => {
         iconDiv.style.background = '';
         iconDiv.style.borderColor = 'transparent';
+        resetPanel();
       });
       iconDiv.addEventListener('mousedown', () => {
         iconDiv.style.background = '#000080';
@@ -938,9 +1013,11 @@ export function launchFileExplorer(): void {
 
       row.addEventListener('mouseenter', () => {
         row.style.background = '#c0e0ff';
+        updatePanelForFile(file);
       });
       row.addEventListener('mouseleave', () => {
         row.style.background = '';
+        resetPanel();
       });
       row.addEventListener('mousedown', () => {
         row.style.background = '#000080';
@@ -1011,10 +1088,12 @@ export function launchFileExplorer(): void {
       item.addEventListener('mouseenter', () => {
         item.style.background = '#c0e0ff';
         item.style.borderColor = '#000080';
+        updatePanelForFile(file);
       });
       item.addEventListener('mouseleave', () => {
         item.style.background = '';
         item.style.borderColor = 'transparent';
+        resetPanel();
       });
       item.addEventListener('mousedown', () => {
         item.style.background = '#000080';
@@ -1113,9 +1192,11 @@ export function launchFileExplorer(): void {
 
       row.addEventListener('mouseenter', () => {
         row.style.background = '#c0e0ff';
+        updatePanelForFile(file);
       });
       row.addEventListener('mouseleave', () => {
         row.style.background = '';
+        resetPanel();
       });
       row.addEventListener('mousedown', () => {
         row.style.background = '#000080';
