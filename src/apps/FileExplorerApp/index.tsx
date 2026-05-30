@@ -148,7 +148,7 @@ function openFileViewer(name: string, folder: string, date: string): void {
   );
 }
 
-// ─── os-gui DOM helpers (mirrors Prueba pattern) ──────────────────────────────
+// ─── os-gui DOM helpers (mirrors Portfolio pattern) ───────────────────────────
 
 /**
  * Sprite indices for standard toolbar buttons, matching 98.js

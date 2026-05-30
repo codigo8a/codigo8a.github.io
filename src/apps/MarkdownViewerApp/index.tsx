@@ -68,7 +68,7 @@ function renderHtml(md: string): string {
 }
 
 // ══════════════════════════════════════════
-//  Sprite helpers (same pattern as Prueba / FileExplorerApp)
+//  Sprite helpers (same pattern as Portfolio / FileExplorerApp)
 // ══════════════════════════════════════════
 
 const SPRITE_VIEWS = 38;

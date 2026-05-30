@@ -5,7 +5,7 @@ import { MarkdownViewerApp, launchFileViewer } from './MarkdownViewerApp';
 import { SearchApp, launchSearch } from './SearchApp';
 import { SettingsApp, launchSettings } from './SettingsApp';
 import { IExplorerApp, launchIExplorer } from './IExplorerApp';
-import { PortfolioApp, launchPortfolio } from './Prueba';
+import { PortfolioApp, launchPortfolio } from './Portfolio';
 import { AppDefinition } from '../types';
 import { SoundRecorderApp, launchSoundRecorder } from './SoundRecorder';
 import { MSDOSApp, launchMSDOS } from './MSDOS';
