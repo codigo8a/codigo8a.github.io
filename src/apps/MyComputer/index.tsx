@@ -240,7 +240,7 @@ export function launchMyComputer(): void {
   // Each path entry: null = root (My Computer), string = folder name
   const navHistory: (string | null)[] = [null];
   let navIndex = 0;
-  let currentView: ViewMode = 'SMALL_ICONS';
+  let currentView: ViewMode = 'LARGE_ICONS';
 
   // DOM references
   let contentEl: HTMLElement;
