@@ -2,6 +2,7 @@ import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 /**
  * Placeholder React component — Settings uses os-gui natively via launchSettings().
@@ -116,6 +117,8 @@ export function launchSettings(): void {
     height: '480px',
   });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
   registerOsWindow($win, 'settings', t('settings'), '/images/icons/settings.svg');
 
   // ── Build Settings layout ──

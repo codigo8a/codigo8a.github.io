@@ -6,6 +6,7 @@ import { WindowConfig } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getOsWindows, focusOsWindow } from '../utils/osWindowRegistry';
 import type { OsWindowEntry } from '../utils/osWindowRegistry';
+import { getCascadeOffset } from '../utils/cascadePosition';
 
 export type WallpaperId = 'teal' | 'brick' | 'marble' | 'ocean' | 'grid' | 'purple';
 
@@ -272,9 +273,8 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     const newZIndex = zIndexCounter + 1;
     setZIndexCounter(newZIndex);
     
-    // Calculate offset based on number of windows instead of zIndex to prevent "drifting"
-    const windowCount = windows.length;
-    const offset = (windowCount % 10) * 20;
+    // Apply cascade offset so windows don't stack exactly on top of each other
+    const cascadeOffset = getCascadeOffset();
     
     const defaultWidth = windowConfig.initialSize?.width || 400;
     const defaultHeight = windowConfig.initialSize?.height || 300;
@@ -286,12 +286,12 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
     const finalWidth = Math.min(defaultWidth, maxWidth - 40);
     const finalHeight = Math.min(defaultHeight, maxHeight - 40);
     
-    let initialX = windowConfig.initialPosition?.x ?? (100 + offset);
-    let initialY = windowConfig.initialPosition?.y ?? (100 + offset);
+    let initialX = windowConfig.initialPosition?.x ?? (100 + cascadeOffset);
+    let initialY = windowConfig.initialPosition?.y ?? (100 + cascadeOffset);
 
     if (windowConfig.centered) {
-      initialX = (maxWidth - finalWidth) / 2;
-      initialY = (maxHeight - finalHeight) / 2;
+      initialX = (maxWidth - finalWidth) / 2 + cascadeOffset;
+      initialY = (maxHeight - finalHeight) / 2 + cascadeOffset;
     }
     
     // Constrain position to keep window visible

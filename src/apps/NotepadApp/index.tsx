@@ -2,6 +2,7 @@ import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 /**
  * Placeholder React component — Notepad uses os-gui natively via launchNotepad().
@@ -46,6 +47,8 @@ export function launchNotepad(): void {
     height: '350px',
   });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
   registerOsWindow($win, 'notepad', 'Untitled - Notepad', '/images/icons/notepad-32x32.png');
 
   // ── Build Notepad layout ──

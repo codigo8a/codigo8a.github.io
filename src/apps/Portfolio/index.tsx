@@ -6,6 +6,7 @@ import {
   extractContentWithoutDate,
   extractRawContent,
 } from '../../utils/fileUtils';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 // Eagerly load all markdown files (relative to src/apps/Portfolio/)
 const allFiles: Record<string, string> = import.meta.glob('../../data/files/**/*.md', {
@@ -252,6 +253,12 @@ export function launchPortfolio(appData?: { folder?: string }): void {
     height: '480px',
   });
   $win.center();
+  // Apply cascade offset so this window doesn't stack exactly on previous ones
+  const cascadeOffset = getCascadeOffset();
+  $win.css({
+    left: parseInt($win.css('left')) + cascadeOffset,
+    top: parseInt($win.css('top')) + cascadeOffset,
+  });
   registerOsWindow($win, 'portfolio', 'Portfolio', '/images/icons/paint-32x32.png');
 
   // ── Build Explorer layout ──

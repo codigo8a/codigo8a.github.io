@@ -2,6 +2,7 @@ import React from 'react';
 import { extractRawContent, extractDate, extractContentWithoutDate } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -277,6 +278,8 @@ export function launchWelcome(): void {
 
   $win.css({ width: '700px', height: '420px' });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
 
   // Register with taskbar
   registerOsWindow($win, 'welcome', 'Welcome', '/images/icons/welcome.svg');

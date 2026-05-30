@@ -1,5 +1,6 @@
 import React from 'react';
 import './index.css';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 export const SoundRecorderApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
@@ -20,6 +21,8 @@ export function launchSoundRecorder(): void {
   });
   $win.css({ width: '270px', height: '130px' });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
 
   const el = document.createElement('div');
   el.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:var(--ButtonFace);gap:12px;padding:20px';

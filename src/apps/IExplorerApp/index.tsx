@@ -2,6 +2,7 @@ import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 const PROXY_BASE = 'https://corsproxy.io/?url=';
 
@@ -321,6 +322,8 @@ export function launchIExplorer(): void {
   });
   $win.css({ width: '900px', height: '650px' });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
   registerOsWindow($win, 'iexplorer', 'Internet Explorer', '/images/icons/iexplorer-32x32.png');
 
   // ── Root container ──

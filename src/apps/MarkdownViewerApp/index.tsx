@@ -5,6 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 
 /**
  * Placeholder React component — MarkdownViewerApp uses os-gui natively via launchFileViewer().
@@ -187,6 +188,8 @@ export function launchFileViewer(appData?: any): void {
     height: '500px',
   });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
   registerOsWindow($win, 'markdownViewer', title, '/images/icons/file-viewer.svg');
 
   // ── Build the explorer-style layout ──

@@ -6,6 +6,7 @@ import {
 } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
+import { getCascadeOffset } from '../../utils/cascadePosition';
 import './index.css';
 
 /**
@@ -392,6 +393,8 @@ export function launchMyComputer(): void {
 
   $win.css({ width: '780px', height: '540px' });
   $win.center();
+  const cascadeOffset = getCascadeOffset();
+  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
   registerOsWindow($win, 'myComputer', 'My Computer', '/images/icons/my-computer-32x32.png');
 
   // ── Root explorer container ──
