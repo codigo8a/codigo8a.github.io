@@ -315,13 +315,13 @@ export function launchIExplorer(): void {
   // ── Create window ──
   const $win = $Window({
     title: 'Internet Explorer',
-    icons: { 16: '/app/icons/iexplorer-16x16.png', 32: '/app/icons/iexplorer-32x32.png' },
+    icons: { 16: '/images/icons/iexplorer-16x16.png', 32: '/images/icons/iexplorer-32x32.png' },
     minWidth: 600,
     minHeight: 400,
   });
   $win.css({ width: '900px', height: '650px' });
   $win.center();
-  registerOsWindow($win, 'iexplorer', 'Internet Explorer', '/app/icons/iexplorer-32x32.png');
+  registerOsWindow($win, 'iexplorer', 'Internet Explorer', '/images/icons/iexplorer-32x32.png');
 
   // ── Root container ──
   const explorer = document.createElement('div');
@@ -655,7 +655,7 @@ export function launchIExplorer(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/html-16x16.png';
+  addrIcon.src = '/images/icons/html-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 

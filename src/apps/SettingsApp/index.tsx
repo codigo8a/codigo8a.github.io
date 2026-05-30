@@ -1,6 +1,7 @@
 import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { showMessageBox } from '../../utils/messageBox';
 
 /**
  * Placeholder React component — Settings uses os-gui natively via launchSettings().
@@ -103,8 +104,8 @@ export function launchSettings(): void {
   const $win = $Window({
     title: t('settings'),
     icons: {
-      16: '/app/icons/settings.svg',
-      any: '/app/icons/settings.svg',
+      16: '/images/icons/settings.svg',
+      any: '/images/icons/settings.svg',
     },
     minWidth: 380,
     minHeight: 360,
@@ -115,47 +116,82 @@ export function launchSettings(): void {
     height: '480px',
   });
   $win.center();
-  registerOsWindow($win, 'settings', t('settings'), '/app/icons/settings.svg');
+  registerOsWindow($win, 'settings', t('settings'), '/images/icons/settings.svg');
 
   // ── Build Settings layout ──
   const container = document.createElement('div');
-  container.className = 'settings-container';
+  container.className = 'os-explorer settings-container';
 
-  // ═══════════════════════════════════════════
-  // Tabs
-  // ═══════════════════════════════════════════
-  const tablist = document.createElement('menu');
-  tablist.className = 'settings-tablist';
-  tablist.setAttribute('role', 'tablist');
+  // ══════ Toolbars (98-style, matching MyComputer / FileExplorerApp) ══════
+  const toolbars = document.createElement('div');
+  toolbars.className = 'toolbars';
 
-  const tabGeneral = document.createElement('li');
-  tabGeneral.setAttribute('role', 'tab');
-  tabGeneral.setAttribute('aria-selected', 'true');
-  const tabGeneralLink = document.createElement('a');
-  tabGeneralLink.href = '#';
-  tabGeneralLink.textContent = t('general');
-  tabGeneral.appendChild(tabGeneralLink);
+  // ── Menu bar toolbar ──
+  const menuToolbar = document.createElement('div');
+  menuToolbar.className = 'toolbar';
 
-  const tabDesktop = document.createElement('li');
-  tabDesktop.setAttribute('role', 'tab');
-  tabDesktop.setAttribute('aria-selected', 'false');
-  const tabDesktopLink = document.createElement('a');
-  tabDesktopLink.href = '#';
-  tabDesktopLink.textContent = t('desktop');
-  tabDesktop.appendChild(tabDesktopLink);
+  const dragHandle = document.createElement('div');
+  dragHandle.className = 'toolbar-drag-handle';
+  menuToolbar.appendChild(dragHandle);
 
-  const tabAdvanced = document.createElement('li');
-  tabAdvanced.setAttribute('role', 'tab');
-  tabAdvanced.setAttribute('aria-selected', 'false');
-  const tabAdvancedLink = document.createElement('a');
-  tabAdvancedLink.href = '#';
-  tabAdvancedLink.textContent = t('advanced');
-  tabAdvanced.appendChild(tabAdvancedLink);
+  const MenuBar = (window as any).MenuBar;
+  if (MenuBar) {
+    const menu = new MenuBar({
+      '&File': [
+        { label: '&Close', action: () => $win.close() },
+      ],
+      '&Help': [
+        {
+          label: '&About Settings',
+          action: () =>
+            showMessageBox({ title: 'About Settings', message: 'Settings\n\nDisplay and system preferences.\nBased on Windows 98 Display Properties.', icon: 'info' }),
+        },
+      ],
+    });
+    const menusDiv = document.createElement('div');
+    menusDiv.className = 'menus';
+    menusDiv.appendChild(menu.element);
+    menuToolbar.appendChild(menusDiv);
+  }
 
-  tablist.appendChild(tabGeneral);
-  tablist.appendChild(tabDesktop);
-  tablist.appendChild(tabAdvanced);
-  container.appendChild(tablist);
+  toolbars.appendChild(menuToolbar);
+
+  // ── Category buttons toolbar ──
+  const catToolbar = document.createElement('div');
+  catToolbar.className = 'toolbar';
+
+  const catDragHandle = document.createElement('div');
+  catDragHandle.className = 'toolbar-drag-handle';
+  catToolbar.appendChild(catDragHandle);
+
+  // Sprite indices (0-indexed from left): General=10, Desktop=14, Advanced=62 (rightmost)
+  function createCatBtn(id: string, label: string, spriteIndex: number): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.className = 'toolbar-button lightweight';
+    btn.dataset.tab = id;
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'icon';
+    iconDiv.style.backgroundPosition = `-${spriteIndex * 20}px 0px`;
+    btn.appendChild(iconDiv);
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'label-text';
+    labelSpan.textContent = label;
+    btn.appendChild(labelSpan);
+    return btn;
+  }
+
+  const btnGeneral = createCatBtn('general', t('general'), 10);
+  const btnDesktop = createCatBtn('desktop', t('desktop'), 14);
+  const btnAdvanced = createCatBtn('advanced', t('advanced'), 62);
+
+  catToolbar.appendChild(btnGeneral);
+  catToolbar.appendChild(btnDesktop);
+  catToolbar.appendChild(btnAdvanced);
+  // General tab is active by default
+  btnGeneral.classList.add('active');
+
+  toolbars.appendChild(catToolbar);
+  container.appendChild(toolbars);
 
   // ═══════════════════════════════════════════
   // Tab panels container (styled like window body)
@@ -388,34 +424,25 @@ export function launchSettings(): void {
   container.appendChild(panelContainer);
 
   // ═══════════════════════════════════════════
-  // Tab switching
+  // Tab switching (triggered by toolbar buttons)
   // ═══════════════════════════════════════════
   function switchTab(tab: 'general' | 'desktop' | 'advanced'): void {
     const isGeneral = tab === 'general';
     const isDesktop = tab === 'desktop';
     const isAdvanced = tab === 'advanced';
-    tabGeneral.setAttribute('aria-selected', String(isGeneral));
-    tabDesktop.setAttribute('aria-selected', String(isDesktop));
-    tabAdvanced.setAttribute('aria-selected', String(isAdvanced));
     generalPanel.style.display = isGeneral ? 'block' : 'none';
     desktopPanel.style.display = isDesktop ? 'block' : 'none';
     advancedPanel.style.display = isAdvanced ? 'block' : 'none';
+    // Sync toolbar button active state
+    btnGeneral.classList.toggle('active', isGeneral);
+    btnDesktop.classList.toggle('active', isDesktop);
+    btnAdvanced.classList.toggle('active', isAdvanced);
   }
 
-  tabGeneralLink.addEventListener('click', (e: MouseEvent) => {
-    e.preventDefault();
-    switchTab('general');
-  });
-
-  tabDesktopLink.addEventListener('click', (e: MouseEvent) => {
-    e.preventDefault();
-    switchTab('desktop');
-  });
-
-  tabAdvancedLink.addEventListener('click', (e: MouseEvent) => {
-    e.preventDefault();
-    switchTab('advanced');
-  });
+  // Toolbar button clicks
+  btnGeneral.addEventListener('click', () => switchTab('general'));
+  btnDesktop.addEventListener('click', () => switchTab('desktop'));
+  btnAdvanced.addEventListener('click', () => switchTab('advanced'));
 
   // ═══════════════════════════════════════════
   // Footer: Apply / Cancel

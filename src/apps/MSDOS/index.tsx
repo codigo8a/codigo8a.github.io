@@ -11,8 +11,8 @@ export function launchMSDOS(): void {
   const $win = $Window({
     title: 'MS-DOS Prompt',
     icons: {
-      16: '/app/icons/msdos-16x16.png',
-      32: '/app/icons/msdos-32x32.png',
+      16: '/images/icons/msdos-16x16.png',
+      32: '/images/icons/msdos-32x32.png',
     },
     minWidth: 400,
     minHeight: 250,

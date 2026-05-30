@@ -33,10 +33,10 @@ export interface MessageBoxOptions {
 // ─── Icon paths (authentic Windows 98 32×32 PNGs from 98.js.org) ─────────────
 
 const ICON_PATHS: Record<MessageBoxIcon, string> = {
-  error: '/app/icons/error-32x32.png',
-  warning: '/app/icons/warning-32x32.png',
-  info: '/app/icons/info-32x32.png',
-  question: '/app/icons/question-32x32.png',
+  error: '/images/icons/error-32x32.png',
+  warning: '/images/icons/warning-32x32.png',
+  info: '/images/icons/info-32x32.png',
+  question: '/images/icons/question-32x32.png',
 };
 
 // ─── Button definitions ───────────────────────────────────────────────────────

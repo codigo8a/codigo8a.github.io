@@ -15,7 +15,7 @@
   width: 30%;
   height: 100%;
   overflow: auto;
-  background: white url('/images/wvleft.bmp') no-repeat;
+  background: white url('/images/icons/wvleft.bmp') no-repeat;
   font: 8pt/10pt verdana;
   color: #000;
 }

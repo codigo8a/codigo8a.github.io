@@ -313,7 +313,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - **Dependencias**: 4 runtime + 9 dev
 - **Animaciones**: 5 tipos (loading, abrir, cerrar, minimizar, restaurar)
 - **Persistencia**: Posición y tamaño de ventanas guardados en localStorage
-- **Iconos de apps**: SVG oficiales en `public/app/icons/`
+- **Iconos de apps**: SVG oficiales en `public/images/icons/`
 
 ## Estado Actual
 

@@ -41,7 +41,7 @@ interface FolderItem {
  * Uses folder-32x32.png for sizes > 20, folder-16x16.png for smaller.
  */
 function getFolderIcon(size: number = 32): string {
-  const src = size > 20 ? '/app/icons/folder-32x32.png' : '/app/icons/folder-16x16.png';
+  const src = size > 20 ? '/images/icons/folder-32x32.png' : '/images/icons/folder-16x16.png';
   return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
 }
 
@@ -50,7 +50,7 @@ function getFolderIcon(size: number = 32): string {
  * Uses notepad-file-32x32.png for sizes > 20, notepad-file-16x16.png for smaller.
  */
 function getFileIcon(size: number = 32): string {
-  const src = size > 20 ? '/app/icons/notepad-file-32x32.png' : '/app/icons/notepad-file-16x16.png';
+  const src = size > 20 ? '/images/icons/notepad-file-32x32.png' : '/images/icons/notepad-file-16x16.png';
   return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
 }
 
@@ -383,8 +383,8 @@ export function launchMyComputer(): void {
   const $win = $Window({
     title: 'My Computer',
     icons: {
-      16: '/app/icons/my-computer-16x16.png',
-      32: '/app/icons/my-computer-32x32.png',
+      16: '/images/icons/my-computer-16x16.png',
+      32: '/images/icons/my-computer-32x32.png',
     },
     minWidth: 600,
     minHeight: 400,
@@ -392,7 +392,7 @@ export function launchMyComputer(): void {
 
   $win.css({ width: '780px', height: '540px' });
   $win.center();
-  registerOsWindow($win, 'myComputer', 'My Computer', '/app/icons/my-computer-32x32.png');
+  registerOsWindow($win, 'myComputer', 'My Computer', '/images/icons/my-computer-32x32.png');
 
   // ── Root explorer container ──
   const explorer = document.createElement('div');
@@ -559,7 +559,7 @@ export function launchMyComputer(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/my-computer-16x16.png';
+  addrIcon.src = '/images/icons/my-computer-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 
@@ -588,7 +588,7 @@ export function launchMyComputer(): void {
 
   panelFolderIcon = document.createElement('img');
   panelFolderIcon.className = 'panel-folder-icon';
-  panelFolderIcon.src = '/app/icons/folder-32x32.png';
+  panelFolderIcon.src = '/images/icons/folder-32x32.png';
   panelFolderIcon.width = 32;
   panelFolderIcon.height = 32;
   panelFolderIcon.alt = '';
@@ -602,7 +602,7 @@ export function launchMyComputer(): void {
   const logoLine = document.createElement('p');
   logoLine.className = 'panel-logoline';
   const logoImg = document.createElement('img');
-  logoImg.src = '/images/wvline.gif';
+  logoImg.src = '/images/icons/wvline.gif';
   logoImg.width = 100;
   logoImg.height = 1;
   logoImg.style.width = '100%';
@@ -707,12 +707,12 @@ export function launchMyComputer(): void {
   function updatePanelForFolder(folder: string | null): void {
     if (folder === null) {
       // Root view — My Computer icon + default description
-      panelFolderIcon.src = '/app/icons/my-computer-32x32.png';
+      panelFolderIcon.src = '/images/icons/my-computer-32x32.png';
       panelTitle.textContent = 'My Computer';
       panelInfo.textContent = 'Select an item to view its description.';
     } else {
       // Inside a folder — folder icon + folder info
-      panelFolderIcon.src = '/app/icons/folder-32x32.png';
+      panelFolderIcon.src = '/images/icons/folder-32x32.png';
       panelTitle.textContent = folder;
       const fileList = getFilesInFolder(folder);
       panelInfo.innerHTML = `
@@ -780,7 +780,7 @@ export function launchMyComputer(): void {
         iconDiv.style.background = '#c0e0ff';
         iconDiv.style.borderColor = '#000080';
         // Update panel
-        panelFolderIcon.src = '/app/icons/folder-32x32.png';
+        panelFolderIcon.src = '/images/icons/folder-32x32.png';
         panelTitle.textContent = f.name;
         panelInfo.innerHTML = `
           <strong>${f.name}</strong><br>
@@ -887,7 +887,7 @@ export function launchMyComputer(): void {
         item.style.background = '#c0e0ff';
         item.style.borderColor = '#000080';
         // Update panel
-        panelFolderIcon.src = '/app/icons/folder-32x32.png';
+        panelFolderIcon.src = '/images/icons/folder-32x32.png';
         panelTitle.textContent = f.name;
         panelInfo.innerHTML = `
           <strong>${f.name}</strong><br>
@@ -982,7 +982,7 @@ export function launchMyComputer(): void {
 
       row.addEventListener('mouseenter', () => {
         row.style.background = '#c0e0ff';
-        panelFolderIcon.src = '/app/icons/folder-32x32.png';
+        panelFolderIcon.src = '/images/icons/folder-32x32.png';
         panelTitle.textContent = f.name;
         const filesCount = getFilesInFolder(f.name).length;
         panelInfo.innerHTML = `

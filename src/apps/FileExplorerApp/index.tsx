@@ -92,10 +92,10 @@ function getStats(): { folderCount: number; fileCount: number } {
  */
 function getFileIcon(isFolder: boolean, size: number = 32): string {
   if (isFolder) {
-    const src = size > 20 ? '/app/icons/folder-32x32.png' : '/app/icons/folder-16x16.png';
+    const src = size > 20 ? '/images/icons/folder-32x32.png' : '/images/icons/folder-16x16.png';
     return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
   }
-  const src = size > 20 ? '/app/icons/notepad-file-32x32.png' : '/app/icons/notepad-file-16x16.png';
+  const src = size > 20 ? '/images/icons/notepad-file-32x32.png' : '/images/icons/notepad-file-16x16.png';
   return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
 }
 
@@ -437,8 +437,8 @@ export function launchFileExplorer(): void {
   const $win = $Window({
     title: 'My Documents',
     icons: {
-      16: '/app/icons/my-documents-16x16.png',
-      32: '/app/icons/my-documents-folder-32x32.png',
+      16: '/images/icons/my-documents-16x16.png',
+      32: '/images/icons/my-documents-folder-32x32.png',
     },
     minWidth: 600,
     minHeight: 400,
@@ -449,7 +449,7 @@ export function launchFileExplorer(): void {
     height: '540px',
   });
   $win.center();
-  registerOsWindow($win, 'fileExplorer', 'My Documents', '/app/icons/my-documents-folder-32x32.png');
+  registerOsWindow($win, 'fileExplorer', 'My Documents', '/images/icons/my-documents-folder-32x32.png');
 
   // ── Root explorer container ──
   const explorer = document.createElement('div');
@@ -530,7 +530,7 @@ export function launchFileExplorer(): void {
   // ══════════════════════════════════════════════════════════════════
 
   function resetPanel(): void {
-    panelFolderIcon.src = '/app/icons/my-documents-folder-32x32.png';
+    panelFolderIcon.src = '/images/icons/my-documents-folder-32x32.png';
     panelTitle.textContent = 'My Documents';
     panelInfo.textContent = 'Select an item to view its description.';
   }
@@ -540,7 +540,7 @@ export function launchFileExplorer(): void {
       resetPanel();
       return;
     }
-    panelFolderIcon.src = '/app/icons/notepad-file-32x32.png';
+    panelFolderIcon.src = '/images/icons/notepad-file-32x32.png';
     panelTitle.textContent = file.name.replace('.md', '');
     panelInfo.innerHTML = `
       <strong>${file.name.replace('.md', '')}</strong><br>
@@ -777,7 +777,7 @@ export function launchFileExplorer(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/my-documents-16x16.png';
+  addrIcon.src = '/images/icons/my-documents-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 
@@ -813,7 +813,7 @@ export function launchFileExplorer(): void {
 
   panelFolderIcon = document.createElement('img');
   panelFolderIcon.className = 'panel-folder-icon';
-  panelFolderIcon.src = '/app/icons/my-documents-folder-32x32.png';
+  panelFolderIcon.src = '/images/icons/my-documents-folder-32x32.png';
   panelFolderIcon.width = 32;
   panelFolderIcon.height = 32;
   panelFolderIcon.alt = '';
@@ -827,7 +827,7 @@ export function launchFileExplorer(): void {
   const logoLine = document.createElement('p');
   logoLine.className = 'panel-logoline';
   const logoImg = document.createElement('img');
-  logoImg.src = '/images/wvline.gif';
+  logoImg.src = '/images/icons/wvline.gif';
   logoImg.width = 100;
   logoImg.height = 1;
   logoImg.style.width = '100%';

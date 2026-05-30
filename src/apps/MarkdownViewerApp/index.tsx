@@ -169,8 +169,8 @@ export function launchFileViewer(appData?: any): void {
   const $win = $Window({
     title: title,
     icons: {
-      16: '/app/icons/file-viewer.svg',
-      any: '/app/icons/file-viewer.svg',
+      16: '/images/icons/file-viewer.svg',
+      any: '/images/icons/file-viewer.svg',
     },
     minWidth: 350,
     minHeight: 200,
@@ -181,7 +181,7 @@ export function launchFileViewer(appData?: any): void {
     height: '500px',
   });
   $win.center();
-  registerOsWindow($win, 'markdownViewer', title, '/app/icons/file-viewer.svg');
+  registerOsWindow($win, 'markdownViewer', title, '/images/icons/file-viewer.svg');
 
   // ── Build the explorer-style layout ──
   const explorer = document.createElement('div');
@@ -281,7 +281,7 @@ export function launchFileViewer(appData?: any): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/file-viewer.svg';
+  addrIcon.src = '/images/icons/file-viewer.svg';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 

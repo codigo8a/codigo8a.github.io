@@ -34,7 +34,7 @@ export const TaskBar: React.FC<TaskBarProps> = ({
         className={`start-button toggle${isStartOpen ? ' selected' : ''}`}
         onClick={onStartClick}
       >
-        <img src="/images/start.png" alt="" />
+        <img src="/images/icons/start.png" alt="" />
         <b>Start</b>
       </button>
 

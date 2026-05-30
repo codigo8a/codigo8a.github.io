@@ -11,8 +11,8 @@ export function launchRecycleBin(): void {
   const $win = $Window({
     title: 'Recycle Bin',
     icons: {
-      16: '/app/icons/recycle-bin-16x16.png',
-      32: '/app/icons/recycle-bin-32x32.png',
+      16: '/images/icons/recycle-bin-16x16.png',
+      32: '/images/icons/recycle-bin-32x32.png',
     },
     minWidth: 400,
     minHeight: 250,

@@ -268,8 +268,8 @@ export function launchWelcome(): void {
   const $win = $Window({
     title: 'Welcome',
     icons: {
-      16: '/app/icons/welcome.svg',
-      any: '/app/icons/welcome.svg',
+      16: '/images/icons/welcome.svg',
+      any: '/images/icons/welcome.svg',
     },
     minWidth: 500,
     minHeight: 350,
@@ -279,7 +279,7 @@ export function launchWelcome(): void {
   $win.center();
 
   // Register with taskbar
-  registerOsWindow($win, 'welcome', 'Welcome', '/app/icons/welcome.svg');
+  registerOsWindow($win, 'welcome', 'Welcome', '/images/icons/welcome.svg');
 
   // Track instance for singleton reuse; clear reference when window closes
   welcomeWindowInstance = $win;

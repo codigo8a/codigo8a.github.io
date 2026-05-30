@@ -157,9 +157,9 @@ const SAMPLE_ITEMS = [
 function getFileIcon(type: string): string {
   switch (type) {
     case 'folder':
-      return `<img src="/app/icons/folder-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
+      return `<img src="/images/icons/folder-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
     case 'text':
-      return `<img src="/app/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
+      return `<img src="/images/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
     case 'image':
       return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
         <rect x="3" y="4" width="26" height="24" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
@@ -202,7 +202,7 @@ function getFileIcon(type: string): string {
         <text x="10" y="10" font-size="4" fill="#000" font-weight="bold">ZIP</text>
       </svg>`;
     default:
-      return `<img src="/app/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
+      return `<img src="/images/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
   }
 }
 
@@ -226,8 +226,8 @@ export function launchPrueba(): void {
   const $win = $Window({
     title: 'My Documents',
     icons: {
-      16: '/app/icons/folder-16x16.png',
-      any: '/app/icons/folder-32x32.png',
+      16: '/images/icons/folder-16x16.png',
+      any: '/images/icons/folder-32x32.png',
     },
     minWidth: 500,
     minHeight: 400,
@@ -238,7 +238,7 @@ export function launchPrueba(): void {
     height: '480px',
   });
   $win.center();
-  registerOsWindow($win, 'prueba', 'My Documents', '/app/icons/folder-32x32.png');
+  registerOsWindow($win, 'prueba', 'My Documents', '/images/icons/folder-32x32.png');
 
   // ── Build Explorer layout ──
   const explorer = document.createElement('div');
@@ -429,7 +429,7 @@ export function launchPrueba(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/folder-16x16.png';
+  addrIcon.src = '/images/icons/folder-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 

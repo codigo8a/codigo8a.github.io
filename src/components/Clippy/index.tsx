@@ -31,7 +31,7 @@ const TIPS = {
     "Si cierras Clippy, puedes reabrirlo desde Configuración o el icono en la barra.",
     "Las apps se pueden minimizar, maximizar, redimensionar y cerrar como en Windows 98.",
     "🎵 ¡Winamp está disponible! Haz clic en el icono del escritorio para abrir el reproductor de música clásico.",
-    "El icono oficial de Winamp está en la carpeta public/app/icons/ como SVG.",
+    "El icono oficial de Winamp está en la carpeta public/images/icons/ como SVG.",
     "Winamp usa Webamp para simular el clásico reproductor de Nullsoft.",
   ],
   en: [
@@ -56,7 +56,7 @@ const TIPS = {
     "If you close Clippy, you can reopen it from Settings or the taskbar icon.",
     "Apps can be minimized, maximized, resized, and closed just like Windows 98.",
     "🎵 Winamp is available! Click the desktop icon to open the classic music player.",
-    "The official Winamp icon is stored in public/app/icons/ as an SVG.",
+    "The official Winamp icon is stored in public/images/icons/ as an SVG.",
     "Winamp uses Webamp to simulate the classic Nullsoft media player.",
   ]
 };

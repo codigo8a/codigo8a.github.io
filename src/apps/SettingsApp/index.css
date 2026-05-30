@@ -162,4 +162,29 @@
   border: 2px inset #ff4444;
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   Toolbar active state (global .os-explorer styles handle the rest)
+   ══════════════════════════════════════════════════════════════════ */
+.os-explorer .toolbar-button.active .icon {
+  background-image: url('/images/icons/browse-ui-icons.png');
+}
+
+.settings-toolbar-btn .toolbar-label {
+  margin-top: 24px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.settings-toolbar-btn:hover {
+  background: #e0e0e0;
+  border-color: #fff #808080 #808080 #fff;
+}
+
+.settings-toolbar-btn:active,
+.settings-toolbar-btn.active {
+  background: #c0c0c0;
+  border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px 1px rgba(0,0,0,0.15);
+}
+
 

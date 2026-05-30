@@ -153,8 +153,8 @@ export function launchSearch(): void {
   const $win = $Window({
     title: 'Search: Files',
     icons: {
-      16: '/app/icons/search.svg',
-      any: '/app/icons/search.svg',
+      16: '/images/icons/search.svg',
+      any: '/images/icons/search.svg',
     },
     minWidth: 520,
     minHeight: 380,
@@ -162,7 +162,7 @@ export function launchSearch(): void {
 
   $win.css({ width: '640px', height: '460px' });
   $win.center();
-  registerOsWindow($win, 'search', 'Search: Files', '/app/icons/search.svg');
+  registerOsWindow($win, 'search', 'Search: Files', '/images/icons/search.svg');
 
   // ── Root explorer container ──
   const explorer = document.createElement('div');
@@ -258,7 +258,7 @@ export function launchSearch(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/search.svg';
+  addrIcon.src = '/images/icons/search.svg';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 

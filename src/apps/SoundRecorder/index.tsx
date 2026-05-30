@@ -11,8 +11,8 @@ export function launchSoundRecorder(): void {
   const $win = $Window({
     title: 'Sound Recorder',
     icons: {
-      16: '/app/icons/speaker-16x16.png',
-      32: '/app/icons/speaker-32x32.png',
+      16: '/images/icons/speaker-16x16.png',
+      32: '/images/icons/speaker-32x32.png',
     },
     minWidth: 270,
     minHeight: 130,

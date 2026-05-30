@@ -17,7 +17,7 @@ export const APPS: Record<string, AppDefinition> = {
   welcome: {
     id: 'welcome',
     title: 'Welcome',
-    icon: '/app/icons/welcome.svg',
+    icon: '/images/icons/welcome.svg',
     component: WelcomeApp,
     defaultSize: { width: 700, height: 420 },
     centered: true,
@@ -26,7 +26,7 @@ export const APPS: Record<string, AppDefinition> = {
   notepad: {
     id: 'notepad',
     title: 'Notepad',
-    icon: '/app/icons/notepad-32x32.png',
+    icon: '/images/icons/notepad-32x32.png',
     component: NotepadApp,
     defaultSize: { width: 450, height: 350 },
     centered: true,
@@ -35,7 +35,7 @@ export const APPS: Record<string, AppDefinition> = {
   fileExplorer: {
     id: 'fileExplorer',
     title: 'My Documents',
-    icon: '/app/icons/my-documents-folder-32x32.png',
+    icon: '/images/icons/my-documents-folder-32x32.png',
     component: FileExplorerApp,
     defaultSize: { width: 780, height: 540 },
     centered: true,
@@ -44,7 +44,7 @@ export const APPS: Record<string, AppDefinition> = {
   markdownViewer: {
     id: 'markdownViewer',
     title: 'Markdown Viewer',
-    icon: '/app/icons/file-viewer.svg',
+    icon: '/images/icons/file-viewer.svg',
     component: MarkdownViewerApp,
     defaultSize: { width: 1000, height: 800 },
     centered: true,
@@ -54,7 +54,7 @@ export const APPS: Record<string, AppDefinition> = {
   search: {
     id: 'search',
     title: 'Search: Files',
-    icon: '/app/icons/search.svg',
+    icon: '/images/icons/search.svg',
     component: SearchApp,
     defaultSize: { width: 640, height: 460 },
     centered: true,
@@ -63,7 +63,7 @@ export const APPS: Record<string, AppDefinition> = {
   settings: {
     id: 'settings',
     title: 'Settings',
-    icon: '/app/icons/settings.svg',
+    icon: '/images/icons/settings.svg',
     component: SettingsApp,
     defaultSize: { width: 450, height: 480 },
     centered: true,
@@ -72,7 +72,7 @@ export const APPS: Record<string, AppDefinition> = {
   iexplorer: {
     id: 'iexplorer',
     title: 'Internet Explorer',
-    icon: '/app/icons/iexplorer-32x32.png',
+    icon: '/images/icons/iexplorer-32x32.png',
     component: IExplorerApp,
     defaultSize: { width: 900, height: 650 },
     centered: true,
@@ -81,7 +81,7 @@ export const APPS: Record<string, AppDefinition> = {
   myComputer: {
     id: 'myComputer',
     title: 'My Computer',
-    icon: '/app/icons/my-computer-32x32.png',
+    icon: '/images/icons/my-computer-32x32.png',
     component: MyComputerApp,
     defaultSize: { width: 780, height: 540 },
     centered: true,
@@ -90,7 +90,7 @@ export const APPS: Record<string, AppDefinition> = {
   network: {
     id: 'network',
     title: 'Network Neighborhood',
-    icon: '/app/icons/network-32x32.png',
+    icon: '/images/icons/network-32x32.png',
     component: NetworkApp,
     defaultSize: { width: 500, height: 350 },
     centered: true,
@@ -99,7 +99,7 @@ export const APPS: Record<string, AppDefinition> = {
   recycleBin: {
     id: 'recycleBin',
     title: 'Recycle Bin',
-    icon: '/app/icons/recycle-bin-32x32.png',
+    icon: '/images/icons/recycle-bin-32x32.png',
     component: RecycleBinApp,
     defaultSize: { width: 500, height: 350 },
     centered: true,
@@ -108,7 +108,7 @@ export const APPS: Record<string, AppDefinition> = {
   soundRecorder: {
     id: 'soundRecorder',
     title: 'Sound Recorder',
-    icon: '/app/icons/speaker-32x32.png',
+    icon: '/images/icons/speaker-32x32.png',
     component: SoundRecorderApp,
     defaultSize: { width: 270, height: 130 },
     centered: true,
@@ -117,7 +117,7 @@ export const APPS: Record<string, AppDefinition> = {
   msdos: {
     id: 'msdos',
     title: 'MS-DOS Prompt',
-    icon: '/app/icons/msdos-32x32.png',
+    icon: '/images/icons/msdos-32x32.png',
     component: MSDOSApp,
     defaultSize: { width: 640, height: 400 },
     centered: true,
@@ -126,7 +126,7 @@ export const APPS: Record<string, AppDefinition> = {
   prueba: {
     id: 'prueba',
     title: 'Prueba',
-    icon: '/app/icons/prueba.svg',
+    icon: '/images/icons/prueba.svg',
     component: PruebaApp,
     defaultSize: { width: 600, height: 450 },
     centered: true,

@@ -377,13 +377,13 @@ input[type="radio"]:disabled + label::before {
   height: 20px;
   position: absolute;
   top: 2px;
-  background-image: url('/images/browse-ui-icons-grayscale.png');
+  background-image: url('/images/icons/browse-ui-icons-grayscale.png');
   background-repeat: no-repeat;
   image-rendering: pixelated;
 }
 .os-explorer .toolbar-button:enabled:hover .icon,
 .os-explorer .toolbar-compound-button-wrapper:hover .toolbar-button:enabled .icon {
-  background-image: url('/images/browse-ui-icons.png');
+  background-image: url('/images/icons/browse-ui-icons.png');
 }
 .os-explorer .toolbar-button:disabled .icon,
 .os-explorer #address-dropdown-button:disabled svg,

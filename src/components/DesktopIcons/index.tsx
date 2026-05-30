@@ -27,7 +27,7 @@ const TOP = 13;
 const APP_ICONS: Record<string, React.ReactNode> = {
   winamp: (
     <img 
-      src="/app/icons/winamp2-32x32.png" 
+      src="/images/icons/winamp2-32x32.png" 
       alt="Winamp" 
       width={32} 
       height={32} 
@@ -35,7 +35,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   iexplorer: (
     <img 
-      src="/app/icons/iexplorer-32x32.png" 
+      src="/images/icons/iexplorer-32x32.png" 
       alt="Internet Explorer" 
       width={32} 
       height={32} 
@@ -43,7 +43,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   myDocuments: (
     <img 
-      src="/app/icons/my-documents-folder-32x32.png" 
+      src="/images/icons/my-documents-folder-32x32.png" 
       alt="My Documents" 
       width={32} 
       height={32} 
@@ -51,7 +51,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   myComputer: (
     <img 
-      src="/app/icons/my-computer-32x32.png" 
+      src="/images/icons/my-computer-32x32.png" 
       alt="My Computer" 
       width={32} 
       height={32} 
@@ -59,7 +59,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   network: (
     <img 
-      src="/app/icons/network-32x32.png" 
+      src="/images/icons/network-32x32.png" 
       alt="Network Neighborhood" 
       width={32} 
       height={32} 
@@ -67,7 +67,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   recycleBin: (
     <img 
-      src="/app/icons/recycle-bin-32x32.png" 
+      src="/images/icons/recycle-bin-32x32.png" 
       alt="Recycle Bin" 
       width={32} 
       height={32} 
@@ -75,7 +75,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   notepad: (
     <img 
-      src="/app/icons/notepad-32x32.png" 
+      src="/images/icons/notepad-32x32.png" 
       alt="Notepad" 
       width={32} 
       height={32} 
@@ -83,7 +83,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   soundRecorder: (
     <img 
-      src="/app/icons/speaker-32x32.png" 
+      src="/images/icons/speaker-32x32.png" 
       alt="Sound Recorder" 
       width={32} 
       height={32} 
@@ -91,7 +91,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   msdos: (
     <img 
-      src="/app/icons/msdos-32x32.png" 
+      src="/images/icons/msdos-32x32.png" 
       alt="MS-DOS Prompt" 
       width={32} 
       height={32} 
@@ -99,7 +99,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
   ),
   search: (
     <img 
-      src="/app/icons/search.svg" 
+      src="/images/icons/search.svg" 
       alt="Search" 
       width={32} 
       height={32} 
