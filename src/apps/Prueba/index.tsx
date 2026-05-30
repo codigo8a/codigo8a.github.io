@@ -157,20 +157,9 @@ const SAMPLE_ITEMS = [
 function getFileIcon(type: string): string {
   switch (type) {
     case 'folder':
-      return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="6" width="28" height="24" rx="1" fill="#FFD700" stroke="#8B6914" stroke-width="1"/>
-        <polygon points="2,14 2,6 12,6 15,10 30,10 30,14" fill="#FFD700" stroke="#8B6914" stroke-width="1"/>
-        <rect x="4" y="16" width="8" height="2" rx="1" fill="#B8860B"/>
-      </svg>`;
+      return `<img src="/app/icons/folder-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
     case 'text':
-      return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-        <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
-        <rect x="4" y="2" width="24" height="6" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
-        <line x1="8" y1="12" x2="24" y2="12" stroke="#000" stroke-width="1"/>
-        <line x1="8" y1="16" x2="22" y2="16" stroke="#000" stroke-width="1"/>
-        <line x1="8" y1="20" x2="20" y2="20" stroke="#000" stroke-width="1"/>
-        <rect x="6" y="3" width="4" height="4" rx="0.5" fill="#008080"/>
-      </svg>`;
+      return `<img src="/app/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
     case 'image':
       return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
         <rect x="3" y="4" width="26" height="24" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
@@ -209,14 +198,11 @@ function getFileIcon(type: string): string {
         <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
         <rect x="4" y="2" width="24" height="6" rx="2" fill="#C0C0C0" stroke="#808080" stroke-width="1"/>
         <line x1="8" y1="12" x2="24" y2="12" stroke="#000" stroke-width="1"/>
-        <line x1="8" y1="16" x2="22" y2="16" stroke="#000" stroke-width="1"/>
-        <line x1="8" y1="20" x2="20" y2="20" stroke="#000" stroke-width="1"/>
-        <rect x="12" y="8" width="4" height="2" fill="#C0C0C0"/>
+        <line x1="8" y1="16" x2="20" y2="16" stroke="#000" stroke-width="1"/>
+        <text x="10" y="10" font-size="4" fill="#000" font-weight="bold">ZIP</text>
       </svg>`;
     default:
-      return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="4" width="20" height="24" rx="1" fill="#fff" stroke="#808080" stroke-width="1"/>
-      </svg>`;
+      return `<img src="/app/icons/notepad-file-32x32.png" width="32" height="32" alt="" style="pointer-events:none;image-rendering:pixelated">`;
   }
 }
 
@@ -240,8 +226,8 @@ export function launchPrueba(): void {
   const $win = $Window({
     title: 'My Documents',
     icons: {
-      16: '/app/icons/folder.svg',
-      any: '/app/icons/folder.svg',
+      16: '/app/icons/folder-16x16.png',
+      any: '/app/icons/folder-32x32.png',
     },
     minWidth: 500,
     minHeight: 400,
@@ -252,7 +238,7 @@ export function launchPrueba(): void {
     height: '480px',
   });
   $win.center();
-  registerOsWindow($win, 'prueba', 'My Documents', '/app/icons/folder.svg');
+  registerOsWindow($win, 'prueba', 'My Documents', '/app/icons/folder-32x32.png');
 
   // ── Build Explorer layout ──
   const explorer = document.createElement('div');
@@ -443,7 +429,7 @@ export function launchPrueba(): void {
   addrIcon.id = 'address-icon';
   addrIcon.width = 16;
   addrIcon.height = 16;
-  addrIcon.src = '/app/icons/folder.svg';
+  addrIcon.src = '/app/icons/folder-16x16.png';
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 

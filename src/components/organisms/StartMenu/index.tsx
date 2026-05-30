@@ -91,7 +91,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
             onClick={() => setOpenSubmenu(openSubmenu === "programs" ? null : "programs")}
           >
             <span className="icon">
-              <img src="/app/icons/folder.svg" alt="Programs" />
+              <img src="/app/icons/folder-16x16.png" alt="Programs" />
             </span>
             {t("programs" as any)}
             <span className="submenu-arrow">▶</span>

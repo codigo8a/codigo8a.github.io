@@ -87,23 +87,16 @@ function getStats(): { folderCount: number; fileCount: number } {
 // ─── Icon helpers ─────────────────────────────────────────────────────────────
 
 /**
- * Returns an inline SVG string for a folder or file icon (32×32).
+ * Returns an <img> HTML string for a folder or file icon using authentic Win98 PNGs.
+ * For size > 20 uses 32x32 PNGs, otherwise 16x16.
  */
-function getFileIcon(isFolder: boolean): string {
+function getFileIcon(isFolder: boolean, size: number = 32): string {
   if (isFolder) {
-    return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="6" width="28" height="24" rx="1" fill="#FFD700" stroke="#8B6914" stroke-width="1"/>
-      <polygon points="2,14 2,6 12,6 15,10 30,10 30,14" fill="#FFD700" stroke="#8B6914" stroke-width="1"/>
-      <rect x="4" y="16" width="8" height="2" rx="1" fill="#B8860B"/>
-    </svg>`;
+    const src = size > 20 ? '/app/icons/folder-32x32.png' : '/app/icons/folder-16x16.png';
+    return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
   }
-  return `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" stroke="#808080" stroke-width="1"/>
-    <rect x="4" y="2" width="24" height="6" rx="2" fill="#C0C0C0" stroke="#808080" stroke-width="1"/>
-    <line x1="8" y1="12" x2="24" y2="12" stroke="#000" stroke-width="1"/>
-    <line x1="8" y1="16" x2="22" y2="16" stroke="#000" stroke-width="1"/>
-    <line x1="8" y1="20" x2="20" y2="20" stroke="#000" stroke-width="1"/>
-  </svg>`;
+  const src = size > 20 ? '/app/icons/notepad-file-32x32.png' : '/app/icons/notepad-file-16x16.png';
+  return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
 }
 
 /**
@@ -312,7 +305,7 @@ export function launchFileExplorer(): void {
   ensureDisabledFilter();
 
   // ── Mutable state ──
-  let currentView: ViewMode = 'LARGE_ICONS';
+  let currentView: ViewMode = 'SMALL_ICONS';
   let currentSort: SortMode = 'date';
   let statusBarVisible = true;
   let stdToolbarVisible = true;
@@ -870,7 +863,7 @@ export function launchFileExplorer(): void {
         margin-bottom: 2px;
         pointer-events: none;
       `;
-      svgContainer.innerHTML = getFileIcon(false);
+      svgContainer.innerHTML = getFileIcon(false, 32);
       iconDiv.appendChild(svgContainer);
 
       // Label
@@ -1045,10 +1038,7 @@ export function launchFileExplorer(): void {
         flex-shrink: 0;
         pointer-events: none;
       `;
-      icon.innerHTML = getFileIcon(false).replace(
-        'width="32" height="32"',
-        'width="16" height="16"',
-      );
+      icon.innerHTML = getFileIcon(false, 16);
 
       // Label
       const label = document.createElement('span');
@@ -1153,10 +1143,7 @@ export function launchFileExplorer(): void {
         flex-shrink: 0;
         pointer-events: none;
       `;
-      nameIcon.innerHTML = getFileIcon(false).replace(
-        'width="32" height="32"',
-        'width="16" height="16"',
-      );
+      nameIcon.innerHTML = getFileIcon(false, 16);
       nameCell.appendChild(nameIcon);
       const nameText = document.createElement('span');
       nameText.textContent = file.name.replace('.md', '');
