@@ -30,6 +30,42 @@ interface SearchResult extends FileData {
   matchType: 'title' | 'content';
 }
 
+// ─── Sprite indices for toolbar buttons ──────────────────────────────────────
+
+const SPRITE_BACK = 0;
+const SPRITE_FORWARD = 1;
+
+const DROPDOWN_ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="fill:currentColor;display:inline-block;vertical-align:middle"><path style="transform:rotate(90deg);transform-origin:center" d="m5 6 4 4-4 4z"></path></svg>`;
+
+function createSpriteIcon(spriteIndex: number): HTMLDivElement {
+  const div = document.createElement('div');
+  div.className = 'icon';
+  div.style.backgroundPosition = `-${spriteIndex * 20}px 0px`;
+  return div;
+}
+
+function createToolbarButton(
+  label: string,
+  spriteIndex: number,
+  disabled: boolean = false,
+): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.className = 'toolbar-button lightweight';
+  if (disabled) btn.disabled = true;
+  btn.appendChild(createSpriteIcon(spriteIndex));
+  const labelSpan = document.createElement('span');
+  labelSpan.className = 'label-text';
+  labelSpan.textContent = label;
+  btn.appendChild(labelSpan);
+  return btn;
+}
+
+function createSeparator(): HTMLHRElement {
+  const hr = document.createElement('hr');
+  hr.setAttribute('aria-orientation', 'vertical');
+  return hr;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
@@ -101,7 +137,8 @@ function openFileInViewer(file: FileData): void {
 // ─── os-gui launch function ───────────────────────────────────────────────────
 
 /**
- * Launches the Search app as a native os-gui window with MenuBar.
+ * Launches the Search app as a native os-gui window with toolbar,
+ * address-bar search, and status bar, matching the os-explorer pattern.
  */
 export function launchSearch(): void {
   const $Window = (window as any).$Window;
@@ -127,18 +164,27 @@ export function launchSearch(): void {
   $win.center();
   registerOsWindow($win, 'search', 'Search: Files', '/app/icons/search.svg');
 
-  // ── Root container ──
-  const container = document.createElement('div');
-  container.style.cssText = `
+  // ── Root explorer container ──
+  const explorer = document.createElement('div');
+  explorer.className = 'os-explorer';
+  explorer.style.cssText = `
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #c0c0c0;
     font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
     font-size: 11px;
   `;
 
-  // ══════ MenuBar ══════
+  // ══════════════════════════════════════════════════════════════════
+  // TOOLBARS
+  // ══════════════════════════════════════════════════════════════════
+  const toolbars = document.createElement('div');
+  toolbars.className = 'toolbars';
+
+  // ── Menu bar toolbar (no drag handle) ──
+  const menuToolbar = document.createElement('div');
+  menuToolbar.className = 'toolbar';
+
   const menuBar = new MenuBar({
     '&File': [
       { label: 'E&xit', action: () => $win.close() },
@@ -162,48 +208,81 @@ export function launchSearch(): void {
       },
     ],
   });
-  container.appendChild(menuBar.element);
 
-  // ══════ Search input area ══════
-  const inputArea = document.createElement('div');
-  inputArea.style.cssText = `
-    padding: 8px 8px 4px 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  `;
+  menuToolbar.appendChild(menuBar.element);
+  toolbars.appendChild(menuToolbar);
 
-  const label = document.createElement('label');
-  label.textContent = 'Search:';
-  label.style.whiteSpace = 'nowrap';
-  inputArea.appendChild(label);
+  // ── Standard Buttons toolbar (with drag handle) ──
+  const stdToolbar = document.createElement('div');
+  stdToolbar.className = 'toolbar';
+  stdToolbar.id = 'standard-buttons-toolbar';
+
+  const stdDragHandle = document.createElement('div');
+  stdDragHandle.className = 'toolbar-drag-handle';
+  stdToolbar.appendChild(stdDragHandle);
+
+  const stdButtons = document.createElement('div');
+  stdButtons.id = 'standard-buttons';
+
+  // Back (disabled)
+  stdButtons.appendChild(createToolbarButton('Back', SPRITE_BACK, true));
+
+  // Forward (disabled)
+  stdButtons.appendChild(createToolbarButton('Forward', SPRITE_FORWARD, true));
+
+  stdToolbar.appendChild(stdButtons);
+  toolbars.appendChild(stdToolbar);
+
+  // ── Address bar toolbar (with drag handle) ──
+  const addrToolbar = document.createElement('div');
+  addrToolbar.className = 'toolbar';
+  addrToolbar.id = 'address-bar-toolbar';
+
+  const addrDragHandle = document.createElement('div');
+  addrDragHandle.className = 'toolbar-drag-handle';
+  addrToolbar.appendChild(addrDragHandle);
+
+  const addrBar = document.createElement('div');
+  addrBar.id = 'address-bar';
+
+  const addrLabel = document.createElement('label');
+  addrLabel.setAttribute('for', 'address');
+  addrLabel.textContent = 'Search';
+  addrBar.appendChild(addrLabel);
+
+  const compoundInput = document.createElement('div');
+  compoundInput.id = 'address-compound-input';
+  compoundInput.className = 'inset-deep';
+
+  const addrIcon = document.createElement('img');
+  addrIcon.id = 'address-icon';
+  addrIcon.width = 16;
+  addrIcon.height = 16;
+  addrIcon.src = '/app/icons/search.svg';
+  addrIcon.alt = '';
+  compoundInput.appendChild(addrIcon);
 
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
-  searchInput.style.flex = '1';
+  searchInput.id = 'address';
+  searchInput.value = '';
   searchInput.placeholder = 'Type a word...';
-  inputArea.appendChild(searchInput);
+  searchInput.autocomplete = 'off';
+  compoundInput.appendChild(searchInput);
 
-  container.appendChild(inputArea);
+  addrBar.appendChild(compoundInput);
+  addrToolbar.appendChild(addrBar);
+  toolbars.appendChild(addrToolbar);
 
-  // ══════ Results area (sunken panel) ══════
-  const resultsWrapper = document.createElement('div');
-  resultsWrapper.style.cssText = `
-    flex: 1;
-    padding: 4px 8px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  `;
+  explorer.appendChild(toolbars);
 
-  const resultsPanel = document.createElement('div');
-  resultsPanel.className = 'sunken-panel';
-  resultsPanel.style.cssText = `
-    flex: 1;
-    overflow: auto;
-    background: #fff;
-    margin: 0;
-  `;
+  // ══════════════════════════════════════════════════════════════════
+  // CONTENT AREA (results)
+  // ══════════════════════════════════════════════════════════════════
+  const content = document.createElement('div');
+  content.id = 'content';
+  content.className = 'inset-deep';
+  content.style.overflow = 'auto';
 
   // ── Empty state placeholder ──
   const emptyState = document.createElement('div');
@@ -212,55 +291,51 @@ export function launchSearch(): void {
     color: #666;
   `;
   emptyState.textContent = 'Type a word to search in files';
-  resultsPanel.appendChild(emptyState);
+  content.appendChild(emptyState);
 
-  resultsWrapper.appendChild(resultsPanel);
-  container.appendChild(resultsWrapper);
+  explorer.appendChild(content);
 
-  // ══════ Status bar ══════
+  // ══════════════════════════════════════════════════════════════════
+  // STATUS BAR
+  // ══════════════════════════════════════════════════════════════════
   const statusBar = document.createElement('div');
-  statusBar.style.cssText = `
-    display: flex;
-    border-top: 1px solid #808080;
-  `;
+  statusBar.id = 'status-bar';
 
   const statusLeft = document.createElement('div');
+  statusLeft.id = 'status-bar-left';
   statusLeft.className = 'inset-shallow';
-  statusLeft.style.cssText = `
-    flex: 1;
-    padding: 2px 6px;
-    font-size: 11px;
-  `;
   statusLeft.textContent = 'No search';
+  statusBar.appendChild(statusLeft);
+
+  const statusMiddle = document.createElement('div');
+  statusMiddle.id = 'status-bar-middle';
+  statusMiddle.className = 'inset-shallow';
+  statusBar.appendChild(statusMiddle);
 
   const statusRight = document.createElement('div');
+  statusRight.id = 'status-bar-right';
   statusRight.className = 'inset-shallow';
-  statusRight.style.cssText = `
-    padding: 2px 6px;
-    font-size: 11px;
-    min-width: 60px;
-  `;
   statusRight.textContent = 'Ready';
-
-  statusBar.appendChild(statusLeft);
   statusBar.appendChild(statusRight);
-  container.appendChild(statusBar);
 
-  // ══════ Search logic ══════
+  explorer.appendChild(statusBar);
+
+  // ══════════════════════════════════════════════════════════════════
+  // SEARCH LOGIC
+  // ══════════════════════════════════════════════════════════════════
   function renderResults(term: string): void {
-    // Clear existing children (keep the emptyState reference in memory)
-    while (resultsPanel.firstChild) {
-      resultsPanel.removeChild(resultsPanel.firstChild);
+    // Clear existing children
+    while (content.firstChild) {
+      content.removeChild(content.firstChild);
     }
 
     const trimmed = term.trim();
 
     if (!trimmed) {
-      // Empty state
       const empty = document.createElement('div');
       empty.style.cssText = 'padding: 16px; color: #666;';
       empty.textContent = 'Type a word to search in files';
-      resultsPanel.appendChild(empty);
+      content.appendChild(empty);
 
       statusLeft.textContent = 'No search';
       statusRight.textContent = 'Ready';
@@ -270,11 +345,10 @@ export function launchSearch(): void {
     const results = searchFiles(term);
 
     if (results.length === 0) {
-      // No results state
       const noResults = document.createElement('div');
       noResults.style.cssText = 'padding: 16px; color: #666;';
       noResults.textContent = `No files found matching "${term}"`;
-      resultsPanel.appendChild(noResults);
+      content.appendChild(noResults);
 
       statusLeft.textContent = '0 results';
       statusRight.textContent = 'Ready';
@@ -283,7 +357,6 @@ export function launchSearch(): void {
 
     // ── Build results table ──
     const table = document.createElement('table');
-    table.className = 'interactive';
     table.style.cssText = `
       width: 100%;
       border-collapse: collapse;
@@ -325,6 +398,13 @@ export function launchSearch(): void {
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
 
+      row.addEventListener('mouseenter', () => {
+        row.style.background = '#c0e0ff';
+      });
+      row.addEventListener('mouseleave', () => {
+        row.style.background = '';
+      });
+
       // Name cell
       const nameCell = document.createElement('td');
       nameCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
@@ -340,7 +420,7 @@ export function launchSearch(): void {
       // Type cell
       const typeCell = document.createElement('td');
       typeCell.style.cssText = 'padding: 2px 6px; font-size: 11px;';
-      typeCell.textContent = file.matchType === 'title' ? 'Title' : 'Content';
+      typeCell.textContent = file.matchType === 'title' ? 'Match in Title' : 'Match in Content';
       row.appendChild(typeCell);
 
       row.addEventListener('click', () => openFileInViewer(file));
@@ -348,7 +428,7 @@ export function launchSearch(): void {
     });
 
     table.appendChild(tbody);
-    resultsPanel.appendChild(table);
+    content.appendChild(table);
 
     // Update status bar
     statusLeft.textContent = `${results.length} results`;
@@ -360,11 +440,10 @@ export function launchSearch(): void {
     renderResults(searchInput.value);
   });
 
-  // ── Append the container to the window ──
-  $win.$content.append(container);
+  // ── Append to window ──
+  $win.$content.append(explorer);
 
   // ── Focus the input once the window is shown ──
-  // Use a small delay to ensure DOM is attached
   setTimeout(() => searchInput.focus(), 50);
 }
 
