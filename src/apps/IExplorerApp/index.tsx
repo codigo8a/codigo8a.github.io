@@ -336,10 +336,6 @@ export function launchIExplorer(): void {
   const menuToolbar = document.createElement('div');
   menuToolbar.className = 'toolbar';
 
-  const menuDrag = document.createElement('div');
-  menuDrag.className = 'toolbar-drag-handle';
-  menuToolbar.appendChild(menuDrag);
-
   const menu = new MenuBar({
     '&File': [
       {

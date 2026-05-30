@@ -195,10 +195,6 @@ export function launchFileViewer(appData?: any): void {
   menuToolbar.className = 'toolbar';
   menuToolbar.id = 'menu-bar-toolbar';
 
-  const menuDragHandle = document.createElement('div');
-  menuDragHandle.className = 'toolbar-drag-handle';
-  menuToolbar.appendChild(menuDragHandle);
-
   const menu = new MenuBar({
     [tr('file') || '&File']: [
       {

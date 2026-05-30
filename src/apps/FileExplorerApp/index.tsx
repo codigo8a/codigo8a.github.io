@@ -670,6 +670,10 @@ export function launchFileExplorer(): void {
   stdToolbarEl.className = 'toolbar';
   stdToolbarEl.id = 'standard-buttons-toolbar';
 
+  const stdDragHandle = document.createElement('div');
+  stdDragHandle.className = 'toolbar-drag-handle';
+  stdToolbarEl.appendChild(stdDragHandle);
+
   const stdButtons = document.createElement('div');
   stdButtons.id = 'standard-buttons';
 
@@ -731,6 +735,10 @@ export function launchFileExplorer(): void {
   addrToolbarEl = document.createElement('div');
   addrToolbarEl.className = 'toolbar';
   addrToolbarEl.id = 'address-bar-toolbar';
+
+  const addrDragHandle = document.createElement('div');
+  addrDragHandle.className = 'toolbar-drag-handle';
+  addrToolbarEl.appendChild(addrDragHandle);
 
   const addrBar = document.createElement('div');
   addrBar.id = 'address-bar';

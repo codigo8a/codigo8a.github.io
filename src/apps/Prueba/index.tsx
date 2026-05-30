@@ -266,10 +266,6 @@ export function launchPrueba(): void {
   menuToolbar.className = 'toolbar';
   menuToolbar.id = 'menu-bar-toolbar';
 
-  const menuDragHandle = document.createElement('div');
-  menuDragHandle.className = 'toolbar-drag-handle';
-  menuToolbar.appendChild(menuDragHandle);
-
   // Build menus matching Windows 98 Explorer
   const menu = new MenuBar({
     '&File': [
