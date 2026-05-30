@@ -531,7 +531,7 @@ export function launchIExplorer(): void {
       {
         label: '&About Internet Explorer',
         action: () => {
-          showMessageBox({ title: 'About Internet Explorer', message: 'Internet Explorer\n\nBased on 98.js.org and os-gui\nEmbedded web browser with CORS proxy support.\n\nVersion 5.0\n© 2024-2026 Código 8A', icon: 'info' })
+          showMessageBox({ title: 'About Internet Explorer', message: 'Internet Explorer\n\nEmbedded web browser with CORS proxy support.\n\nVersion 5.0\n© 2024-2026 Código 8A', icon: 'info' })
         },
       },
     ],
@@ -595,7 +595,7 @@ export function launchIExplorer(): void {
   favBtn.addEventListener('click', () => showMessageBox({ title: 'Internet Explorer', message: 'Favorites not supported.', icon: 'info' }));
   stdButtons.appendChild(favBtn);
 
-  // History — uses sprite 12 from browse-ui-icons (same as 98.js.org demo)
+  // History — uses sprite 12 from browse-ui-icons
   const histBtn = createToolbarBtn('History', 12);
   histBtn.addEventListener('click', () => showMessageBox({ title: 'Internet Explorer', message: 'History not supported.', icon: 'info' }));
   stdButtons.appendChild(histBtn);

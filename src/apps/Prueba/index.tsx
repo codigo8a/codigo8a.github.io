@@ -338,7 +338,7 @@ export function launchPrueba(): void {
       { label: '&Disconnect Network Drive...', enabled: false },
     ],
     '&Help': [
-      { label: '&About 98.js.org', action: () => window.open('https://github.com/1j01/98#readme') },
+      { label: '&About', action: () => window.open('https://github.com/1j01/98#readme') },
     ],
   });
 

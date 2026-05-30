@@ -111,7 +111,7 @@ export function launchNotepad(): void {
       {
         label: '&About Notepad',
         action: () =>
-          showMessageBox({ title: 'About Notepad', message: 'Notepad for 98.js.org\n\nA simple text editor built with os-gui.\nBased on Windows 98 Notepad.', icon: 'info' }),
+          showMessageBox({ title: 'About Notepad', message: 'Notepad\n\nA simple text editor built with os-gui.\nBased on Windows 98 Notepad.', icon: 'info' }),
       },
     ],
   });

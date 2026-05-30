@@ -28,8 +28,8 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   statusSource: { es: 'Código Fuente', en: 'Source' },
   aboutMarkdownViewer: { es: 'Acerca de Visor Markdown', en: 'About Markdown Viewer' },
   markdownViewerDesc: {
-    es: 'Visor Markdown para 98.js.org\n\nUn visor de documentos markdown.\nBasado en Windows 98.',
-    en: 'Markdown Viewer for 98.js.org\n\nA markdown document viewer.\nBased on Windows 98.',
+    es: 'Visor Markdown\n\nUn visor de documentos markdown.\nBasado en Windows 98.',
+    en: 'Markdown Viewer\n\nA markdown document viewer.\nBased on Windows 98.',
   },
   markdownViewerTitle: { es: 'Visor Markdown', en: 'Markdown Viewer' },
 };
