@@ -63,7 +63,7 @@ export const APPS: Record<string, AppDefinition> = {
   settings: {
     id: 'settings',
     title: 'Settings',
-    icon: '/images/icons/settings.svg',
+    icon: '/images/icons/settings-icon.png',
     component: SettingsApp,
     defaultSize: { width: 450, height: 480 },
     centered: true,

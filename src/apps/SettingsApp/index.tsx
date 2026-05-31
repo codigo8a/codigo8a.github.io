@@ -105,8 +105,9 @@ export function launchSettings(): void {
   const $win = $Window({
     title: t('settings'),
     icons: {
-      16: '/images/icons/settings.svg',
-      any: '/images/icons/settings.svg',
+      16: '/images/icons/settings-icon.png',
+      32: '/images/icons/settings-icon-32x32.png',
+      any: '/images/icons/settings-icon.png',
     },
     minWidth: 380,
     minHeight: 360,
@@ -119,7 +120,7 @@ export function launchSettings(): void {
   $win.center();
   const cascadeOffset = getCascadeOffset();
   $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
-  registerOsWindow($win, 'settings', t('settings'), '/images/icons/settings.svg');
+  registerOsWindow($win, 'settings', t('settings'), '/images/icons/settings-icon.png');
 
   // ── Build Settings layout ──
   const container = document.createElement('div');
