@@ -194,13 +194,39 @@ export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxRe
       maximizeButton: false,
     });
 
-    $win.css({
-      width: `${DIALOG_WIDTH}px`,
-      height: `${totalHeight}px`,
-    });
+    // Don't set dimensions or center yet — the constructor's internal
+    // $w.center() call (Window.js:1776) runs before our sizes are ready.
+    // Let the constructor do its thing, then we override everything after render.
 
-    // Center on screen
-    $win.center();
+    // On mobile, the 98.js constructor binds $(window).on("resize", $w.center)
+    // at line 1354 of Window.js. Since it passes the function by value,
+    // replacing $win.center later doesn't stop resize from re-positioning
+    // with wrong dimensions (the constructor ran before our sizes were set).
+    // Fix: store the old center, unbind it, replace with noop, then re-center.
+    if (window.innerWidth < 768) {
+      const oldCenter = $win.center;
+      $(window).off('resize', oldCenter);
+      $win.center = () => {};
+      setTimeout(() => {
+        const w = Math.min(DIALOG_WIDTH, window.innerWidth - 24);
+        const h = Math.min(totalHeight, window.innerHeight - 24);
+        $win.css({
+          width: `${w}px`,
+          height: `${h}px`,
+          left: `${(window.innerWidth - w) / 2}px`,
+          top: `${(window.innerHeight - h) / 2}px`,
+        });
+      }, 100);
+    }
+
+    // On desktop, set dimensions and center as normal
+    if (window.innerWidth >= 768) {
+      $win.css({
+        width: `${DIALOG_WIDTH}px`,
+        height: `${totalHeight}px`,
+      });
+      $win.center();
+    }
 
     // ── Content container ──
     const container = document.createElement('div');
