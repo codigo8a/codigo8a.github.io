@@ -421,8 +421,21 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       // Load saved Winamp state from localStorage (for restoring position/playlist later)
       const savedWinampState = localStorage.getItem(LOCAL_STORAGE_KEYS.WINAMP_STATE);
       
+      const DEMO_TRACK = {
+        metaData: {
+          artist: 'DJ Mike Llama',
+          title: "Llama Whippin' Intro",
+        },
+        url: '/audio/llama-2.91.mp3',
+        duration: 5.322286,
+      };
+
       const webamp = new WebampClass({ 
         zIndex: 501,
+        // Only add the demo track on first launch (no saved state yet)
+        ...(!savedWinampState ? {
+          initialTracks: [DEMO_TRACK],
+        } : {}),
       });
 
       // Save state when closing to persist window positions and playlist
@@ -452,6 +465,11 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       }
       
       webampRef.current = webamp;
+
+      // Call setTracksToPlay synchronously (before await) to preserve user gesture for autoplay
+      if (!savedWinampState) {
+        webamp.setTracksToPlay([DEMO_TRACK]);
+      }
 
       // Render into the dedicated container, NOT the desktop's #root
       await webamp.renderWhenReady(container);

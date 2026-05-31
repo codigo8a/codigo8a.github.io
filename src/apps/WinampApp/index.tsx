@@ -2,6 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../i18n/translations';
 import './index.css';
 
+const DEMO_TRACK = {
+  metaData: {
+    artist: 'DJ Mike Llama',
+    title: "Llama Whippin' Intro",
+  },
+  url: '/audio/llama-2.91.mp3',
+  duration: 5.322286,
+};
+
 export const WinampApp: React.FC = () => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,9 +34,13 @@ export const WinampApp: React.FC = () => {
 
         const webamp = new Webamp({
           zIndex: 500,
+          initialTracks: [DEMO_TRACK],
         });
 
         webampRef.current = webamp;
+
+        // Call setTracksToPlay synchronously (before await) to preserve user gesture for autoplay
+        webamp.setTracksToPlay([DEMO_TRACK]);
 
         await webamp.renderWhenReady(containerRef.current);
         if (!disposed) {
