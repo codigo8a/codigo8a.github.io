@@ -38,6 +38,9 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
     en: 'Markdown Viewer\n\nA markdown document viewer.\nBased on Windows 98.',
   },
   markdownViewerTitle: { es: 'Visor Markdown', en: 'Markdown Viewer' },
+  previousImage: { es: 'Imagen anterior', en: 'Previous image' },
+  nextImage: { es: 'Imagen siguiente', en: 'Next image' },
+  closeGallery: { es: 'Cerrar galería', en: 'Close gallery' },
 };
 
 function getLang(): 'es' | 'en' {
@@ -336,31 +339,132 @@ export function launchFileViewer(appData?: any): void {
   previewPanel.className = 'mdviewer-preview';
   previewPanel.innerHTML = renderHtml(previewContent);
 
-  // ── Image zoom on mobile (tap image → full-screen lightbox) ──
-  if (window.innerWidth < 768) {
-    const imgs = previewPanel.querySelectorAll<HTMLImageElement>('img');
-    imgs.forEach((img) => {
-      img.style.cursor = 'zoom-in';
-      img.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const overlay = document.createElement('div');
-        overlay.className = 'mdviewer-image-zoom-overlay';
+  // ── Image gallery lightbox (click image → full-screen with prev/next arrows) ──
+  const allImages = previewPanel.querySelectorAll<HTMLImageElement>('img');
+  const imageSrcList: string[] = [];
+  allImages.forEach((img) => {
+    if (!imageSrcList.includes(img.src)) {
+      imageSrcList.push(img.src);
+    }
+  });
 
-        const zoomImg = document.createElement('img');
-        zoomImg.className = 'mdviewer-image-zoom-img';
-        zoomImg.src = img.src;
-        zoomImg.alt = img.alt || '';
-        overlay.appendChild(zoomImg);
-
-        overlay.addEventListener('click', () => {
-          if (document.body.contains(overlay)) {
-            document.body.removeChild(overlay);
-          }
-        });
-
-        document.body.appendChild(overlay);
-      });
+  allImages.forEach((img) => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const currentIndex = imageSrcList.indexOf(img.src);
+      openImageGallery(Math.max(currentIndex, 0));
     });
+  });
+
+  function openImageGallery(startIndex: number): void {
+    let currentIdx = startIndex;
+    const total = imageSrcList.length;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'mdviewer-image-zoom-overlay';
+
+    const zoomImg = document.createElement('img');
+    zoomImg.className = 'mdviewer-image-zoom-img';
+    zoomImg.src = imageSrcList[currentIdx];
+    zoomImg.alt = '';
+
+    function updateImage(): void {
+      zoomImg.src = imageSrcList[currentIdx];
+      zoomImg.style.animation = 'none';
+      zoomImg.offsetHeight;
+      zoomImg.style.animation = 'mdviewer-zoom-in 0.25s ease-out';
+      updateCounter();
+      updateArrows();
+    }
+
+    const imageWrapper = document.createElement('div');
+    imageWrapper.className = 'mdviewer-gallery-image-wrapper';
+    imageWrapper.appendChild(zoomImg);
+
+    let prevBtn: HTMLButtonElement | null = null;
+    let nextBtn: HTMLButtonElement | null = null;
+
+    function updateArrows(): void {
+      if (prevBtn) prevBtn.style.visibility = currentIdx > 0 ? 'visible' : 'hidden';
+      if (nextBtn) nextBtn.style.visibility = currentIdx < total - 1 ? 'visible' : 'hidden';
+    }
+
+    function updateCounter(): void {
+      if (counterEl) {
+        counterEl.textContent = `${currentIdx + 1} / ${total}`;
+      }
+    }
+
+    const prevArrow = document.createElement('button');
+    prevArrow.className = 'mdviewer-gallery-arrow mdviewer-gallery-arrow-prev';
+    prevArrow.setAttribute('aria-label', tr('previousImage'));
+    prevArrow.innerHTML = '&#9664;';
+    prevArrow.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (currentIdx > 0) {
+        currentIdx--;
+        updateImage();
+      }
+    });
+    prevBtn = prevArrow;
+
+    const nextArrow = document.createElement('button');
+    nextArrow.className = 'mdviewer-gallery-arrow mdviewer-gallery-arrow-next';
+    nextArrow.setAttribute('aria-label', tr('nextImage'));
+    nextArrow.innerHTML = '&#9654;';
+    nextArrow.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (currentIdx < total - 1) {
+        currentIdx++;
+        updateImage();
+      }
+    });
+    nextBtn = nextArrow;
+
+    const counterEl = document.createElement('div');
+    counterEl.className = 'mdviewer-gallery-counter';
+    counterEl.textContent = `${currentIdx + 1} / ${total}`;
+
+    overlay.appendChild(prevArrow);
+    overlay.appendChild(imageWrapper);
+    overlay.appendChild(nextArrow);
+    overlay.appendChild(counterEl);
+
+    overlay.addEventListener('click', (ev) => {
+      if (ev.target === overlay || ev.target === imageWrapper) {
+        closeGallery();
+      }
+    });
+
+    zoomImg.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+    });
+
+    function onKeyDown(ev: KeyboardEvent): void {
+      if (ev.key === 'Escape') {
+        closeGallery();
+      } else if (ev.key === 'ArrowLeft' && currentIdx > 0) {
+        currentIdx--;
+        updateImage();
+      } else if (ev.key === 'ArrowRight' && currentIdx < total - 1) {
+        currentIdx++;
+        updateImage();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+
+    function closeGallery(): void {
+      document.removeEventListener('keydown', onKeyDown);
+      if (document.body.contains(overlay)) {
+        document.body.removeChild(overlay);
+      }
+    }
+
+    updateArrows();
+    updateCounter();
+    document.body.appendChild(overlay);
   }
 
   content.appendChild(previewPanel);

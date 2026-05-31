@@ -130,7 +130,7 @@
   margin-bottom: 10px;
 }
 
-/* ── Image zoom lightbox (mobile only) ── */
+/* ── Image gallery lightbox ── */
 .mdviewer-image-zoom-overlay {
   position: fixed;
   inset: 0;
@@ -143,15 +143,101 @@
   animation: mdviewer-fade-in 0.2s ease-out;
 }
 
+.mdviewer-gallery-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
 .mdviewer-image-zoom-img {
   max-width: 95%;
-  max-height: 95%;
+  max-height: 90%;
   width: auto;
   height: auto;
   object-fit: contain;
   border: 3px solid #fff;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
   animation: mdviewer-zoom-in 0.25s ease-out;
+}
+
+.mdviewer-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100000;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  color: #000;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mdviewer-gallery-arrow:hover {
+  background: #d4d4d4;
+}
+
+.mdviewer-gallery-arrow:active {
+  border-color: #808080 #fff #fff #808080;
+  background: #b0b0b0;
+}
+
+.mdviewer-gallery-arrow-prev {
+  left: 12px;
+}
+
+.mdviewer-gallery-arrow-next {
+  right: 12px;
+}
+
+.mdviewer-gallery-counter {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100000;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  color: #000;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 12px;
+  padding: 3px 10px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (max-width: 768px) {
+  .mdviewer-gallery-arrow {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+
+  .mdviewer-gallery-arrow-prev {
+    left: 6px;
+  }
+
+  .mdviewer-gallery-arrow-next {
+    right: 6px;
+  }
+
+  .mdviewer-gallery-counter {
+    font-size: 14px;
+    padding: 4px 12px;
+  }
 }
 
 @keyframes mdviewer-fade-in {
