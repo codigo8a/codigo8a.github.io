@@ -418,7 +418,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       const mod = await import('webamp');
       const WebampClass = mod.default;
       
-      // Load saved Winamp state from localStorage (for restoring position/playlist later)
+      // Load saved Winamp state from localStorage (restores window positions & settings — not the playlist)
       const savedWinampState = localStorage.getItem(LOCAL_STORAGE_KEYS.WINAMP_STATE);
       
       const DEMO_TRACK = {
@@ -432,13 +432,11 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
 
       const webamp = new WebampClass({ 
         zIndex: 501,
-        // Only add the demo track on first launch (no saved state yet)
-        ...(!savedWinampState ? {
-          initialTracks: [DEMO_TRACK],
-        } : {}),
+        // Always add the demo track regardless of saved state
+        initialTracks: [DEMO_TRACK],
       });
 
-      // Save state when closing to persist window positions and playlist
+      // Save state when closing to persist window positions and settings (note: playlist tracks are NOT preserved)
       webamp.onClose(() => { 
         webampClosedRef.current = true;
         // Use private method to get serialized state
@@ -466,10 +464,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       
       webampRef.current = webamp;
 
-      // Call setTracksToPlay synchronously (before await) to preserve user gesture for autoplay
-      if (!savedWinampState) {
-        webamp.setTracksToPlay([DEMO_TRACK]);
-      }
+      // Always queue the demo track for playback.
+      // Called before renderWhenReady while the user gesture is still fresh,
+      // giving the browser a chance to allow autoplay.
+      webamp.setTracksToPlay([DEMO_TRACK]);
 
       // Render into the dedicated container, NOT the desktop's #root
       await webamp.renderWhenReady(container);
