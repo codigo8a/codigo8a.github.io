@@ -31,5 +31,6 @@ export const LOCAL_STORAGE_KEYS = {
   WALLPAPER: 'wallpaper',
   CLIPPY_ENABLED: 'clippy_enabled',
   WINDOW_STATES: 'window_states',
-  WINAMP_STATE: 'winamp_state'
+  WINAMP_STATE: 'winamp_state',
+  WINAMP_PLAYLIST: 'winamp_playlist'
 };

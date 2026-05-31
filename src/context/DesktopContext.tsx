@@ -418,8 +418,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       const mod = await import('webamp');
       const WebampClass = mod.default;
       
-      // Load saved Winamp state from localStorage (restores window positions & settings — not the playlist)
+      // Load saved Winamp state (window positions & settings — NOT the playlist)
       const savedWinampState = localStorage.getItem(LOCAL_STORAGE_KEYS.WINAMP_STATE);
+      // Load saved playlist (user's own tracks, or null if none)
+      const savedPlaylist = localStorage.getItem(LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST);
       
       const DEMO_TRACK = {
         metaData: {
@@ -430,16 +432,19 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
         duration: 5.322286,
       };
 
+      // Only show the demo track on the very first launch (no prior state at all)
+      const isFirstLaunch = !savedWinampState && !savedPlaylist;
+
       const webamp = new WebampClass({ 
         zIndex: 501,
-        // Always add the demo track regardless of saved state
-        initialTracks: [DEMO_TRACK],
+        // Only seed the demo track on first-ever launch
+        ...(isFirstLaunch ? { initialTracks: [DEMO_TRACK] } : {}),
       });
 
-      // Save state when closing to persist window positions and settings (note: playlist tracks are NOT preserved)
+      // ── Save state + playlist when closing ──
       webamp.onClose(() => { 
         webampClosedRef.current = true;
-        // Use private method to get serialized state
+        // Save window positions & settings
         const webampAny = webamp as any;
         if (webampAny.__getSerializedState) {
           const state = webampAny.__getSerializedState();
@@ -447,9 +452,21 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
             localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_STATE, JSON.stringify(state));
           }
         }
+        // Save user's playlist (excluding demo track & ephemeral blob: URLs)
+        try {
+          const tracks = webamp.getPlaylistTracks();
+          const userTracks = tracks.filter(
+            (t: any) => !t.url.startsWith('blob:') && t.url !== DEMO_TRACK.url
+          );
+          if (userTracks.length > 0) {
+            localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST, JSON.stringify(userTracks));
+          } else {
+            localStorage.removeItem(LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST);
+          }
+        } catch (_e) { /* playlist save is best-effort */ }
       });
       
-      // Load state if we have a saved state
+      // Restore window positions & settings from saved state
       if (savedWinampState) {
         try {
           const state = JSON.parse(savedWinampState);
@@ -464,10 +481,23 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       
       webampRef.current = webamp;
 
-      // Always queue the demo track for playback.
-      // Called before renderWhenReady while the user gesture is still fresh,
-      // giving the browser a chance to allow autoplay.
-      webamp.setTracksToPlay([DEMO_TRACK]);
+      // ── Decide what goes into the playlist ──
+      if (savedPlaylist) {
+        // User has a saved playlist → restore it, no demo forced
+        try {
+          const tracks = JSON.parse(savedPlaylist);
+          if (tracks.length > 0) {
+            webamp.setTracksToPlay(tracks);
+          } else {
+            webamp.setTracksToPlay([DEMO_TRACK]);
+          }
+        } catch (_e) {
+          webamp.setTracksToPlay([DEMO_TRACK]);
+        }
+      } else {
+        // No saved playlist → greet the user with the demo track
+        webamp.setTracksToPlay([DEMO_TRACK]);
+      }
 
       // Render into the dedicated container, NOT the desktop's #root
       await webamp.renderWhenReady(container);
