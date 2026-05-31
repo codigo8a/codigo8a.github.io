@@ -155,6 +155,19 @@
   box-sizing: border-box;
   white-space: nowrap;
 }
+.submenu button .icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.submenu button .icon img {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
 .submenu button:hover {
   background: var(--Hilight);
   color: var(--HilightText);
