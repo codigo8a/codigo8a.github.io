@@ -4,7 +4,7 @@ Entorno de escritorio estilo Windows 98 construido con React. Desplegado en [htt
 
 ## Overview
 
-Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos, buscador y visor de markdown (MarkdownViewer). Construido con React 19, TypeScript y Vite.
+Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos, buscador, visor de markdown, portafolio de proyectos, reproductor Winamp y más. Construido con React 19, TypeScript y Vite.
 
 ## Despliegue y Dominio
 
@@ -36,6 +36,13 @@ src/
 │   ├── MarkdownViewerApp/       # Visor de markdown
 │   ├── SearchApp/               # Buscador de archivos
 │   ├── SettingsApp/             # Configuración del sistema
+│   ├── IExplorerApp/            # Navegador web estilo retro
+│   ├── Portfolio/               # Portafolio de proyectos
+│   ├── MyComputer/              # Mi PC
+│   ├── Network/                 # Entorno de red
+│   ├── RecycleBin/              # Papelera de reciclaje
+│   ├── SoundRecorder/           # Grabador de sonido
+│   ├── MSDOS/                   # Símbolo del sistema MS-DOS
 │   └── apps.ts                  # Registro central de apps
 ├── components/                    # Componentes (Diseño Atómico)
 │   ├── molecules/               # Componentes simples
@@ -61,7 +68,7 @@ src/
 │   └── useTranslation.ts      # Hook de traducciones
 ├── i18n/                        # Internacionalización
 │   └── translations.ts        # Traducciones ES/EN
-├── data/files/                  # Archivos markdown (~70 archivos)
+├── data/files/                  # Archivos markdown (98 archivos)
 │   ├── content/                # Contenido principal
 │   ├── youtube/                # ~50 tutoriales
 │   ├── system/                 # Sistemas desarrollados
@@ -91,11 +98,17 @@ npm run deploy # Despliegue a GitHub Pages
 |-----|-------------|--------|-----------------|
 | **Welcome** | Pantalla de bienvenida con tips, selector de idioma y enlaces sociales | 700x420 | ✅ Sí |
 | **Notepad** | Bloc de notas con barra de estado | 450x350 | ✅ Sí |
-| **FileExplorer** | Explorador con vista de iconos estilo "My Documents" (cuadrícula) | 650x450 | ✅ Sí |
-| **MarkdownViewer** | Visor markdown con vista Preview/Source | 1000x800 | ❌ No (por archivo) |
+| **FileExplorer** | Explorador con vista de iconos estilo "My Documents" (cuadrícula) | 780x540 | ✅ Sí |
+| **MarkdownViewer** | Visor markdown con vista Preview/Source y galería de imágenes | 1000x800 | ❌ No (por archivo) |
 | **Search** | Búsqueda por nombre y contenido de archivos | 640x460 | ✅ Sí |
-| **Settings** | Configuración con tabs: General (idioma, Clippy) y Desktop (wallpapers) | 450x480 | ✅ Sí |
-| **Browser** | Navegador web estilo retro | 900x650 | ✅ Sí |
+| **Settings** | Configuración con 3 tabs: General (idioma, Clippy), Desktop (wallpapers) y Advanced | 450x480 | ✅ Sí |
+| **Internet Explorer** | Navegador web estilo retro | 900x650 | ✅ Sí |
+| **Portfolio** | Portafolio de proyectos con 4 vistas (Iconos, Lista, Detalles) | 600x450 | ✅ Sí |
+| **My Computer** | Explorador del sistema | 780x540 | ✅ Sí |
+| **Network** | Entorno de red | 500x350 | ✅ Sí |
+| **Recycle Bin** | Papelera de reciclaje | 500x350 | ✅ Sí |
+| **Sound Recorder** | Grabador de sonido simple | 270x130 | ✅ Sí |
+| **MS-DOS Prompt** | Símbolo del sistema | 640x400 | ✅ Sí |
 | **Winamp** | Reproductor de música clásico con Webamp | 900x600 | ✅ Sí |
 
 ## Características Principales
@@ -136,6 +149,7 @@ npm run deploy # Despliegue a GitHub Pages
 ### Settings con Tabs
 - **Tab General**: Idioma (ES/EN) + Clippy (activar/desactivar)
 - **Tab Desktop**: Selector de wallpapers con previsualización
+- **Tab Advanced**: Eliminar datos guardados
 - Interfaz tipo Windows 98 con tabs
 
 ### Wallpapers
@@ -191,17 +205,18 @@ npm run deploy # Despliegue a GitHub Pages
 | `useMediaQuery()` | Media queries responsive |
 | `useTranslation()` | Función `t(key)` para traducciones |
 | `useLanguage()` | Acceso al contexto de idioma |
+| `useWindowState()` | Persistencia de posición/tamaño de ventanas |
 
 ## Sistema de Archivos Markdown
 
 ### Estructura
 ```
 src/data/files/
-├── content/              # Contenido principal (CV, features)
-├── youtube/             # ~50 tutoriales en video
-├── system/              # Sistemas desarrollados
-├── internet/            # Recursos de internet
-└── web/                 # Proyectos web realizados
+├── content/              # Contenido principal (CV, features) — 2 archivos
+├── youtube/             # 59 tutoriales en video
+├── system/              # Sistemas desarrollados — 13 archivos
+├── internet/            # Recursos de internet — 3 archivos
+└── web/                 # Proyectos web realizados — 21 archivos
 ```
 
 ### Formato
@@ -302,18 +317,18 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 
 ## Estadísticas
 
-- **Aplicaciones**: 8 (incluyendo Winamp)
-- **Componentes**: 13 principales (incluyendo LoadingScreen)
-- **Hooks**: 6 personalizados
+- **Aplicaciones**: 14 (incluyendo Winamp)
+- **Componentes**: 15 principales
+- **Hooks**: 7 personalizados
 - **Contextos**: 3
-- **Archivos markdown**: ~70
+- **Archivos markdown**: 98
 - **Wallpapers**: 6
-- **Asistente virtual**: Clippy con 23 tips
+- **Asistente virtual**: Clippy con 24 tips
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
 - **Animaciones**: 5 tipos (loading, abrir, cerrar, minimizar, restaurar)
 - **Persistencia**: Posición y tamaño de ventanas guardados en localStorage
-- **Iconos de apps**: SVG oficiales en `public/images/icons/`
+- **Iconos de apps**: PNG oficiales en `public/images/icons/` extraídos de sprite sheet
 
 ## Estado Actual
 
@@ -321,19 +336,25 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Enrutamiento por URL
 - ✅ Soporte multilenguaje
 - ✅ Explorador de archivos (iconos en cuadrícula estilo My Documents)
-- ✅ Visor de markdown (MarkdownViewer)
+- ✅ Visor de markdown (MarkdownViewer) con galería de imágenes
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
-- ✅ Menú Start funcional
-- ✅ Iconos de escritorio (incluyendo Winamp con icono oficial)
+- ✅ Menú Start funcional con submenú
+- ✅ Iconos de escritorio (incluyendo Winamp)
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98
 - ✅ Persistencia de posición y tamaño de ventanas
-- ✅ Clippy - Asistente virtual con tips interactivos
-- ✅ Browser - Navegador web estilo retro con soporte para sitios web
+- ✅ Clippy - Asistente virtual con 24 tips interactivos
+- ✅ **Internet Explorer** - Navegador web estilo retro con soporte para sitios web
 - ✅ **Winamp** - Reproductor de música clásico usando Webamp
+- ✅ **Portfolio** - Portafolio de proyectos con 4 vistas (Iconos grandes, pequeños, lista, detalles)
+- ✅ **My Computer** - Explorador del sistema
+- ✅ **Network, Recycle Bin, Sound Recorder, MS-DOS Prompt**
+- ✅ **Settings con 3 tabs** (General, Desktop, Advanced)
 - ✅ Responsive
 - ✅ ErrorBoundary
 - ✅ CI/CD automático
+- ✅ Galería de imágenes con flechas de navegación en el visor markdown
+- ✅ Iconos uniformes en submenú del Start Menu
 - ✅ Estilo Windows 98 auténtico
