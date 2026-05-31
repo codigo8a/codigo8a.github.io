@@ -4,7 +4,7 @@ Entorno de escritorio estilo Windows 98 construido con React. Desplegado en [htt
 
 ## Overview
 
-Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos, buscador, visor de markdown, portafolio de proyectos, reproductor Winamp y más. Construido con React 19, TypeScript y Vite.
+Simulación completa de un sistema operativo con ventanas arrastrables, barra de tareas, menú Start, explorador de archivos, buscador, visor de markdown, portafolio de proyectos, reproductor Winamp (con playlist persistente) y más. Construido con React 19, TypeScript y Vite.
 
 ## Despliegue y Dominio
 
@@ -109,7 +109,7 @@ npm run deploy # Despliegue a GitHub Pages
 | **Recycle Bin** | Papelera de reciclaje | 500x350 | ✅ Sí |
 | **Sound Recorder** | Grabador de sonido simple | 270x130 | ✅ Sí |
 | **MS-DOS Prompt** | Símbolo del sistema | 640x400 | ✅ Sí |
-| **Winamp** | Reproductor de música clásico con Webamp | 900x600 | ✅ Sí |
+| **Winamp** | Reproductor de música clásico con Webamp — demo track "Llama Whippin' Intro" en primer inicio, playlist persistente entre sesiones | — | ✅ Sí |
 
 ## Características Principales
 
@@ -279,6 +279,7 @@ Z_INDEX.WINDOW_BASE = 10
 // LocalStorage
 LOCAL_STORAGE_KEYS.LANGUAGE = 'language'
 LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
+LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 ```
 
 ## Configuración
@@ -327,7 +328,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
 - **Animaciones**: 5 tipos (loading, abrir, cerrar, minimizar, restaurar)
-- **Persistencia**: Posición y tamaño de ventanas guardados en localStorage
+- **Persistencia**: Posición y tamaño de ventanas + playlist de Winamp guardados en localStorage
 - **Iconos de apps**: PNG oficiales en `public/images/icons/` extraídos de sprite sheet
 
 ## Estado Actual
@@ -347,7 +348,7 @@ LOCAL_STORAGE_KEYS.SHOW_WELCOME = 'show_welcome'
 - ✅ Persistencia de posición y tamaño de ventanas
 - ✅ Clippy - Asistente virtual con 24 tips interactivos
 - ✅ **Internet Explorer** - Navegador web estilo retro con soporte para sitios web
-- ✅ **Winamp** - Reproductor de música clásico usando Webamp
+- ✅ **Winamp** - Reproductor de música clásico usando Webamp con demo track y playlist persistente
 - ✅ **Portfolio** - Portafolio de proyectos con 4 vistas (Iconos grandes, pequeños, lista, detalles)
 - ✅ **My Computer** - Explorador del sistema
 - ✅ **Network, Recycle Bin, Sound Recorder, MS-DOS Prompt**

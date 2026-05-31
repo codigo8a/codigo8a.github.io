@@ -79,10 +79,13 @@ This project is a Windows 95/98 style desktop environment built with React. Belo
 
 ## 🎵 Winamp
 - **Classic Music Player**: Fully functional Winamp simulation using Webamp.
-- **Official Icon**: Uses the authentic Winamp lambda/flame SVG logo from Wikimedia Commons.
+- **Official Icon**: Uses the authentic Winamp logo from Wikimedia Commons.
 - **Desktop Integration**: Launches from desktop icon or Start Menu (Programs).
 - **Classic Interface**: Includes main window, equalizer, and playlist windows.
 - **Audio Support**: Play MP3s and other audio formats directly in the browser.
+- **Demo Track**: On first-ever launch, the classic "Llama Whippin' Intro" by DJ Mike Llama is preloaded as a welcome.
+- **Smart Playlist**: When you close Winamp, your current playlist is automatically saved. On next launch, your tracks are restored — the demo track only appears when there's no saved playlist.
+- **Floating Mode**: Winamp runs as a standalone floating window (not inside the desktop window manager), giving it an authentic feel.
 
 ## 🔗 URL Routing
 - **Deep Linking**: The system can open specific files directly from the URL (e.g., `/youtube/ollama-en-linux`).
@@ -98,3 +101,4 @@ All user preferences are automatically saved to localStorage:
 - Selected wallpaper
 - Clippy enabled/disabled state
 - Window positions and sizes for each application (remembered when reopened)
+- Winamp playlist (tracks are restored when reopening after a page reload)
