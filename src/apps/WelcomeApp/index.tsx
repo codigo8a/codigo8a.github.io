@@ -109,6 +109,10 @@ const TRANSLATIONS: Record<string, Record<'en' | 'es', string>> = {
     en: 'Resume',
     es: 'Hoja de vida',
   },
+  portfolio: {
+    en: 'Portfolio',
+    es: 'Portafolio',
+  },
   aboutMessage: {
     en:
       'Welcome to juandavid.site\n\n' +
@@ -163,6 +167,9 @@ function buildLinksHtml(lang: 'en' | 'es'): string {
   return [
     `<p style="margin:0 0 8px 0;font-style:italic">${isEn ? 'More info' : 'Más info'}</p>`,
     '<div style="display:flex;flex-direction:column;gap:6px">',
+    '<a href="#" data-action="open-portfolio" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px;cursor:pointer">📂 ' +
+      (isEn ? 'Portfolio' : 'Portafolio') +
+      '</a>',
     '<a href="#" data-action="open-resume" style="color:#0000ff;text-decoration:none;display:flex;align-items:center;gap:8px;cursor:pointer">📄 ' +
       (isEn ? 'Resume' : 'Hoja de vida') +
       '</a>',
@@ -194,6 +201,7 @@ function createTipContent(
   tipIndex: number,
   lang: 'en' | 'es',
   onOpenResume: () => void,
+  onOpenPortfolio: () => void,
 ): HTMLDivElement {
   const div = document.createElement('div');
   div.style.cssText = 'margin:0;line-height:1.5;font-size:12px';
@@ -208,7 +216,7 @@ function createTipContent(
     div.textContent = tip.content;
   } else {
     div.innerHTML = tip.content;
-    // Event delegation for internal actions (Resume link)
+    // Event delegation for internal actions (Resume, Portfolio links)
     div.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       const actionEl = target.closest('[data-action]') as HTMLElement | null;
@@ -217,6 +225,9 @@ function createTipContent(
         if (action === 'open-resume') {
           e.preventDefault();
           onOpenResume();
+        } else if (action === 'open-portfolio') {
+          e.preventDefault();
+          onOpenPortfolio();
         }
       }
     });
@@ -377,6 +388,12 @@ export function launchWelcome(): void {
   function renderTipContent(): void {
     const newContent = createTipContent(currentTipIndex, currentLang, () => {
       openFileInViewer('hoja-de-vida', 'content', tr('resume', currentLang));
+    }, () => {
+      window.dispatchEvent(
+        new CustomEvent('desktop-open-app', {
+          detail: { appId: 'portfolio' },
+        }),
+      );
     });
     if (lastTipContent) {
       tipContentContainer.replaceChild(newContent, lastTipContent);
