@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <defs>
+    <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8e8e8"/>
+      <stop offset="50%" stop-color="#c0c0c0"/>
+      <stop offset="100%" stop-color="#a0a0a0"/>
+    </linearGradient>
+  </defs>
+  <!-- Paperclip body -->
+  <path d="M5 2 Q5 0,8 0 Q11 0,11 3 L11 13 Q11 15,9.5 15 Q8 15,8 13 L8 5 Q8 4,7.5 4 Q7 4,7 5 L7 14 Q7 16,9 16 Q11 16,11 14 L11 3 Q11 1,9 1 Q7 1,7 3 L7 13 Q7 14,8 14 Q9 14,9 13 L9 5 Q9 4,8.5 4 Q8 4,8 5 L8 2" fill="url(#cg)" stroke="#808080" stroke-width="0.5"/>
+  <!-- Eyes -->
+  <circle cx="7" cy="7" r="1" fill="#666"/>
+  <circle cx="10" cy="7" r="1" fill="#666"/>
+</svg>

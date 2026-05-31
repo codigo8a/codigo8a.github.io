@@ -111,6 +111,13 @@
   cursor: pointer;
   image-rendering: pixelated;
 }
+.clippy-tray-icon {
+  animation: clippy-bounce 2s ease-in-out infinite;
+}
+@keyframes clippy-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
 .taskbar-time {
   width: 60px;
   text-align: center;

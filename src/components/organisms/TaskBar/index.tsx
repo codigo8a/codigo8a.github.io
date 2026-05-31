@@ -13,6 +13,8 @@ interface TaskBarProps {
   onRestoreOsWindow: (id: string) => void;
   isStartOpen: boolean;
   onStartClick: (e: React.MouseEvent) => void;
+  clippyEnabled: boolean;
+  onClippyRestore: () => void;
 }
 
 export const TaskBar: React.FC<TaskBarProps> = ({
@@ -24,6 +26,8 @@ export const TaskBar: React.FC<TaskBarProps> = ({
   onRestoreOsWindow,
   isStartOpen,
   onStartClick,
+  clippyEnabled,
+  onClippyRestore,
 }) => {
   const time = useClock();
 
@@ -70,6 +74,15 @@ export const TaskBar: React.FC<TaskBarProps> = ({
       {/* Tray — clock + icons */}
       <div className="tray inset-shallow">
         <div className="tray-icons">
+          {!clippyEnabled && (
+            <img
+              className="tray-icon clippy-tray-icon"
+              src="/images/icons/clippy-16x16.svg"
+              alt="Clippy"
+              title="Reabrir Clippy"
+              onClick={onClippyRestore}
+            />
+          )}
           <img className="tray-icon" src="/images/icons/task-scheduler-16x16.png" alt="" />
           <img className="tray-icon" src="/images/icons/audio-okay-16x16.png" alt="" />
         </div>
