@@ -143,9 +143,10 @@
   }
 
   .clippy-button {
-    padding: 6px 14px;
+    padding: 6px 20px;
     font-size: 12px;
     min-height: 32px;
+    white-space: nowrap;
     touch-action: manipulation;
   }
 

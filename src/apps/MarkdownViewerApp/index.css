@@ -129,3 +129,37 @@
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+/* ── Image zoom lightbox (mobile only) ── */
+.mdviewer-image-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  cursor: zoom-out;
+  animation: mdviewer-fade-in 0.2s ease-out;
+}
+
+.mdviewer-image-zoom-img {
+  max-width: 95%;
+  max-height: 95%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: 3px solid #fff;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  animation: mdviewer-zoom-in 0.25s ease-out;
+}
+
+@keyframes mdviewer-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes mdviewer-zoom-in {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}

@@ -335,6 +335,34 @@ export function launchFileViewer(appData?: any): void {
   const previewPanel = document.createElement('div');
   previewPanel.className = 'mdviewer-preview';
   previewPanel.innerHTML = renderHtml(previewContent);
+
+  // ── Image zoom on mobile (tap image → full-screen lightbox) ──
+  if (window.innerWidth < 768) {
+    const imgs = previewPanel.querySelectorAll<HTMLImageElement>('img');
+    imgs.forEach((img) => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const overlay = document.createElement('div');
+        overlay.className = 'mdviewer-image-zoom-overlay';
+
+        const zoomImg = document.createElement('img');
+        zoomImg.className = 'mdviewer-image-zoom-img';
+        zoomImg.src = img.src;
+        zoomImg.alt = img.alt || '';
+        overlay.appendChild(zoomImg);
+
+        overlay.addEventListener('click', () => {
+          if (document.body.contains(overlay)) {
+            document.body.removeChild(overlay);
+          }
+        });
+
+        document.body.appendChild(overlay);
+      });
+    });
+  }
+
   content.appendChild(previewPanel);
 
   // Source panel (hidden by default) — shows the FULL raw markdown as-is
