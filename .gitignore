@@ -51,3 +51,6 @@ _site/
 
 # SDD infrastructure
 .atl/
+
+# Local git worktrees — extra checkouts of this repo, never source
+.worktrees/
