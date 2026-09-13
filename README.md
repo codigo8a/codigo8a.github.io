@@ -13,17 +13,38 @@ Simulación completa de un sistema operativo con ventanas arrastrables, barra de
 - **CI/CD**: Despliegue automático mediante GitHub Actions al hacer push a `main`
 - **SPA Support**: Archivo `404.html` generado automáticamente para enrutamiento
 
-## Tecnologías
+## Stack Tecnológico
 
 | Tecnología | Versión | Uso |
-|------------|---------|-----|
-| React | ^19.2.4 | Framework principal |
-| TypeScript | ^5.9.3 | Tipado estático |
-| Vite | ^8.0.0 | Build tool y dev server |
-| 98.css | ^0.1.21 | Estilos auténticos Windows 98 |
-| react-markdown | ^10.1.0 | Renderizado de markdown |
-| rehype-raw | ^7.0.0 | Soporte HTML en markdown |
-| ESLint | ^9.39.4 | Linting con plugins React |
+|---|---|---|
+| React | `^19.2.4` | Framework principal |
+| TypeScript | `^5.9.3` | Tipado estático |
+| Vite | `^8.0.0` | Build tool y dev server |
+| 98.css | `^0.1.21` | Estilos auténticos Windows 98 |
+| react-markdown | `^10.1.0` | Renderizado de markdown |
+| rehype-raw | `^7.0.0` | Soporte HTML en markdown |
+| Webamp | `^2.2.0` | Reproductor Winamp |
+| ESLint | `^9.39.4` | Linting con plugins React |
+
+## Requisitos
+
+| Requisito | Versión |
+|---|---|
+| Node.js | 20+ (ver `.github/workflows/deploy.yml`) |
+| npm | 10+ |
+
+## Quick Start
+
+```bash
+git clone https://github.com/codigo8a/codigo8a.github.io.git
+cd codigo8a.github.io
+npm install
+npm run dev      # → http://localhost:5173
+npm run build    # build de producción → dist/
+npm run preview  # preview del build
+```
+
+> El proyecto también funciona con `pnpm` o `yarn` si preferís, pero los scripts oficiales usan `npm`.
 
 ## Estructura del Proyecto
 
@@ -84,12 +105,12 @@ src/
 ## Scripts Disponibles
 
 ```bash
-npm install    # Instalar dependencias
-npm run dev    # Servidor de desarrollo
-npm run build  # Build de producción
-npm run lint   # Linting con ESLint
+npm install     # Instalar dependencias
+npm run dev     # Servidor de desarrollo (vite --host 0.0.0.0)
+npm run build   # Build de producción
+npm run lint    # Linting con ESLint
 npm run preview # Preview del build
-npm run deploy # Despliegue a GitHub Pages
+npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 ```
 
 ## Aplicaciones del Sistema
@@ -331,17 +352,28 @@ LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 - **Persistencia**: Posición y tamaño de ventanas + playlist de Winamp guardados en localStorage
 - **Iconos de apps**: PNG oficiales en `public/images/icons/` extraídos de sprite sheet
 
+## Variables de Entorno
+
+No requiere variables de entorno. La configuración de Vite está en `vite.config.js` (`base: "/"` para dominio personalizado).
+
+## Deploy
+
+- **URL**: https://juandavid.site (dominio personalizado sobre GitHub Pages)
+- **Plataforma**: GitHub Pages + GitHub Actions (`.github/workflows/deploy.yml`)
+- **Trigger**: `push` a `main` con Node 20 → `npm run build` → genera `404.html` para SPA routing
+- **Manual**: `npm run deploy` (usa `gh-pages -d dist`)
+
 ## Estado Actual
 
 - ✅ Sistema de ventanas completo
 - ✅ Enrutamiento por URL
-- ✅ Soporte multilenguaje
+- ✅ Soporte multilenguaje (ES/EN, 98 archivos markdown, `i18n/translations.ts`)
 - ✅ Explorador de archivos (iconos en cuadrícula estilo My Documents)
 - ✅ Visor de markdown (MarkdownViewer) con galería de imágenes
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional con submenú
-- ✅ Iconos de escritorio (incluyendo Winamp)
+- ✅ Iconos de escritorio (incluyendo Winamp con Webamp)
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98
@@ -359,3 +391,7 @@ LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 - ✅ Galería de imágenes con flechas de navegación en el visor markdown
 - ✅ Iconos uniformes en submenú del Start Menu
 - ✅ Estilo Windows 98 auténtico
+
+## Licencia
+
+Proyecto personal de **codigo8a** · Código disponible en GitHub. Plantilla 98.css bajo licencia MIT.
