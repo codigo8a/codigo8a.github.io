@@ -1,10 +1,30 @@
 import React from 'react';
 import './index.css';
-import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { registerOsWindow, focusOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
 
 const PROXY_BASE = 'https://corsproxy.io/?url=';
+
+/** Default page shown when the browser is opened without a target URL */
+const HOME_URL = 'https://masinfo.online/';
+
+// ── Registry of open browser windows ──
+// Lets other UI (e.g. a desktop icon for a web stream) navigate an already-open
+// browser window instead of stacking a second one on top of it.
+const openExplorers = new Map<string, (url: string) => void>();
+
+/**
+ * Navigate the most recently opened Internet Explorer window, if any.
+ * @returns true when an open window was found and navigated.
+ */
+export function navigateIExplorer(url: string): boolean {
+  const handles = Array.from(openExplorers.values());
+  const navigate = handles[handles.length - 1];
+  if (!navigate) return false;
+  navigate(url);
+  return true;
+}
 
 // ── Sprite indices matching 98.js browse-ui-icons sheet (20×20 per icon) ──
 const SPRITE_BACK = 0;
@@ -104,7 +124,11 @@ function createSeparator(): HTMLHRElement {
 }
 
 // ── Launch ──
-export function launchIExplorer(): void {
+/**
+ * Open an Internet Explorer window.
+ * @param initialUrl Optional page to load (defaults to the home page)
+ */
+export function launchIExplorer(initialUrl?: string): void {
   const $Window = (window as any).$Window;
   const MenuBar = (window as any).MenuBar;
   if (!$Window || !MenuBar) {
@@ -115,7 +139,10 @@ export function launchIExplorer(): void {
   ensureDisabledFilter();
 
   // ── State ──
-  let currentUrl = 'https://masinfo.online/';
+  const startUrl = initialUrl
+    ? (/^https?:\/\//i.test(initialUrl) ? initialUrl : `https://${initialUrl}`)
+    : HOME_URL;
+  let currentUrl = startUrl;
   let isLoading = false;
   let hasError = false;
   let useProxy = false;
@@ -291,8 +318,7 @@ export function launchIExplorer(): void {
   }
 
   function goHome(): void {
-    const home = 'https://masinfo.online/';
-    navigate(home, 'go');
+    navigate(HOME_URL, 'go');
   }
 
   function goRefresh(): void {
@@ -324,7 +350,16 @@ export function launchIExplorer(): void {
   $win.center();
   const cascadeOffset = getCascadeOffset();
   $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
-  registerOsWindow($win, 'iexplorer', 'Internet Explorer', '/images/icons/iexplorer-32x32.png');
+  const explorerId = registerOsWindow($win, 'iexplorer', 'Internet Explorer', '/images/icons/iexplorer-32x32.png');
+
+  // Let external callers (desktop icons, start menu) drive this window
+  openExplorers.set(explorerId, (url: string) => {
+    focusOsWindow(explorerId);
+    navigate(url, 'go');
+  });
+  $win.onClosed(() => {
+    openExplorers.delete(explorerId);
+  });
 
   // ── Root container ──
   const explorer = document.createElement('div');

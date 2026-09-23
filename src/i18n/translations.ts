@@ -1,6 +1,6 @@
 import { useLanguage } from '../context/LanguageContext';
 
-type TranslationKeys =
+export type TranslationKeys =
   | 'welcome' | 'welcomeTip' | 'nextTip' | 'whatsNew' | 'onlineRegistration'
   | 'close' | 'showWelcomeScreen' | 'settings' | 'language' | 'selectLanguage'
   | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder'
@@ -8,7 +8,7 @@ type TranslationKeys =
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
   | 'programs' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
-  | 'iconView' | 'listView' | 'detailsView';
+  | 'iconView' | 'listView' | 'detailsView' | 'radioCodigo2' | 'tankStrike';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -211,6 +211,14 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   detailsView: {
     es: "Vista de Detalles",
     en: "Details View"
+  },
+  radioCodigo2: {
+    es: "Radio Código 2",
+    en: "Radio Código 2"
+  },
+  tankStrike: {
+    es: "TankStrike",
+    en: "TankStrike"
   }
 };
 

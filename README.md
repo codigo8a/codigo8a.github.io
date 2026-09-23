@@ -123,7 +123,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 | **MarkdownViewer** | Visor markdown con vista Preview/Source y galería de imágenes | 1000x800 | ❌ No (por archivo) |
 | **Search** | Búsqueda por nombre y contenido de archivos | 640x460 | ✅ Sí |
 | **Settings** | Configuración con 3 tabs: General (idioma, Clippy), Desktop (wallpapers) y Advanced | 450x480 | ✅ Sí |
-| **Internet Explorer** | Navegador web estilo retro | 900x650 | ✅ Sí |
+| **Internet Explorer** | Navegador web estilo retro — acepta URL inicial vía `openApp('iexplorer', { url })` | 900x650 | ✅ Sí |
 | **Portfolio** | Portafolio de proyectos con 4 vistas (Iconos, Lista, Detalles) | 600x450 | ✅ Sí |
 | **My Computer** | Explorador del sistema | 780x540 | ✅ Sí |
 | **Network** | Entorno de red | 500x350 | ✅ Sí |
@@ -160,6 +160,15 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 - **Vista Iconos (My Documents)**: Cuadrícula de iconos estilo Windows 98
   - Iconos con nombres de archivos
   - Doble clic para abrir archivos
+
+### Iconos de Escritorio
+- Iconos arrastrables con posición persistente en localStorage
+- **Radio Código 2**: abre Internet Explorer en `https://kick.com/radio-codigo2`
+  - Si ya hay una ventana del navegador abierta, la reutiliza (la enfoca y navega en ella)
+- **TankStrike**: icono situado justo debajo de Radio Código 2, abre Internet Explorer en `https://tankstrike-live.onrender.com`
+  - Mismo comportamiento que el icono de radio (reutiliza la ventana del navegador si ya está abierta)
+- Cualquier icono puede abrir una app pasando datos:
+  `openApp('iexplorer', { url: 'https://…' })` → `launchIExplorer(url)`
 
 ### Barra de Tareas
 - Botón Start con menú funcional
@@ -373,7 +382,7 @@ No requiere variables de entorno. La configuración de Vite está en `vite.confi
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional con submenú
-- ✅ Iconos de escritorio (incluyendo Winamp con Webamp)
+- ✅ Iconos de escritorio (incluyendo Winamp con Webamp, Radio Código 2 → navegador con la radio y TankStrike → navegador con `https://tankstrike-live.onrender.com`)
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98

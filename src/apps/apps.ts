@@ -76,7 +76,8 @@ export const APPS: Record<string, AppDefinition> = {
     component: IExplorerApp,
     defaultSize: { width: 900, height: 650 },
     centered: true,
-    customLaunch: launchIExplorer,
+    // appData may carry { url } to open the browser on a specific page
+    customLaunch: (appData) => launchIExplorer(appData?.url),
   },
   myComputer: {
     id: 'myComputer',
