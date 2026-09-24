@@ -28,6 +28,9 @@ const RADIO_URL = 'https://kick.com/radio-codigo2';
 /** TankStrike live game opened by the "TankStrike" desktop icon */
 const TANKSTRIKE_URL = 'https://tankstrike-live.onrender.com';
 
+/** YouTube channel opened by the "YouTube Juan David Ochoa" desktop icon */
+const YOUTUBE_URL = 'https://www.youtube.com/@JuanDavidOchoa';
+
 const STORAGE_KEY = 'desktop-icon-positions';
 const ICON_W = 72;  // 64px width + 8px padding
 const ICON_H = 72;  // approximate height
@@ -140,11 +143,19 @@ const APP_ICONS: Record<string, React.ReactNode> = {
       height={32} 
     />
   ),
+  youtube: (
+    <img 
+      src="/images/icons/youtube-32x32.svg" 
+      alt="YouTube" 
+      width={32} 
+      height={32} 
+    />
+  ),
 };
 
 /**
- * Grid positions (2 columns) — Radio Código 2 sits directly below Winamp and
- * TankStrike directly below the radio:
+ * Grid positions (2 columns) — Radio Código 2 sits directly below Winamp,
+ * TankStrike directly below the radio and YouTube directly below TankStrike:
  *   col 0         | col 1
  *   My Computer   | My Documents
  *   Recycle Bin   | Search
@@ -152,6 +163,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
  *   Network...    | Winamp
  *   Notepad...    | Radio Código2
  *                 | TankStrike
+ *                 | YouTube Juan D. Ochoa
  * Icons without a grid slot flow below the grid in col 0.
  */
 const ICON_GRID: Record<string, [number, number]> = {
@@ -164,6 +176,7 @@ const ICON_GRID: Record<string, [number, number]> = {
   winamp:        [1, 3],
   radio:         [1, 4],
   tankstrike:    [1, 5],
+  youtube:       [1, 6],
 };
 
 const DESKTOP_ICONS: DesktopIcon[] = [
@@ -178,6 +191,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },
   { id: 'radio', icon: 'radio', label: 'Radio Código 2', labelKey: 'radioCodigo2' },
   { id: 'tankstrike', icon: 'tankstrike', label: 'TankStrike', labelKey: 'tankStrike' },
+  { id: 'youtube', icon: 'youtube', label: 'YouTube Juan David Ochoa', labelKey: 'youtubeJuanDavidOchoa' },
   // Rest
   { id: 'network', icon: 'network', label: 'Network Neighborhood' },
   { id: 'notepad', icon: 'notepad', label: 'Notepad' },
@@ -285,6 +299,12 @@ export const DesktopIcons: React.FC = () => {
       // there is one, otherwise open a new one on the game
       if (!navigateIExplorer(TANKSTRIKE_URL)) {
         openApp('iexplorer', { url: TANKSTRIKE_URL });
+      }
+    } else if (iconId === 'youtube') {
+      // Same behaviour as the radio and TankStrike icons: reuse the open
+      // browser window when there is one, otherwise open a new one on the channel
+      if (!navigateIExplorer(YOUTUBE_URL)) {
+        openApp('iexplorer', { url: YOUTUBE_URL });
       }
     } else if (iconId === 'winamp') {
       launchWinamp();

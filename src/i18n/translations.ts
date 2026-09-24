@@ -8,7 +8,7 @@ export type TranslationKeys =
   | 'title' | 'content' | 'ready' | 'noSearch' | 'results' | 'tableView' | 'treeView' | 'didYouKnow' | 'preview' | 'source' | 'objects' | 'folders'
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
   | 'programs' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
-  | 'iconView' | 'listView' | 'detailsView' | 'radioCodigo2' | 'tankStrike';
+  | 'iconView' | 'listView' | 'detailsView' | 'radioCodigo2' | 'tankStrike' | 'youtubeJuanDavidOchoa';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -219,6 +219,10 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   tankStrike: {
     es: "TankStrike",
     en: "TankStrike"
+  },
+  youtubeJuanDavidOchoa: {
+    es: "YouTube Juan David Ochoa",
+    en: "YouTube Juan David Ochoa"
   }
 };
 

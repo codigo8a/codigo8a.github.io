@@ -167,6 +167,8 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
   - Si ya hay una ventana del navegador abierta, la reutiliza (la enfoca y navega en ella)
 - **TankStrike**: icono situado justo debajo de Radio Código 2, abre Internet Explorer en `https://tankstrike-live.onrender.com`
   - Mismo comportamiento que el icono de radio (reutiliza la ventana del navegador si ya está abierta)
+- **YouTube Juan David Ochoa**: icono situado justo debajo de TankStrike, abre Internet Explorer en `https://www.youtube.com/@JuanDavidOchoa`
+  - Mismo comportamiento que los iconos anteriores (reutiliza la ventana del navegador si ya está abierta)
 - Cualquier icono puede abrir una app pasando datos:
   `openApp('iexplorer', { url: 'https://…' })` → `launchIExplorer(url)`
 
@@ -382,7 +384,7 @@ No requiere variables de entorno. La configuración de Vite está en `vite.confi
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional con submenú
-- ✅ Iconos de escritorio (incluyendo Winamp con Webamp, Radio Código 2 → navegador con la radio y TankStrike → navegador con `https://tankstrike-live.onrender.com`)
+- ✅ Iconos de escritorio (incluyendo Winamp con Webamp, Radio Código 2 → navegador con la radio, TankStrike → navegador con `https://tankstrike-live.onrender.com` y YouTube Juan David Ochoa → navegador con `https://www.youtube.com/@JuanDavidOchoa`)
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98
