@@ -122,7 +122,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 | **FileExplorer** | Explorador con vista de iconos estilo "My Documents" (cuadrícula) | 780x540 | ✅ Sí |
 | **MarkdownViewer** | Visor markdown con vista Preview/Source y galería de imágenes | 1000x800 | ❌ No (por archivo) |
 | **Search** | Búsqueda por nombre y contenido de archivos | 640x460 | ✅ Sí |
-| **Settings** | Configuración con 3 tabs: General (idioma, Clippy), Desktop (wallpapers) y Advanced | 450x480 | ✅ Sí |
+| **Settings** | Configuración con 3 tabs: General (idioma, Clippy), Desktop (wallpapers + imagen de fondo personalizada) y Advanced | 450x480 | ✅ Sí |
 | **Internet Explorer** | Navegador web estilo retro — acepta URL inicial vía `openApp('iexplorer', { url })` | 900x650 | ✅ Sí |
 | **Portfolio** | Portafolio de proyectos con 4 vistas (Iconos, Lista, Detalles) | 600x450 | ✅ Sí |
 | **My Computer** | Explorador del sistema | 780x540 | ✅ Sí |
@@ -180,7 +180,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 
 ### Settings con Tabs
 - **Tab General**: Idioma (ES/EN) + Clippy (activar/desactivar)
-- **Tab Desktop**: Selector de wallpapers con previsualización
+- **Tab Desktop**: Selector de wallpapers con previsualización + **Fondo de escritorio** (subir una imagen propia)
 - **Tab Advanced**: Eliminar datos guardados
 - Interfaz tipo Windows 98 con tabs
 
@@ -189,6 +189,14 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 - Selector visual en Settings con previsualización
 - Persistencia en localStorage
 - Opciones: Teal, Brick, Green Marble, Ocean, Gray Grid, Purple Stone
+
+### Fondo de escritorio personalizado (imagen subida)
+- **Settings → Desktop → Fondo de escritorio**: input de archivo (`accept="image/*"`) + botón **Quitar fondo**
+- La imagen se lee con `FileReader.readAsDataURL` y se guarda como Data URL en `localStorage['desktop.backgroundImage']`
+- Se aplica inmediatamente al escritorio (`background-size: cover`, `center`, `no-repeat`) con prioridad sobre el wallpaper seleccionado
+- Límite de 2 MB por imagen; se valida el tipo MIME y se captura `QuotaExceededError` (los errores se muestran en el propio panel, no en consola)
+- **La persistencia es SOLO local** (`src/utils/desktopBackground.ts`): no se sube a ningún servidor, no se sincroniza con backend ni con la cuenta del usuario. Al limpiar los datos del navegador (o usar *Advanced → Eliminar datos guardados*) el fondo desaparece y vuelve el wallpaper
+- Valores ausentes o corruptos se ignoran sin romper la UI
 
 ### Clippy - Asistente Virtual
 - Aparece después de 2 segundos con animación flotante
@@ -355,7 +363,7 @@ LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 - **Hooks**: 7 personalizados
 - **Contextos**: 3
 - **Archivos markdown**: 98
-- **Wallpapers**: 6
+- **Wallpapers**: 6 (+ imagen de fondo personalizada subida por el usuario)
 - **Asistente virtual**: Clippy con 24 tips
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
@@ -386,6 +394,7 @@ No requiere variables de entorno. La configuración de Vite está en `vite.confi
 - ✅ Menú Start funcional con submenú
 - ✅ Iconos de escritorio (incluyendo Winamp con Webamp, Radio Código 2 → navegador con la radio, TankStrike → navegador con `https://tankstrike-live.onrender.com` y YouTube Juan David Ochoa → navegador con `https://www.youtube.com/@JuanDavidOchoa`)
 - ✅ Wallpapers cambiables (6 opciones)
+- ✅ Fondo de escritorio personalizado: subir una imagen desde Settings → Desktop, guardada solo en localStorage (`desktop.backgroundImage`)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)
 - ✅ **Loading Screen** - Pantalla de carga con reloj de arena animado estilo Windows 98
 - ✅ Persistencia de posición y tamaño de ventanas

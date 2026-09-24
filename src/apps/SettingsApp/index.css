@@ -115,6 +115,72 @@
   color: #444;
 }
 
+/* ── Desktop background (custom image upload) ── */
+
+.settings-background-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-background-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 90px;
+  padding: 4px;
+  border: 1px solid #808080;
+  background: #008080;
+  overflow: hidden;
+}
+
+.settings-background-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.settings-background-empty {
+  font-size: 10px;
+  color: #c0c0c0;
+}
+
+.settings-background-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-background-file-label {
+  white-space: nowrap;
+}
+
+.settings-background-file {
+  flex: 1;
+  min-width: 0;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 10px;
+}
+
+.settings-background-remove {
+  align-self: flex-start;
+  padding: 4px 12px;
+}
+
+.settings-background-message {
+  font-size: 10px;
+  color: #004000;
+}
+
+.settings-background-message:empty {
+  display: none;
+}
+
+.settings-background-message.error {
+  color: #a00;
+  font-weight: bold;
+}
+
 .settings-footer {
   display: flex;
   justify-content: flex-end;

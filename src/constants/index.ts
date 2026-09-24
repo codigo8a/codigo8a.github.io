@@ -29,6 +29,8 @@ export const LOCAL_STORAGE_KEYS = {
   SHOW_WELCOME: 'show_welcome',
   WELCOME_HIDDEN_AT: 'welcome_hidden_at',
   WALLPAPER: 'wallpaper',
+  /** Custom desktop background image (Data URL, client-side only). */
+  DESKTOP_BACKGROUND_IMAGE: 'desktop.backgroundImage',
   CLIPPY_ENABLED: 'clippy_enabled',
   WINDOW_STATES: 'window_states',
   WINAMP_STATE: 'winamp_state',

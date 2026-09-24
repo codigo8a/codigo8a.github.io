@@ -7,6 +7,7 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getOsWindows, focusOsWindow } from '../utils/osWindowRegistry';
 import type { OsWindowEntry } from '../utils/osWindowRegistry';
 import { getCascadeOffset } from '../utils/cascadePosition';
+import { getDesktopBackgroundImage, DESKTOP_BACKGROUND_EVENT } from '../utils/desktopBackground';
 
 export type WallpaperId = 'teal' | 'brick' | 'marble' | 'ocean' | 'grid' | 'purple';
 
@@ -31,6 +32,13 @@ interface DesktopContextType {
   activeWindowId: string | null;
   wallpaper: WallpaperId;
   setWallpaper: (wallpaper: WallpaperId) => void;
+  /**
+   * Custom desktop background (Data URL from Settings), or null when none.
+   * Read-only here: it is written by SettingsApp straight to localStorage and
+   * pushed back through the 'desktop-background-changed' event (see
+   * utils/desktopBackground.ts — local-only persistence, never uploaded).
+   */
+  backgroundImage: string | null;
   clippyEnabled: boolean;
   setClippyEnabled: (enabled: boolean) => void;
   handleWindowFocus: (id: string) => void;
@@ -83,6 +91,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
     setWallpaperState(newWallpaper);
     localStorage.setItem(LOCAL_STORAGE_KEYS.WALLPAPER, newWallpaper);
   }, []);
+
+  // Custom background image (Data URL) — stored client-side only by Settings.
+  // Corrupt or missing values resolve to null so the wallpaper stays in use.
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(() => getDesktopBackgroundImage());
 
   // Load clippy state from localStorage
   const [clippyEnabled, setClippyEnabledState] = useState<boolean>(() => {
@@ -515,6 +527,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
         localStorage.setItem(LOCAL_STORAGE_KEYS.WALLPAPER, detail.wallpaper);
       }
     };
+    const handleBackgroundImage = () => {
+      // Settings writes localStorage directly; just re-read the stored value.
+      setBackgroundImage(getDesktopBackgroundImage());
+    };
     const handleClippy = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail?.enabled !== undefined) {
@@ -524,10 +540,12 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
     };
     window.addEventListener('desktop-open-app', handleOpenApp);
     window.addEventListener('wallpaper-changed', handleWallpaper);
+    window.addEventListener(DESKTOP_BACKGROUND_EVENT, handleBackgroundImage);
     window.addEventListener('clippy-changed', handleClippy);
     return () => {
       window.removeEventListener('desktop-open-app', handleOpenApp);
       window.removeEventListener('wallpaper-changed', handleWallpaper);
+      window.removeEventListener(DESKTOP_BACKGROUND_EVENT, handleBackgroundImage);
       window.removeEventListener('clippy-changed', handleClippy);
     };
   }, [openApp]);
@@ -538,6 +556,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
     activeWindowId,
     wallpaper,
     setWallpaper,
+    backgroundImage,
     clippyEnabled,
     setClippyEnabled,
     handleWindowFocus,

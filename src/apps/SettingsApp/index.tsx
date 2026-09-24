@@ -3,6 +3,14 @@ import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
+import { LOCAL_STORAGE_KEYS } from '../../constants';
+import {
+  MAX_BACKGROUND_IMAGE_BYTES,
+  getDesktopBackgroundImage,
+  setDesktopBackgroundImage,
+  clearDesktopBackgroundImage,
+  readImageFileAsDataUrl,
+} from '../../utils/desktopBackground';
 
 /**
  * Placeholder React component — Settings uses os-gui natively via launchSettings().
@@ -35,6 +43,17 @@ const STRINGS: Record<string, Record<string, string>> = {
     enable: 'Enable',
     disable: 'Disable',
     wallpaper: 'Wallpaper',
+    desktopBackground: 'Desktop background',
+    bgFileLabel: 'Image file:',
+    bgInfo: 'Choose an image to use as the desktop background. It is applied immediately and stored ONLY in this browser (localStorage) — nothing is uploaded to a server, and the image is gone if the browser data is cleared. A custom image takes priority over the wallpaper above.',
+    bgRemove: 'Remove background',
+    bgEmpty: 'No custom image',
+    bgApplied: 'Background applied and saved in this browser.',
+    bgRemoved: 'Background removed. The wallpaper is used again.',
+    bgErrorNotImage: 'That file is not an image. Choose an image file (PNG, JPG, GIF, WEBP...).',
+    bgErrorTooLarge: 'The image is too large (max {max}). Choose a smaller image.',
+    bgErrorQuota: 'Not enough browser storage for this image (it exceeds the localStorage limit). Try a smaller image.',
+    bgErrorRead: 'The image could not be read. Try another file.',
     apply: 'Apply',
     cancel: 'Cancel',
     changesInfo: 'Changes will be applied after clicking Apply.',
@@ -57,6 +76,17 @@ const STRINGS: Record<string, Record<string, string>> = {
     enable: 'Habilitar',
     disable: 'Deshabilitar',
     wallpaper: 'Fondo de pantalla',
+    desktopBackground: 'Fondo de escritorio',
+    bgFileLabel: 'Archivo de imagen:',
+    bgInfo: 'Elige una imagen para usarla como fondo del escritorio. Se aplica al instante y se guarda SOLO en este navegador (localStorage): no se sube a ningún servidor y desaparece al borrar los datos del navegador. La imagen personalizada tiene prioridad sobre el fondo de pantalla de arriba.',
+    bgRemove: 'Quitar fondo',
+    bgEmpty: 'Sin imagen personalizada',
+    bgApplied: 'Fondo aplicado y guardado en este navegador.',
+    bgRemoved: 'Fondo eliminado. Se vuelve a usar el fondo de pantalla.',
+    bgErrorNotImage: 'El archivo no es una imagen. Elige un archivo de imagen (PNG, JPG, GIF, WEBP...).',
+    bgErrorTooLarge: 'La imagen es demasiado grande (máx. {max}). Elige una imagen más pequeña.',
+    bgErrorQuota: 'No hay espacio suficiente en el almacenamiento del navegador (se supera el límite de localStorage). Prueba con una imagen más pequeña.',
+    bgErrorRead: 'No se pudo leer la imagen. Prueba con otro archivo.',
     apply: 'Aplicar',
     cancel: 'Cancelar',
     changesInfo: 'Los cambios se aplicarán al hacer clic en Aplicar.',
@@ -369,6 +399,147 @@ export function launchSettings(): void {
   wpInfoText.textContent = t('wallpaperInfo');
   desktopPanel.appendChild(wpInfoText);
 
+  // ── Desktop background image (upload) ──
+  //
+  // LOCAL ONLY: the picked file is read as a Data URL with
+  // FileReader.readAsDataURL and saved in localStorage under
+  // 'desktop.backgroundImage'. It is never uploaded to a server, never sent to
+  // a backend and never attached to any user account; if the browser storage is
+  // cleared (or "Delete Saved Data" is used) the desktop goes back to the
+  // wallpaper selected above.
+  const bgFieldset = document.createElement('fieldset');
+  bgFieldset.className = 'settings-section';
+
+  const bgLegend = document.createElement('legend');
+  bgLegend.textContent = t('desktopBackground');
+  bgFieldset.appendChild(bgLegend);
+
+  const bgSection = document.createElement('div');
+  bgSection.className = 'settings-background-section';
+
+  // Preview of the stored image (hidden when there is none)
+  const bgPreview = document.createElement('div');
+  bgPreview.className = 'settings-background-preview';
+
+  const bgImage = document.createElement('img');
+  bgImage.className = 'settings-background-image';
+  bgImage.alt = t('desktopBackground');
+  bgImage.hidden = true;
+
+  const bgEmpty = document.createElement('span');
+  bgEmpty.className = 'settings-background-empty';
+  bgEmpty.textContent = t('bgEmpty');
+
+  bgPreview.appendChild(bgImage);
+  bgPreview.appendChild(bgEmpty);
+  bgSection.appendChild(bgPreview);
+
+  // File picker
+  const bgRow = document.createElement('div');
+  bgRow.className = 'settings-background-row';
+
+  const bgFileLabel = document.createElement('label');
+  bgFileLabel.className = 'settings-background-file-label';
+  bgFileLabel.htmlFor = 'desktop-background-file';
+  bgFileLabel.textContent = t('bgFileLabel');
+
+  const bgFileInput = document.createElement('input');
+  bgFileInput.type = 'file';
+  bgFileInput.id = 'desktop-background-file';
+  bgFileInput.accept = 'image/*';
+  bgFileInput.className = 'settings-background-file';
+
+  bgRow.appendChild(bgFileLabel);
+  bgRow.appendChild(bgFileInput);
+  bgSection.appendChild(bgRow);
+
+  // Remove button
+  const bgRemoveBtn = document.createElement('button');
+  bgRemoveBtn.className = 'settings-button settings-background-remove';
+  bgRemoveBtn.type = 'button';
+  bgRemoveBtn.textContent = t('bgRemove');
+  bgSection.appendChild(bgRemoveBtn);
+
+  // Feedback area (errors are reported here instead of the console)
+  const bgMessage = document.createElement('div');
+  bgMessage.className = 'settings-background-message';
+  bgMessage.setAttribute('role', 'status');
+  bgMessage.setAttribute('aria-live', 'polite');
+  bgSection.appendChild(bgMessage);
+
+  const bgInfoText = document.createElement('div');
+  bgInfoText.className = 'settings-info';
+  bgInfoText.textContent = t('bgInfo');
+  bgSection.appendChild(bgInfoText);
+
+  bgFieldset.appendChild(bgSection);
+  desktopPanel.appendChild(bgFieldset);
+
+  const maxSizeLabel = `${Math.round(MAX_BACKGROUND_IMAGE_BYTES / (1024 * 1024))} MB`;
+
+  function showBackgroundMessage(text: string, isError: boolean): void {
+    bgMessage.textContent = text;
+    bgMessage.classList.toggle('error', isError);
+  }
+
+  /** Sync preview + remove button with what is actually stored (missing/corrupt → no image). */
+  function refreshBackgroundState(): void {
+    const stored = getDesktopBackgroundImage();
+    if (stored) {
+      bgImage.src = stored;
+      bgImage.hidden = false;
+      bgEmpty.hidden = true;
+    } else {
+      bgImage.removeAttribute('src');
+      bgImage.hidden = true;
+      bgEmpty.hidden = false;
+    }
+    bgRemoveBtn.disabled = !stored;
+  }
+
+  function backgroundErrorMessage(error: string): string {
+    if (error === 'not-image') return t('bgErrorNotImage');
+    if (error === 'too-large') return t('bgErrorTooLarge').replace('{max}', maxSizeLabel);
+    return t('bgErrorRead');
+  }
+
+  bgFileInput.addEventListener('change', () => {
+    const file = bgFileInput.files?.[0];
+    if (!file) return;
+    showBackgroundMessage('', false);
+
+    readImageFileAsDataUrl(file)
+      .then((dataUrl) => {
+        const result = setDesktopBackgroundImage(dataUrl);
+        if (result.ok) {
+          showBackgroundMessage(t('bgApplied'), false);
+        } else {
+          showBackgroundMessage(result.error === 'quota' ? t('bgErrorQuota') : t('bgErrorRead'), true);
+        }
+        // On failure the previously stored image (if any) is still in place.
+        refreshBackgroundState();
+      })
+      .catch((e: unknown) => {
+        showBackgroundMessage(
+          backgroundErrorMessage(e instanceof Error ? e.message : 'read-failed'),
+          true,
+        );
+        refreshBackgroundState();
+      })
+      .finally(() => {
+        // Reset so the same file can be picked again
+        bgFileInput.value = '';
+      });
+  });
+
+  bgRemoveBtn.addEventListener('click', () => {
+    clearDesktopBackgroundImage();
+    refreshBackgroundState();
+    showBackgroundMessage(t('bgRemoved'), false);
+  });
+
+  refreshBackgroundState();
+
   // ── Advanced panel ──
   const advancedPanel = document.createElement('div');
   advancedPanel.className = 'settings-panel';
@@ -404,6 +575,8 @@ export function launchSettings(): void {
         'show_welcome',
         'welcome_hidden_at',
         'desktop-icon-positions',
+        // Custom desktop background (Data URL) — local-only, see utils/desktopBackground.ts
+        LOCAL_STORAGE_KEYS.DESKTOP_BACKGROUND_IMAGE,
       ];
       for (const key of keysToRemove) {
         localStorage.removeItem(key);

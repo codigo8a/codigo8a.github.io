@@ -15,6 +15,7 @@ export const Desktop: React.FC = () => {
     osWindows,
     activeWindowId,
     wallpaper,
+    backgroundImage,
     clippyEnabled,
     setClippyEnabled,
     handleWindowFocus,
@@ -40,15 +41,21 @@ export const Desktop: React.FC = () => {
 
   const currentWallpaper = WALLPAPERS.find(w => w.id === wallpaper) || WALLPAPERS[0];
 
+  // A custom background image (uploaded in Settings → Desktop, kept in
+  // localStorage only) wins over the selected wallpaper when present.
+  const hasCustomBackground = Boolean(backgroundImage);
+
   return (
     <div className="desktop" style={{
       width: '100vw',
       height: '100dvh',
       minHeight: '100dvh',
-      backgroundImage: `url(${currentWallpaper.path})`,
+      backgroundImage: hasCustomBackground
+        ? `url(${backgroundImage})`
+        : `url(${currentWallpaper.path})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      backgroundRepeat: 'repeat',
+      backgroundRepeat: hasCustomBackground ? 'no-repeat' : 'repeat',
       overflow: 'hidden',
       position: 'relative'
     }}>
