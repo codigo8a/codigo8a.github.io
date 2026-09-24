@@ -6,9 +6,9 @@ import { getCascadeOffset } from '../../utils/cascadePosition';
 import { LOCAL_STORAGE_KEYS } from '../../constants';
 import {
   MAX_BACKGROUND_IMAGE_BYTES,
-  getDesktopBackgroundImage,
-  setDesktopBackgroundImage,
-  clearDesktopBackgroundImage,
+  getBackgroundImage,
+  setBackgroundImage,
+  clearBackgroundImage,
   readImageFileAsDataUrl,
 } from '../../utils/desktopBackground';
 
@@ -27,8 +27,14 @@ const WALLPAPERS = [
   { id: 'marble', name: 'Green Marble', path: '/wallpapers/marble.svg' },
   { id: 'ocean', name: 'Ocean', path: '/wallpapers/ocean.svg' },
   { id: 'grid', name: 'Gray Grid', path: '/wallpapers/grid.svg' },
-  { id: 'purple', name: 'Purple Stone', path: '/wallpapers/purple.svg' },
 ];
+
+/**
+ * Pseudo-wallpaper id for the user's own picture. There is no file behind it:
+ * clicking the tile opens the native file dialog and the picked image is read
+ * as a Data URL and kept in localStorage (local only, never uploaded).
+ */
+const CUSTOM_WALLPAPER_ID = 'custom';
 
 // ── Inline translations (no React hook available) ──
 const STRINGS: Record<string, Record<string, string>> = {
@@ -43,9 +49,9 @@ const STRINGS: Record<string, Record<string, string>> = {
     enable: 'Enable',
     disable: 'Disable',
     wallpaper: 'Wallpaper',
-    desktopBackground: 'Desktop background',
-    bgFileLabel: 'Image file:',
-    bgInfo: 'Choose an image to use as the desktop background. It is applied immediately and stored ONLY in this browser (localStorage) — nothing is uploaded to a server, and the image is gone if the browser data is cleared. A custom image takes priority over the wallpaper above.',
+    customImage: 'Custom image',
+    customImageFileLabel: 'Image file:',
+    customImageInfo: 'Click "Custom image" and pick a picture from your computer: it is applied immediately as the desktop background. It is stored ONLY in this browser (localStorage) — nothing is uploaded to a server, and it is gone if the browser data is cleared. While a custom image is set it replaces the wallpaper above.',
     bgRemove: 'Remove background',
     bgEmpty: 'No custom image',
     bgApplied: 'Background applied and saved in this browser.',
@@ -76,9 +82,9 @@ const STRINGS: Record<string, Record<string, string>> = {
     enable: 'Habilitar',
     disable: 'Deshabilitar',
     wallpaper: 'Fondo de pantalla',
-    desktopBackground: 'Fondo de escritorio',
-    bgFileLabel: 'Archivo de imagen:',
-    bgInfo: 'Elige una imagen para usarla como fondo del escritorio. Se aplica al instante y se guarda SOLO en este navegador (localStorage): no se sube a ningún servidor y desaparece al borrar los datos del navegador. La imagen personalizada tiene prioridad sobre el fondo de pantalla de arriba.',
+    customImage: 'Imagen personalizada',
+    customImageFileLabel: 'Archivo de imagen:',
+    customImageInfo: 'Haz clic en "Imagen personalizada" y elige una imagen de tu equipo: se aplica al instante como fondo del escritorio. Se guarda SOLO en este navegador (localStorage): no se sube a ningún servidor y desaparece al borrar los datos del navegador. Mientras haya una imagen personalizada, sustituye al fondo de pantalla de arriba.',
     bgRemove: 'Quitar fondo',
     bgEmpty: 'Sin imagen personalizada',
     bgApplied: 'Fondo aplicado y guardado en este navegador.',
@@ -109,7 +115,8 @@ function t(key: string): string {
  * Custom launch function that creates a Settings window using os-gui $Window.
  * Two tabs:
  *   - General: Language selection (English/Español), Clippy toggle (Enable/Disable)
- *   - Desktop: Wallpaper preview grid with selection
+ *   - Desktop: Wallpaper preview grid with selection, plus a "Custom image"
+ *     tile that opens the native file dialog (image kept in localStorage only)
  *
  * Data is persisted directly to localStorage and custom events are dispatched
  * so the React context providers pick up the changes.
@@ -130,6 +137,9 @@ export function launchSettings(): void {
   let selectedLanguage = currentLang;
   let selectedWallpaper = currentWallpaper;
   let selectedClippy = clippyInitiallyEnabled;
+  // True while the custom image (if any) is the background in use; picking a
+  // wallpaper tile turns it off so Apply can drop the stored image.
+  let usingCustomBackground = Boolean(getBackgroundImage());
 
   // ── Create the os-gui window ──
   const $win = $Window({
@@ -357,6 +367,17 @@ export function launchSettings(): void {
   // Track the currently selected wallpaper DOM element
   let selectedWpItem: HTMLElement | null = null;
 
+  /** Move the selection highlight to `item` (null clears it). */
+  function markSelected(item: HTMLElement | null): void {
+    if (selectedWpItem) {
+      selectedWpItem.classList.remove('selected');
+    }
+    selectedWpItem = item;
+    if (item) {
+      item.classList.add('selected');
+    }
+  }
+
   for (const wp of WALLPAPERS) {
     const item = document.createElement('div');
     item.className = 'settings-wallpaper-item';
@@ -378,102 +399,95 @@ export function launchSettings(): void {
     item.appendChild(name);
 
     item.addEventListener('click', () => {
-      if (selectedWpItem) {
-        selectedWpItem.classList.remove('selected');
-      }
-      item.classList.add('selected');
-      selectedWpItem = item;
+      markSelected(item);
       selectedWallpaper = wp.id;
+      // A wallpaper is applied on Apply, so a stored custom image (if any)
+      // keeps being shown until then.
+      usingCustomBackground = false;
     });
 
     wpGrid.appendChild(item);
   }
 
-  wpSection.appendChild(wpGrid);
-  wpFieldset.appendChild(wpSection);
-  desktopPanel.appendChild(wpFieldset);
-
-  // Wallpaper info text
-  const wpInfoText = document.createElement('div');
-  wpInfoText.className = 'settings-info';
-  wpInfoText.textContent = t('wallpaperInfo');
-  desktopPanel.appendChild(wpInfoText);
-
-  // ── Desktop background image (upload) ──
+  // ── "Custom image" tile ──
   //
   // LOCAL ONLY: the picked file is read as a Data URL with
   // FileReader.readAsDataURL and saved in localStorage under
   // 'desktop.backgroundImage'. It is never uploaded to a server, never sent to
   // a backend and never attached to any user account; if the browser storage is
   // cleared (or "Delete Saved Data" is used) the desktop goes back to the
-  // wallpaper selected above.
-  const bgFieldset = document.createElement('fieldset');
-  bgFieldset.className = 'settings-section';
+  // selected wallpaper.
+  const customItem = document.createElement('div');
+  customItem.className = 'settings-wallpaper-item';
+  customItem.dataset.wpId = CUSTOM_WALLPAPER_ID;
+  customItem.tabIndex = 0;
+  customItem.setAttribute('role', 'button');
+  customItem.setAttribute('aria-label', t('customImage'));
 
-  const bgLegend = document.createElement('legend');
-  bgLegend.textContent = t('desktopBackground');
-  bgFieldset.appendChild(bgLegend);
+  const customPreview = document.createElement('div');
+  customPreview.className = 'settings-wallpaper-preview settings-wallpaper-preview-custom';
+  customPreview.title = t('bgEmpty');
 
-  const bgSection = document.createElement('div');
-  bgSection.className = 'settings-background-section';
+  const customName = document.createElement('span');
+  customName.className = 'settings-wallpaper-name';
+  customName.textContent = t('customImage');
 
-  // Preview of the stored image (hidden when there is none)
-  const bgPreview = document.createElement('div');
-  bgPreview.className = 'settings-background-preview';
+  customItem.appendChild(customPreview);
+  customItem.appendChild(customName);
 
-  const bgImage = document.createElement('img');
-  bgImage.className = 'settings-background-image';
-  bgImage.alt = t('desktopBackground');
-  bgImage.hidden = true;
-
-  const bgEmpty = document.createElement('span');
-  bgEmpty.className = 'settings-background-empty';
-  bgEmpty.textContent = t('bgEmpty');
-
-  bgPreview.appendChild(bgImage);
-  bgPreview.appendChild(bgEmpty);
-  bgSection.appendChild(bgPreview);
-
-  // File picker
-  const bgRow = document.createElement('div');
-  bgRow.className = 'settings-background-row';
-
-  const bgFileLabel = document.createElement('label');
-  bgFileLabel.className = 'settings-background-file-label';
-  bgFileLabel.htmlFor = 'desktop-background-file';
-  bgFileLabel.textContent = t('bgFileLabel');
-
+  // Hidden file input: this is what opens the native "choose a file" dialog so
+  // the user can point at an image on their computer.
   const bgFileInput = document.createElement('input');
   bgFileInput.type = 'file';
   bgFileInput.id = 'desktop-background-file';
   bgFileInput.accept = 'image/*';
-  bgFileInput.className = 'settings-background-file';
+  bgFileInput.className = 'settings-wallpaper-file';
+  bgFileInput.setAttribute('aria-label', t('customImageFileLabel'));
 
-  bgRow.appendChild(bgFileLabel);
-  bgRow.appendChild(bgFileInput);
-  bgSection.appendChild(bgRow);
+  const bgFileLabel = document.createElement('label');
+  bgFileLabel.className = 'settings-visually-hidden';
+  bgFileLabel.htmlFor = 'desktop-background-file';
+  bgFileLabel.textContent = t('customImageFileLabel');
 
-  // Remove button
+  function openFilePicker(): void {
+    bgFileInput.click();
+  }
+
+  customItem.addEventListener('click', openFilePicker);
+  customItem.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openFilePicker();
+    }
+  });
+
+  wpGrid.appendChild(customItem);
+
+  // Remove button (visible only while a custom image is stored)
   const bgRemoveBtn = document.createElement('button');
-  bgRemoveBtn.className = 'settings-button settings-background-remove';
+  bgRemoveBtn.className = 'settings-button settings-wallpaper-remove';
   bgRemoveBtn.type = 'button';
   bgRemoveBtn.textContent = t('bgRemove');
-  bgSection.appendChild(bgRemoveBtn);
+  bgRemoveBtn.hidden = true;
 
   // Feedback area (errors are reported here instead of the console)
   const bgMessage = document.createElement('div');
-  bgMessage.className = 'settings-background-message';
+  bgMessage.className = 'settings-wallpaper-message';
   bgMessage.setAttribute('role', 'status');
   bgMessage.setAttribute('aria-live', 'polite');
-  bgSection.appendChild(bgMessage);
 
-  const bgInfoText = document.createElement('div');
-  bgInfoText.className = 'settings-info';
-  bgInfoText.textContent = t('bgInfo');
-  bgSection.appendChild(bgInfoText);
+  const wpInfoText = document.createElement('div');
+  wpInfoText.className = 'settings-info';
+  wpInfoText.textContent = t('customImageInfo');
 
-  bgFieldset.appendChild(bgSection);
-  desktopPanel.appendChild(bgFieldset);
+  wpSection.appendChild(wpGrid);
+  wpSection.appendChild(bgFileLabel);
+  wpSection.appendChild(bgFileInput);
+  wpSection.appendChild(bgRemoveBtn);
+  wpSection.appendChild(bgMessage);
+  wpSection.appendChild(wpInfoText);
+  wpFieldset.appendChild(wpSection);
+  desktopPanel.appendChild(wpFieldset);
 
   const maxSizeLabel = `${Math.round(MAX_BACKGROUND_IMAGE_BYTES / (1024 * 1024))} MB`;
 
@@ -482,24 +496,41 @@ export function launchSettings(): void {
     bgMessage.classList.toggle('error', isError);
   }
 
-  /** Sync preview + remove button with what is actually stored (missing/corrupt → no image). */
-  function refreshBackgroundState(): void {
-    const stored = getDesktopBackgroundImage();
+  /**
+   * Sync the "Custom image" tile and the remove button with what is actually
+   * stored (missing/corrupt value → no custom image, no error).
+   */
+  function refreshCustomState(): void {
+    const stored = getBackgroundImage();
     if (stored) {
-      bgImage.src = stored;
-      bgImage.hidden = false;
-      bgEmpty.hidden = true;
+      customPreview.style.backgroundImage = `url(${stored})`;
+      customPreview.classList.add('has-image');
+      customPreview.title = t('bgApplied');
+      bgRemoveBtn.hidden = false;
+      markSelected(customItem);
     } else {
-      bgImage.removeAttribute('src');
-      bgImage.hidden = true;
-      bgEmpty.hidden = false;
+      customPreview.style.backgroundImage = '';
+      customPreview.classList.remove('has-image');
+      customPreview.title = t('bgEmpty');
+      bgRemoveBtn.hidden = true;
+      if (selectedWpItem === customItem) {
+        // Nothing custom to show: fall back to the stored wallpaper.
+        markSelected(wpGrid.querySelector<HTMLElement>(`[data-wp-id="${currentWallpaper}"]`));
+      }
     }
-    bgRemoveBtn.disabled = !stored;
   }
 
   function backgroundErrorMessage(error: string): string {
     if (error === 'not-image') return t('bgErrorNotImage');
     if (error === 'too-large') return t('bgErrorTooLarge').replace('{max}', maxSizeLabel);
+    return t('bgErrorRead');
+  }
+
+  /** Store failures: 'invalid' | 'too-large' | 'quota' | 'unknown'. */
+  function backgroundStoreErrorMessage(error: string): string {
+    if (error === 'invalid') return t('bgErrorNotImage');
+    if (error === 'too-large') return t('bgErrorTooLarge').replace('{max}', maxSizeLabel);
+    if (error === 'quota') return t('bgErrorQuota');
     return t('bgErrorRead');
   }
 
@@ -510,21 +541,22 @@ export function launchSettings(): void {
 
     readImageFileAsDataUrl(file)
       .then((dataUrl) => {
-        const result = setDesktopBackgroundImage(dataUrl);
+        const result = setBackgroundImage(dataUrl);
         if (result.ok) {
+          usingCustomBackground = true;
           showBackgroundMessage(t('bgApplied'), false);
         } else {
-          showBackgroundMessage(result.error === 'quota' ? t('bgErrorQuota') : t('bgErrorRead'), true);
+          showBackgroundMessage(backgroundStoreErrorMessage(result.error), true);
         }
         // On failure the previously stored image (if any) is still in place.
-        refreshBackgroundState();
+        refreshCustomState();
       })
       .catch((e: unknown) => {
         showBackgroundMessage(
           backgroundErrorMessage(e instanceof Error ? e.message : 'read-failed'),
           true,
         );
-        refreshBackgroundState();
+        refreshCustomState();
       })
       .finally(() => {
         // Reset so the same file can be picked again
@@ -533,12 +565,14 @@ export function launchSettings(): void {
   });
 
   bgRemoveBtn.addEventListener('click', () => {
-    clearDesktopBackgroundImage();
-    refreshBackgroundState();
+    clearBackgroundImage();
+    usingCustomBackground = false;
+    selectedWallpaper = currentWallpaper;
+    refreshCustomState();
     showBackgroundMessage(t('bgRemoved'), false);
   });
 
-  refreshBackgroundState();
+  refreshCustomState();
 
   // ── Advanced panel ──
   const advancedPanel = document.createElement('div');
@@ -653,6 +687,12 @@ export function launchSettings(): void {
     window.dispatchEvent(
       new CustomEvent('wallpaper-changed', { detail: { wallpaper: selectedWallpaper } }),
     );
+
+    // A stored custom image wins over the wallpaper, so applying a wallpaper
+    // also drops the image; the "Custom image" tile keeps it.
+    if (!usingCustomBackground && getBackgroundImage()) {
+      clearBackgroundImage();
+    }
 
     // Persist clippy
     localStorage.setItem('clippyEnabled', String(selectedClippy));

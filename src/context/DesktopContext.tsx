@@ -7,8 +7,17 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getOsWindows, focusOsWindow } from '../utils/osWindowRegistry';
 import type { OsWindowEntry } from '../utils/osWindowRegistry';
 import { getCascadeOffset } from '../utils/cascadePosition';
-import { getDesktopBackgroundImage, DESKTOP_BACKGROUND_EVENT } from '../utils/desktopBackground';
+import { useDesktopBackground } from '../hooks/useDesktopBackground';
 
+/**
+ * Wallpapers the desktop can render.
+ *
+ * 'purple' (Purple Stone) is no longer offered in Settings — its slot in the
+ * wallpaper grid is now the "Custom image" tile (user's own picture, see
+ * hooks/useDesktopBackground.ts). The id is kept here on purpose: it is a
+ * value that may still be stored in localStorage from before the redesign, and
+ * dropping it would silently switch those users to the default wallpaper.
+ */
 export type WallpaperId = 'teal' | 'brick' | 'marble' | 'ocean' | 'grid' | 'purple';
 
 export interface WallpaperOption {
@@ -36,7 +45,8 @@ interface DesktopContextType {
    * Custom desktop background (Data URL from Settings), or null when none.
    * Read-only here: it is written by SettingsApp straight to localStorage and
    * pushed back through the 'desktop-background-changed' event (see
-   * utils/desktopBackground.ts — local-only persistence, never uploaded).
+   * hooks/useDesktopBackground.ts and utils/desktopBackground.ts — local-only
+   * persistence, never uploaded).
    */
   backgroundImage: string | null;
   clippyEnabled: boolean;
@@ -93,8 +103,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
   }, []);
 
   // Custom background image (Data URL) — stored client-side only by Settings.
-  // Corrupt or missing values resolve to null so the wallpaper stays in use.
-  const [backgroundImage, setBackgroundImage] = useState<string | null>(() => getDesktopBackgroundImage());
+  // Read on mount and re-read on 'desktop-background-changed'; missing or
+  // corrupt values resolve to null so the selected wallpaper stays in use.
+  // See hooks/useDesktopBackground.ts.
+  const backgroundImage = useDesktopBackground();
 
   // Load clippy state from localStorage
   const [clippyEnabled, setClippyEnabledState] = useState<boolean>(() => {
@@ -527,10 +539,6 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
         localStorage.setItem(LOCAL_STORAGE_KEYS.WALLPAPER, detail.wallpaper);
       }
     };
-    const handleBackgroundImage = () => {
-      // Settings writes localStorage directly; just re-read the stored value.
-      setBackgroundImage(getDesktopBackgroundImage());
-    };
     const handleClippy = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail?.enabled !== undefined) {
@@ -540,12 +548,10 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: W
     };
     window.addEventListener('desktop-open-app', handleOpenApp);
     window.addEventListener('wallpaper-changed', handleWallpaper);
-    window.addEventListener(DESKTOP_BACKGROUND_EVENT, handleBackgroundImage);
     window.addEventListener('clippy-changed', handleClippy);
     return () => {
       window.removeEventListener('desktop-open-app', handleOpenApp);
       window.removeEventListener('wallpaper-changed', handleWallpaper);
-      window.removeEventListener(DESKTOP_BACKGROUND_EVENT, handleBackgroundImage);
       window.removeEventListener('clippy-changed', handleClippy);
     };
   }, [openApp]);

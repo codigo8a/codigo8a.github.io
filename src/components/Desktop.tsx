@@ -41,8 +41,10 @@ export const Desktop: React.FC = () => {
 
   const currentWallpaper = WALLPAPERS.find(w => w.id === wallpaper) || WALLPAPERS[0];
 
-  // A custom background image (uploaded in Settings → Desktop, kept in
+  // A custom background image (picked in Settings → Desktop, kept in
   // localStorage only) wins over the selected wallpaper when present.
+  // It is applied as an inline style so no theme/default rule can override it
+  // (there is no `.desktop` background rule in CSS either).
   const hasCustomBackground = Boolean(backgroundImage);
 
   return (

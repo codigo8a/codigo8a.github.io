@@ -122,7 +122,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 | **FileExplorer** | Explorador con vista de iconos estilo "My Documents" (cuadrícula) | 780x540 | ✅ Sí |
 | **MarkdownViewer** | Visor markdown con vista Preview/Source y galería de imágenes | 1000x800 | ❌ No (por archivo) |
 | **Search** | Búsqueda por nombre y contenido de archivos | 640x460 | ✅ Sí |
-| **Settings** | Configuración con 3 tabs: General (idioma, Clippy), Desktop (wallpapers + imagen de fondo personalizada) y Advanced | 450x480 | ✅ Sí |
+| **Settings** | Configuración con 3 tabs: General (idioma, Clippy), Desktop (wallpapers + baldosa "Imagen personalizada") y Advanced | 450x480 | ✅ Sí |
 | **Internet Explorer** | Navegador web estilo retro — acepta URL inicial vía `openApp('iexplorer', { url })` | 900x650 | ✅ Sí |
 | **Portfolio** | Portafolio de proyectos con 4 vistas (Iconos, Lista, Detalles) | 600x450 | ✅ Sí |
 | **My Computer** | Explorador del sistema | 780x540 | ✅ Sí |
@@ -180,23 +180,25 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 
 ### Settings con Tabs
 - **Tab General**: Idioma (ES/EN) + Clippy (activar/desactivar)
-- **Tab Desktop**: Selector de wallpapers con previsualización + **Fondo de escritorio** (subir una imagen propia)
+- **Tab Desktop**: Selector de wallpapers con previsualización, incluida la baldosa **Imagen personalizada** (abre el diálogo nativo de archivos para elegir una imagen propia)
 - **Tab Advanced**: Eliminar datos guardados
 - Interfaz tipo Windows 98 con tabs
 
 ### Wallpapers
-- 6 fondos de escritorio estilo Windows 98
+- 5 fondos de escritorio estilo Windows 98 + la baldosa **Imagen personalizada**
 - Selector visual en Settings con previsualización
 - Persistencia en localStorage
-- Opciones: Teal, Brick, Green Marble, Ocean, Gray Grid, Purple Stone
+- Opciones: Teal, Brick, Green Marble, Ocean, Gray Grid, Imagen personalizada
 
-### Fondo de escritorio personalizado (imagen subida)
-- **Settings → Desktop → Fondo de escritorio**: input de archivo (`accept="image/*"`) + botón **Quitar fondo**
+### Fondo de escritorio personalizado (imagen propia)
+- **Settings → Desktop → baldosa "Imagen personalizada"**: al hacer clic se abre el diálogo nativo de archivos (`accept="image/*"`) + botón **Quitar fondo**
 - La imagen se lee con `FileReader.readAsDataURL` y se guarda como Data URL en `localStorage['desktop.backgroundImage']`
-- Se aplica inmediatamente al escritorio (`background-size: cover`, `center`, `no-repeat`) con prioridad sobre el wallpaper seleccionado
+- El escritorio la lee al montar (`src/hooks/useDesktopBackground.ts`, expuesta por `DesktopContext`) y la aplica como `background-image` inline (`cover`, `center`, `no-repeat`) con prioridad sobre el wallpaper seleccionado
+- **Cambio en vivo**: al elegirla o quitarla el fondo se actualiza al instante, sin recargar (evento `desktop-background-changed`; el evento `storage` sincroniza otras pestañas abiertas)
 - Límite de 2 MB por imagen; se valida el tipo MIME y se captura `QuotaExceededError` (los errores se muestran en el propio panel, no en consola)
 - **La persistencia es SOLO local** (`src/utils/desktopBackground.ts`): no se sube a ningún servidor, no se sincroniza con backend ni con la cuenta del usuario. Al limpiar los datos del navegador (o usar *Advanced → Eliminar datos guardados*) el fondo desaparece y vuelve el wallpaper
-- Valores ausentes o corruptos se ignoran sin romper la UI
+- Valores ausentes o corruptos se ignoran sin romper la UI (el valor corrupto se borra de localStorage)
+- No hay ninguna petición de red para mostrar la imagen: el propio Data URL es la imagen
 
 ### Clippy - Asistente Virtual
 - Aparece después de 2 segundos con animación flotante
@@ -360,10 +362,10 @@ LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 
 - **Aplicaciones**: 14 (incluyendo Winamp)
 - **Componentes**: 15 principales
-- **Hooks**: 7 personalizados
+- **Hooks**: 8 personalizados
 - **Contextos**: 3
 - **Archivos markdown**: 98
-- **Wallpapers**: 6 (+ imagen de fondo personalizada subida por el usuario)
+- **Wallpapers**: 5 (+ imagen de fondo personalizada elegida por el usuario)
 - **Asistente virtual**: Clippy con 24 tips
 - **Idiomas**: 2 (ES/EN)
 - **Dependencias**: 4 runtime + 9 dev
