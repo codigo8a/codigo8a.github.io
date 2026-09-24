@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, ReactNode, useEffect } from 'react';
 import { getAppById } from '../apps/apps';
 import { getAppMenu } from '../utils/appMenus';
-import { WindowConfig } from '../types';
+import { WindowConfig, AppData, WebampPlayer } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getOsWindows, focusOsWindow } from '../utils/osWindowRegistry';
 import type { OsWindowEntry } from '../utils/osWindowRegistry';
@@ -41,7 +41,7 @@ interface DesktopContextType {
   handleWindowMove: (id: string, position: { x: number; y: number }) => void;
   handleWindowResize: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
   addWindow: (windowConfig: Partial<WindowConfig> & { appId: string; content: ReactNode }) => void;
-  openApp: (appId: string, appData?: any) => void;
+  openApp: (appId: string, appData?: AppData) => void;
   isWindowOpen: (appId: string) => boolean;
   launchWinamp: () => void;
   /** Restore/focus an os-gui native window from the taskbar */
@@ -50,7 +50,7 @@ interface DesktopContextType {
 
 const DesktopContext = createContext<DesktopContextType | null>(null);
 
-export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: any[] }> = ({ children, initialWindows = [] }) => {
+export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: WindowConfig[] }> = ({ children, initialWindows = [] }) => {
   const [windows, setWindows] = useState<WindowConfig[]>(initialWindows);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(initialWindows[0]?.id || null);
   const [zIndexCounter, setZIndexCounter] = useState(10);
@@ -325,13 +325,13 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
         win.id === newWindow.id ? { ...win, animationState: null } : win
       ));
     }, 200);
-  }, [zIndexCounter, windows.length]);
+  }, [zIndexCounter]);
 
-  const openApp = useCallback((appId: string, appData: any = null) => {
+  const openApp = useCallback((appId: string, appData?: AppData) => {
     const app = getAppById(appId);
     if (!app) return;
 
-    const windowKey = appData?.windowKey || null;
+    const windowKey = appData?.windowKey;
     const allowMultiple = app.singleInstance === false;
     
     let existingWindow = null;
@@ -379,7 +379,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
   }, [windows]);
 
   // ── Floating Winamp (no window) ──
-  const webampRef = useRef<any>(null);
+  const webampRef = useRef<WebampPlayer | null>(null);
   const webampClosedRef = useRef(false);
 
   const launchWinamp = useCallback(async () => {
@@ -445,35 +445,29 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       webamp.onClose(() => { 
         webampClosedRef.current = true;
         // Save window positions & settings
-        const webampAny = webamp as any;
-        if (webampAny.__getSerializedState) {
-          const state = webampAny.__getSerializedState();
-          if (state) {
-            localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_STATE, JSON.stringify(state));
-          }
+        const state = webamp.__getSerializedState();
+        if (state) {
+          localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_STATE, JSON.stringify(state));
         }
         // Save user's playlist (excluding demo track & ephemeral blob: URLs)
         try {
           const tracks = webamp.getPlaylistTracks();
           const userTracks = tracks.filter(
-            (t: any) => !t.url.startsWith('blob:') && t.url !== DEMO_TRACK.url
+            (t) => !t.url.startsWith('blob:') && t.url !== DEMO_TRACK.url
           );
           if (userTracks.length > 0) {
             localStorage.setItem(LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST, JSON.stringify(userTracks));
           } else {
             localStorage.removeItem(LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST);
           }
-        } catch (_e) { /* playlist save is best-effort */ }
+        } catch { /* playlist save is best-effort */ }
       });
       
       // Restore window positions & settings from saved state
       if (savedWinampState) {
         try {
           const state = JSON.parse(savedWinampState);
-          const webampAny = webamp as any;
-          if (webampAny.__loadSerializedState) {
-            webampAny.__loadSerializedState(state);
-          }
+          webamp.__loadSerializedState(state);
         } catch (e) {
           console.error('Failed to load Winamp state:', e);
         }
@@ -491,7 +485,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
           } else {
             webamp.setTracksToPlay([DEMO_TRACK]);
           }
-        } catch (_e) {
+        } catch {
           webamp.setTracksToPlay([DEMO_TRACK]);
         }
       } else {
@@ -536,7 +530,7 @@ export const DesktopProvider: React.FC<{ children: ReactNode; initialWindows?: a
       window.removeEventListener('wallpaper-changed', handleWallpaper);
       window.removeEventListener('clippy-changed', handleClippy);
     };
-  }, []);
+  }, [openApp]);
 
   const value = {
     windows,

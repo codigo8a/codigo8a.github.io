@@ -266,7 +266,9 @@ export const DesktopIcons: React.FC = () => {
 
   // Keep a ref to latest positions for use inside event callbacks
   const positionsRef = useRef(positions);
-  positionsRef.current = positions;
+  useEffect(() => {
+    positionsRef.current = positions;
+  }, [positions]);
 
   // Drag state stored in ref (avoids stale closures)
   const drag = useRef<{

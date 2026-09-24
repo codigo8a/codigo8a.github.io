@@ -25,8 +25,14 @@
 
 const CASCADE_STEP = 25;
 const CASCADE_MAX = 225; // 9 steps × 25px = 225px max offset
-const STORAGE_KEY = '__window_cascade_offset';
 const MOBILE_BREAKPOINT = 768;
+
+declare global {
+  interface Window {
+    /** Cascade counter persisted on `window` under the key `__window_cascade_offset`. */
+    __window_cascade_offset?: number;
+  }
+}
 
 function isMobileViewport(): boolean {
   return typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT;
@@ -34,13 +40,13 @@ function isMobileViewport(): boolean {
 
 function getCounter(): number {
   if (typeof window === 'undefined') return 0;
-  return (window as any)[STORAGE_KEY] || 0;
+  return window.__window_cascade_offset || 0;
 }
 
 function incrementCounter(): number {
   const current = getCounter();
   const next = (current + CASCADE_STEP) % CASCADE_MAX;
-  (window as any)[STORAGE_KEY] = next;
+  window.__window_cascade_offset = next;
   return current;
 }
 
@@ -71,6 +77,6 @@ export function peekCascadeOffset(): number {
  */
 export function resetCascadeCounter(): void {
   if (typeof window !== 'undefined') {
-    (window as any)[STORAGE_KEY] = 0;
+    window.__window_cascade_offset = 0;
   }
 }

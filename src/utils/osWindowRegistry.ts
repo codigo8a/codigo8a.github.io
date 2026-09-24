@@ -9,6 +9,8 @@
  *   'os-windows-changed' — React listens to this to update state
  */
 
+import type { OsGuiWindow } from '../types/os-gui';
+
 export interface OsWindowEntry {
   id: string;
   appId: string;
@@ -18,7 +20,7 @@ export interface OsWindowEntry {
 }
 
 interface InternalEntry extends OsWindowEntry {
-  $win: any;
+  $win: OsGuiWindow;
 }
 
 // ── Internal registry ──
@@ -32,7 +34,7 @@ function dispatchChange(): void {
 }
 
 /** Remove os-gui minimize artifacts so the window is ready for normal use. */
-function cleanupMinimizeState($win: any): void {
+function cleanupMinimizeState($win: OsGuiWindow): void {
   $win.removeClass('minimized-without-taskbar was-maximized');
   if ($win.$minimize) {
     $win.$minimize.removeClass('window-action-restore');
@@ -41,7 +43,7 @@ function cleanupMinimizeState($win: any): void {
 }
 
 /** Update the minimize button to show "restore" icon. */
-function setMinimizeButtonToRestore($win: any): void {
+function setMinimizeButtonToRestore($win: OsGuiWindow): void {
   if ($win.$minimize) {
     $win.$minimize.removeClass('window-action-minimize');
     $win.$minimize.addClass('window-action-restore');
@@ -57,7 +59,7 @@ function setMinimizeButtonToRestore($win: any): void {
  * Returns the unique window ID.
  */
 export function registerOsWindow(
-  $win: any,
+  $win: OsGuiWindow,
   appId: string,
   title: string,
   icon: string,

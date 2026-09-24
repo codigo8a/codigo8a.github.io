@@ -7,7 +7,7 @@ export const RecycleBinApp: React.FC = () => {
 };
 
 export function launchRecycleBin(): void {
-  const $Window = (window as any).$Window;
+  const $Window = window.$Window;
   if (!$Window) return;
   const $win = $Window({
     title: 'Recycle Bin',

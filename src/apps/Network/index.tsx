@@ -7,7 +7,7 @@ export const NetworkApp: React.FC = () => {
 };
 
 export function launchNetwork(): void {
-  const $Window = (window as any).$Window;
+  const $Window = window.$Window;
   if (!$Window) return;
   const $win = $Window({
     title: 'Network Neighborhood',

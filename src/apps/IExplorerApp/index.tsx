@@ -35,7 +35,6 @@ const SPRITE_HOME = 4;
 const SPRITE_SEARCH = 5;
 const SPRITE_FAVORITES = 6;
 const SPRITE_PRINT = 7;
-const SPRITE_MAIL = 12;
 
 const DROPDOWN_ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="fill:currentColor;display:inline-block;vertical-align:middle"><path style="transform:rotate(90deg);transform-origin:center" d="m5 6 4 4-4 4z"></path></svg>`;
 
@@ -129,8 +128,8 @@ function createSeparator(): HTMLHRElement {
  * @param initialUrl Optional page to load (defaults to the home page)
  */
 export function launchIExplorer(initialUrl?: string): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded.');
     return;
@@ -271,7 +270,7 @@ export function launchIExplorer(initialUrl?: string): void {
               updateUi();
             }
           }
-        } catch (_e) { /* cross-origin means page loaded */ }
+        } catch { /* cross-origin means page loaded */ }
       }, 1500);
     }
     loadTimeout = window.setTimeout(() => {
@@ -296,7 +295,7 @@ export function launchIExplorer(initialUrl?: string): void {
         const loc = iframeEl.contentWindow.location;
         hasError = loc.href === 'about:blank';
       }
-    } catch (_e) { hasError = false; }
+    } catch { hasError = false; }
     updateUi();
     updateNavButtons();
   }
@@ -329,7 +328,7 @@ export function launchIExplorer(initialUrl?: string): void {
     clearTimeouts();
     isLoading = false;
     if (iframeEl) {
-      try { iframeEl.src = 'about:blank'; } catch (_e) { /* no-op */ }
+      try { iframeEl.src = 'about:blank'; } catch { /* no-op */ }
     }
     updateUi();
   }
@@ -417,7 +416,7 @@ export function launchIExplorer(initialUrl?: string): void {
         shortcutLabel: 'Ctrl+P',
         action: () => {
           try { if (iframeEl?.contentWindow) iframeEl.contentWindow.print(); }
-          catch (_e) { showMessageBox({ title: 'Internet Explorer', message: 'Print is not available for this page.', icon: 'warning' }); }
+          catch { showMessageBox({ title: 'Internet Explorer', message: 'Print is not available for this page.', icon: 'warning' }); }
         },
       },
       { separator: true },
@@ -439,8 +438,13 @@ export function launchIExplorer(initialUrl?: string): void {
         label: '&Select All',
         shortcutLabel: 'Ctrl+A',
         action: () => {
-          try { if (iframeEl?.contentWindow?.getSelection) iframeEl.contentWindow.getSelection()?.selectAllChildren(iframeEl.contentDocument?.body!); }
-          catch (_e) { /* cross-origin */ }
+          try {
+            const selection = iframeEl?.contentWindow?.getSelection?.();
+            const body = iframeEl?.contentDocument?.body;
+            if (selection && body) {
+              selection.selectAllChildren(body);
+            }
+          } catch { /* cross-origin */ }
         },
       },
       { separator: true },
@@ -510,14 +514,14 @@ export function launchIExplorer(initialUrl?: string): void {
                 w.document.close();
               }
             }
-          } catch (_e) { showMessageBox({ title: 'Internet Explorer', message: 'Cannot view source for cross-origin pages.', icon: 'warning' }); }
+          } catch { showMessageBox({ title: 'Internet Explorer', message: 'Cannot view source for cross-origin pages.', icon: 'warning' }); }
         },
       },
       {
         label: '&Full Screen',
         shortcutLabel: 'F11',
         action: () => {
-          try { document.body.requestFullscreen?.(); } catch (_e) { /* no-op */ }
+          try { document.body.requestFullscreen?.(); } catch { /* no-op */ }
         },
       },
     ],
@@ -644,7 +648,7 @@ export function launchIExplorer(initialUrl?: string): void {
   const printBtn = createToolbarBtn('Print', SPRITE_PRINT);
   printBtn.addEventListener('click', () => {
     try { if (iframeEl?.contentWindow) iframeEl.contentWindow.print(); }
-    catch (_e) { showMessageBox({ title: 'Internet Explorer', message: 'Print is not available for this page.', icon: 'warning' }); }
+    catch { showMessageBox({ title: 'Internet Explorer', message: 'Print is not available for this page.', icon: 'warning' }); }
   });
   stdButtons.appendChild(printBtn);
 

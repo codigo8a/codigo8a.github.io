@@ -36,8 +36,6 @@ interface SearchResult extends FileData {
 const SPRITE_BACK = 0;
 const SPRITE_FORWARD = 1;
 
-const DROPDOWN_ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="fill:currentColor;display:inline-block;vertical-align:middle"><path style="transform:rotate(90deg);transform-origin:center" d="m5 6 4 4-4 4z"></path></svg>`;
-
 function createSpriteIcon(spriteIndex: number): HTMLDivElement {
   const div = document.createElement('div');
   div.className = 'icon';
@@ -59,12 +57,6 @@ function createToolbarButton(
   labelSpan.textContent = label;
   btn.appendChild(labelSpan);
   return btn;
-}
-
-function createSeparator(): HTMLHRElement {
-  const hr = document.createElement('hr');
-  hr.setAttribute('aria-orientation', 'vertical');
-  return hr;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -142,8 +134,8 @@ function openFileInViewer(file: FileData): void {
  * address-bar search, and status bar, matching the os-explorer pattern.
  */
 export function launchSearch(): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');

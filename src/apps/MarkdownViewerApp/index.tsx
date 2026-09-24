@@ -6,6 +6,7 @@ import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
+import type { AppData } from '../../types';
 
 /**
  * Placeholder React component — MarkdownViewerApp uses os-gui natively via launchFileViewer().
@@ -158,9 +159,9 @@ function createCompoundButton(
  *   title?: string;        // window title (defaults to file name)
  * }
  */
-export function launchFileViewer(appData?: any): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+export function launchFileViewer(appData?: AppData): void {
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');
@@ -372,7 +373,8 @@ export function launchFileViewer(appData?: any): void {
     function updateImage(): void {
       zoomImg.src = imageSrcList[currentIdx];
       zoomImg.style.animation = 'none';
-      zoomImg.offsetHeight;
+      // Force reflow so the zoom-in animation restarts from frame zero
+      void zoomImg.offsetHeight;
       zoomImg.style.animation = 'mdviewer-zoom-in 0.25s ease-out';
       updateCounter();
       updateArrows();

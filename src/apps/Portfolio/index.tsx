@@ -66,12 +66,6 @@ export const PortfolioApp: React.FC = () => {
 const SPRITE_BACK = 0;
 const SPRITE_FORWARD = 1;
 const SPRITE_UP = 44;
-const SPRITE_CUT = 21;
-const SPRITE_COPY = 22;
-const SPRITE_PASTE = 23;
-const SPRITE_UNDO = 24;
-const SPRITE_DELETE = 26;
-const SPRITE_PROPERTIES = 31;
 const SPRITE_VIEWS = 38;
 const SPRITE_SHARE = 29;
 
@@ -226,8 +220,8 @@ function openFileViewer(name: string, folder: string, date: string): void {
  * of the 98.js Explorer "Portfolio" window using os-gui.
  */
 export function launchPortfolio(appData?: { folder?: string }): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');
@@ -563,22 +557,14 @@ export function launchPortfolio(appData?: { folder?: string }): void {
   // CONTENT AREA (with left info panel)
   // ══════════════════════════════════════════════════════════════════
 
-  // ── DOM refs ──
-  let panelEl: HTMLElement;
-  let panelIcon: HTMLImageElement;
-  let panelTitle: HTMLParagraphElement;
-  let panelInfo: HTMLSpanElement;
-  let contentEl: HTMLElement;
-  let statusLeftEl: HTMLElement;
-
   const contentArea = document.createElement('div');
   contentArea.className = 'content-with-panel inset-deep';
 
   // ── Left panel ──
-  panelEl = document.createElement('div');
+  const panelEl: HTMLElement = document.createElement('div');
   panelEl.id = 'panel';
 
-  panelIcon = document.createElement('img');
+  const panelIcon: HTMLImageElement = document.createElement('img');
   panelIcon.className = 'panel-folder-icon';
   panelIcon.src = '/images/icons/paint-32x32.png';
   panelIcon.width = 32;
@@ -586,7 +572,7 @@ export function launchPortfolio(appData?: { folder?: string }): void {
   panelIcon.alt = '';
   panelEl.appendChild(panelIcon);
 
-  panelTitle = document.createElement('p');
+  const panelTitle: HTMLParagraphElement = document.createElement('p');
   panelTitle.className = 'panel-title';
   panelTitle.textContent = 'Portfolio';
   panelEl.appendChild(panelTitle);
@@ -603,7 +589,7 @@ export function launchPortfolio(appData?: { folder?: string }): void {
 
   const infoP = document.createElement('p');
   infoP.className = 'panel-info';
-  panelInfo = document.createElement('span');
+  const panelInfo: HTMLSpanElement = document.createElement('span');
   panelInfo.id = 'panel-info';
   panelInfo.textContent = 'Selecciona un elemento para ver su descripción.';
   infoP.appendChild(panelInfo);
@@ -612,7 +598,7 @@ export function launchPortfolio(appData?: { folder?: string }): void {
   contentArea.appendChild(panelEl);
 
   // ── Right content ──
-  contentEl = document.createElement('div');
+  const contentEl: HTMLElement = document.createElement('div');
   contentEl.id = 'content';
   contentArea.appendChild(contentEl);
 
@@ -622,7 +608,7 @@ export function launchPortfolio(appData?: { folder?: string }): void {
   const statusBar = document.createElement('div');
   statusBar.id = 'status-bar';
 
-  statusLeftEl = document.createElement('div');
+  const statusLeftEl: HTMLElement = document.createElement('div');
   statusLeftEl.id = 'status-bar-left';
   statusLeftEl.className = 'inset-shallow';
   statusBar.appendChild(statusLeftEl);

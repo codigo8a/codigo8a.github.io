@@ -27,7 +27,7 @@ interface WindowProps {
   onMove?: (id: string, position: { x: number; y: number }) => void;
   onResize?: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
   icon?: string;
-  menu?: MenuDefinition;
+  menu?: MenuDefinition | null;
 }
 
 export const Window: React.FC<WindowProps> = ({
@@ -120,7 +120,7 @@ export const Window: React.FC<WindowProps> = ({
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [position, size, isMaximized, id, onMove, onResize]);
+  }, [position, size, isMaximized, id, onMove, onResize, setPosition, setSize]);
 
   const handleMinimize = () => {
     onMinimize?.(id);

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../i18n/translations';
+import type { WebampPlayer } from '../../types';
 import './index.css';
 
 const DEMO_TRACK = {
@@ -12,9 +13,9 @@ const DEMO_TRACK = {
 };
 
 export const WinampApp: React.FC = () => {
-  const { t } = useTranslation();
+  useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const webampRef = useRef<any>(null);
+  const webampRef = useRef<WebampPlayer | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,7 +62,7 @@ export const WinampApp: React.FC = () => {
       if (webampRef.current) {
         try {
           webampRef.current.dispose();
-        } catch (_e) {
+        } catch {
           // dispose may throw if already cleaned up
         }
         webampRef.current = null;

@@ -93,7 +93,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
             <span className="icon">
               <img src="/images/icons/folder-16x16.png" alt="Programs" />
             </span>
-            {t("programs" as any)}
+            {t("programs")}
             <span className="submenu-arrow">▶</span>
           </button>
         </div>
@@ -101,13 +101,13 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
         {/* Search */}
         <button onClick={() => handleItemClick("search")}>
           {renderAppIcon(APPS.search.icon, APPS.search.title)}
-          {t("search" as any)}
+          {t("search")}
         </button>
 
         {/* My Documents */}
         <button onClick={() => handleItemClick("fileExplorer")}>
           {renderAppIcon(APPS.fileExplorer.icon, APPS.fileExplorer.title)}
-          {t("documents" as any)}
+          {t("documents")}
         </button>
 
         <div className="start-menu-divider" />
@@ -115,7 +115,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
         {/* Settings */}
         <button onClick={() => handleItemClick("settings")}>
           {renderAppIcon(APPS.settings.icon, APPS.settings.title)}
-          {t("settings" as any)}
+          {t("settings")}
         </button>
 
         {/* Welcome */}
@@ -125,15 +125,15 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
         </button>
 
         {/* Help (disabled) */}
-        <button disabled>{t("help" as any)}</button>
+        <button disabled>{t("help")}</button>
 
         {/* Run (disabled) */}
-        <button disabled>{t("run" as any)}...</button>
+        <button disabled>{t("run")}...</button>
 
         <div className="start-menu-divider" />
 
         {/* Shut Down (disabled) */}
-        <button disabled>{t("shutDown" as any)}...</button>
+        <button disabled>{t("shutDown")}...</button>
       </div>
 
       {/* Submenu rendered OUTSIDE .start-menu-items to avoid overflow clipping */}

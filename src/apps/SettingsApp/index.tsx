@@ -85,7 +85,7 @@ function t(key: string): string {
  * so the React context providers pick up the changes.
  */
 export function launchSettings(): void {
-  const $Window = (window as any).$Window;
+  const $Window = window.$Window;
   if (!$Window) {
     console.error('os-gui not loaded.');
     return;
@@ -134,7 +134,7 @@ export function launchSettings(): void {
   const menuToolbar = document.createElement('div');
   menuToolbar.className = 'toolbar';
 
-  const MenuBar = (window as any).MenuBar;
+  const MenuBar = window.MenuBar;
   if (MenuBar) {
     const menu = new MenuBar({
       '&File': [

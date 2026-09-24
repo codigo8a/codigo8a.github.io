@@ -55,19 +55,6 @@ function getFileIcon(size: number = 32): string {
   return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
 }
 
-/**
- * Returns a "My Computer" icon (a monitor) SVG.
- */
-function getMyComputerIconSvg(size: number = 32): string {
-  return `<svg viewBox="0 0 32 32" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2" width="28" height="20" rx="2" fill="#C0C0C0" stroke="#808080" stroke-width="1"/>
-    <rect x="2" y="2" width="28" height="20" rx="2" fill="none" stroke="#fff" stroke-width="1" transform="translate(1,1)"/>
-    <rect x="4" y="4" width="24" height="14" fill="#000080"/>
-    <line x1="8" y1="24" x2="24" y2="24" stroke="#808080" stroke-width="2"/>
-    <rect x="10" y="24" width="12" height="4" rx="1" fill="#C0C0C0" stroke="#808080" stroke-width="1"/>
-  </svg>`;
-}
-
 // ─── Folder listing helpers ────────────────────────────────────────────────────
 
 /**
@@ -228,8 +215,8 @@ export const MyComputerApp: React.FC = () => {
  * through the data/files directory structure.
  */
 export function launchMyComputer(): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded.');
@@ -243,21 +230,6 @@ export function launchMyComputer(): void {
   const navHistory: (string | null)[] = [null];
   let navIndex = 0;
   let currentView: ViewMode = 'LARGE_ICONS';
-
-  // DOM references
-  let contentEl: HTMLElement;
-  let panelEl: HTMLElement;
-  let panelFolderIcon: HTMLImageElement;
-  let panelTitle: HTMLParagraphElement;
-  let panelInfo: HTMLSpanElement;
-  let statusBarEl: HTMLElement;
-  let statusLeftEl: HTMLElement;
-  let statusMiddleEl: HTMLElement;
-  let statusRightEl: HTMLElement;
-  let addrInput: HTMLInputElement;
-  let backBtn: HTMLButtonElement;
-  let forwardBtn: HTMLButtonElement;
-  let upBtn: HTMLButtonElement;
   let statusBarVisible = true;
   let stdToolbarVisible = true;
   let addrBarVisible = true;
@@ -514,17 +486,17 @@ export function launchMyComputer(): void {
   stdButtons.id = 'standard-buttons';
 
   // Back (compound)
-  backBtn = createToolbarButton('Back', SPRITE_BACK, true);
+  const backBtn: HTMLButtonElement = createToolbarButton('Back', SPRITE_BACK, true);
   backBtn.addEventListener('click', goBack);
   stdButtons.appendChild(backBtn);
 
   // Forward (compound)
-  forwardBtn = createToolbarButton('Forward', SPRITE_FORWARD, true);
+  const forwardBtn: HTMLButtonElement = createToolbarButton('Forward', SPRITE_FORWARD, true);
   forwardBtn.addEventListener('click', goForward);
   stdButtons.appendChild(forwardBtn);
 
   // Up
-  upBtn = createToolbarButton('Up', SPRITE_UP, true);
+  const upBtn: HTMLButtonElement = createToolbarButton('Up', SPRITE_UP, true);
   upBtn.addEventListener('click', goUp);
   stdButtons.appendChild(upBtn);
 
@@ -566,7 +538,7 @@ export function launchMyComputer(): void {
   addrIcon.alt = '';
   compoundInput.appendChild(addrIcon);
 
-  addrInput = document.createElement('input');
+  const addrInput: HTMLInputElement = document.createElement('input');
   addrInput.type = 'text';
   addrInput.id = 'address';
   addrInput.readOnly = true;
@@ -586,10 +558,10 @@ export function launchMyComputer(): void {
   contentArea.className = 'content-with-panel inset-deep';
 
   // ── Left panel (matches FOLDER.HTT structure) ──
-  panelEl = document.createElement('div');
+  const panelEl: HTMLElement = document.createElement('div');
   panelEl.id = 'panel';
 
-  panelFolderIcon = document.createElement('img');
+  const panelFolderIcon: HTMLImageElement = document.createElement('img');
   panelFolderIcon.className = 'panel-folder-icon';
   panelFolderIcon.src = '/images/icons/folder-32x32.png';
   panelFolderIcon.width = 32;
@@ -597,7 +569,7 @@ export function launchMyComputer(): void {
   panelFolderIcon.alt = '';
   panelEl.appendChild(panelFolderIcon);
 
-  panelTitle = document.createElement('p');
+  const panelTitle: HTMLParagraphElement = document.createElement('p');
   panelTitle.className = 'panel-title';
   panelTitle.textContent = 'My Computer';
   panelEl.appendChild(panelTitle);
@@ -614,7 +586,7 @@ export function launchMyComputer(): void {
 
   const infoP = document.createElement('p');
   infoP.className = 'panel-info';
-  panelInfo = document.createElement('span');
+  const panelInfo: HTMLSpanElement = document.createElement('span');
   panelInfo.id = 'panel-info';
   panelInfo.textContent = 'Select an item to view its description.';
   infoP.appendChild(panelInfo);
@@ -623,7 +595,7 @@ export function launchMyComputer(): void {
   contentArea.appendChild(panelEl);
 
   // ── Right content (file list area) ──
-  contentEl = document.createElement('div');
+  const contentEl: HTMLElement = document.createElement('div');
   contentEl.id = 'content';
   contentArea.appendChild(contentEl);
 
@@ -632,20 +604,20 @@ export function launchMyComputer(): void {
   // ══════════════════════════════════════════════════════════════════
   // STATUS BAR
   // ══════════════════════════════════════════════════════════════════
-  statusBarEl = document.createElement('div');
+  const statusBarEl: HTMLElement = document.createElement('div');
   statusBarEl.id = 'status-bar';
 
-  statusLeftEl = document.createElement('div');
+  const statusLeftEl: HTMLElement = document.createElement('div');
   statusLeftEl.id = 'status-bar-left';
   statusLeftEl.className = 'inset-shallow';
   statusBarEl.appendChild(statusLeftEl);
 
-  statusMiddleEl = document.createElement('div');
+  const statusMiddleEl: HTMLElement = document.createElement('div');
   statusMiddleEl.id = 'status-bar-middle';
   statusMiddleEl.className = 'inset-shallow';
   statusBarEl.appendChild(statusMiddleEl);
 
-  statusRightEl = document.createElement('div');
+  const statusRightEl: HTMLElement = document.createElement('div');
   statusRightEl.id = 'status-bar-right';
   statusRightEl.className = 'inset-shallow';
   statusBarEl.appendChild(statusRightEl);

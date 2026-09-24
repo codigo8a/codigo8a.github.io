@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useFileSystem } from './useFileSystem';
-import { WindowConfig } from '../types';
+import { WindowConfig, AppData } from '../types';
 
-export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, appData?: any) => void) => {
+export const useUrlRouting = (windows: WindowConfig[], openApp: (appId: string, appData?: AppData) => void) => {
   const { findFileByUrl } = useFileSystem();
   const initialPathRef = useRef<string | null>(null);
   const launchedRef = useRef<Set<string>>(new Set());

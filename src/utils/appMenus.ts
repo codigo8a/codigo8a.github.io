@@ -1,7 +1,37 @@
 import type { MenuDefinition } from '../components/molecules/MenuBar';
 
+/** Optional menu actions per app — every handler is optional (no-op when absent). */
+interface AppMenuActions {
+  onNew?: () => void;
+  onOpen?: () => void;
+  onSave?: () => void;
+  onSaveAs?: () => void;
+  onExit?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onCut?: () => void;
+  onCopy?: () => void;
+  onPaste?: () => void;
+  onDelete?: () => void;
+  onSelectAll?: () => void;
+  onFind?: () => void;
+  onFindNext?: () => void;
+  onClose?: () => void;
+  onPreview?: () => void;
+  onSource?: () => void;
+  onViewSource?: () => void;
+  onGeneral?: () => void;
+  onDesktop?: () => void;
+  onBack?: () => void;
+  onForward?: () => void;
+  onHome?: () => void;
+  onReload?: () => void;
+  onStop?: () => void;
+  onAbout?: () => void;
+}
+
 // Menu definitions per app type
-export const getAppMenu = (appId: string, actions?: any): MenuDefinition | null => {
+export const getAppMenu = (appId: string, actions?: AppMenuActions): MenuDefinition | null => {
   switch (appId) {
     case 'notepad':
       return {

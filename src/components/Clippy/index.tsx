@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '../../i18n/translations';
 import { useLanguage } from '../../context/LanguageContext';
 import './index.css';
@@ -77,49 +77,46 @@ export const Clippy: React.FC<ClippyProps> = ({ enabled, onClose }) => {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+  // Clippy is visible whenever enabled (derived — the "hidden" effect branch
+  // below would only ever run while the component already renders null).
+  const isVisible = enabled;
   const [showSpeech, setShowSpeech] = useState(false);
   
   // Guardar el lenguaje actual para detectar cambios
   const [prevLang, setPrevLang] = useState(language);
-  const shuffledTipsRef = useRef<string[]>([]);
-  
+  const [shuffledTips, setShuffledTips] = useState<string[]>([]);
+
   const allTips = TIPS[language as 'es' | 'en'] || TIPS.en;
-  
+
   // Reiniciar el orden si cambió el idioma
-  if (shuffledTipsRef.current.length === 0 || language !== prevLang) {
+  if (shuffledTips.length === 0 || language !== prevLang) {
     setPrevLang(language);
     setCurrentTipIndex(0);
     // El primer tip siempre es el de bienvenida (índice 0)
     const otherTips = allTips.slice(1);
     const shuffledOthers = shuffleArray(otherTips);
-    shuffledTipsRef.current = [allTips[0], ...shuffledOthers];
+    setShuffledTips([allTips[0], ...shuffledOthers]);
   }
 
-  // Simple effect: show when enabled, hide when disabled
+  // Simple effect: show speech bubble shortly after Clippy appears
   useEffect(() => {
     if (enabled) {
-      setIsVisible(true);
       const timer = setTimeout(() => setShowSpeech(true), 300);
       return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false);
-      setShowSpeech(false);
     }
   }, [enabled]);
 
   const nextTip = useCallback(() => {
     setShowSpeech(false);
     setTimeout(() => {
-      setCurrentTipIndex((prev) => (prev + 1) % shuffledTipsRef.current.length);
+      setCurrentTipIndex((prev) => (prev + 1) % shuffledTips.length);
       setShowSpeech(true);
     }, 300);
-  }, []);
+  }, [shuffledTips.length]);
 
   const handleClose = () => {
     setShowSpeech(false);
     setTimeout(() => {
-      setIsVisible(false);
       onClose();
     }, 300);
   };
@@ -131,7 +128,7 @@ export const Clippy: React.FC<ClippyProps> = ({ enabled, onClose }) => {
       {/* Speech Bubble */}
       <div className={`clippy-speech-bubble ${showSpeech ? 'show' : ''}`}>
         <div className="clippy-speech-content">
-          <p>{shuffledTipsRef.current[currentTipIndex]}</p>
+          <p>{shuffledTips[currentTipIndex]}</p>
           <div className="clippy-actions">
             <button className="clippy-button" onClick={nextTip}>
               {t('nextTip')}

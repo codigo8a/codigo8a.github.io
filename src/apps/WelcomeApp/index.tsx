@@ -3,6 +3,7 @@ import { extractRawContent, extractDate, extractContentWithoutDate } from '../..
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
+import type { OsGuiWindow } from '../../types/os-gui';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -239,13 +240,13 @@ function createTipContent(
 // ─── Singleton instance tracker ──────────────────────────────────────────────
 // Ensures clicking Start Menu or startup auto-launch reuses the same window.
 
-let welcomeWindowInstance: any = null;
+let welcomeWindowInstance: OsGuiWindow | null = null;
 
 // ─── os-gui launch function ──────────────────────────────────────────────────
 
 export function launchWelcome(): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');

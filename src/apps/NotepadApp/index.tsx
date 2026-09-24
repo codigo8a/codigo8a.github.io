@@ -23,8 +23,8 @@ export const NotepadApp: React.FC = () => {
  *   - Time/Date insertion (F5 / Edit menu)
  */
 export function launchNotepad(): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error('os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.');

@@ -72,7 +72,7 @@ function getAllFilesFlat(sortBy: SortMode = 'date'): FileItem[] {
  */
 function getStats(): { folderCount: number; fileCount: number } {
   let fileCount = 0;
-  Object.entries(files).forEach(([path]) => {
+  Object.entries(files).forEach(() => {
     // Each entry is a file
     fileCount++;
   });
@@ -292,8 +292,8 @@ export const FileExplorerApp: React.FC = () => {
  * with MenuBar, toolbar, address bar, three view modes, and status bar.
  */
 export function launchFileExplorer(): void {
-  const $Window = (window as any).$Window;
-  const MenuBar = (window as any).MenuBar;
+  const $Window = window.$Window;
+  const MenuBar = window.MenuBar;
 
   if (!$Window || !MenuBar) {
     console.error(
@@ -420,19 +420,6 @@ export function launchFileExplorer(): void {
       }
     }
   }
-
-  // DOM element references (assigned after creation)
-  let contentEl: HTMLElement;
-  let panelEl: HTMLElement;
-  let panelFolderIcon: HTMLImageElement;
-  let panelTitle: HTMLParagraphElement;
-  let panelInfo: HTMLSpanElement;
-  let statusBarEl: HTMLElement;
-  let statusLeftEl: HTMLElement;
-  let statusMiddleEl: HTMLElement;
-  let statusRightEl: HTMLElement;
-  let stdToolbarEl: HTMLElement;
-  let addrToolbarEl: HTMLElement;
 
   // ── Create the os-gui window ──
   const $win = $Window({
@@ -602,11 +589,6 @@ export function launchFileExplorer(): void {
             action: () => {
               stdToolbarVisible = !stdToolbarVisible;
               stdToolbarEl.style.display = stdToolbarVisible ? '' : 'none';
-              // Update menu checked state
-              const items = (menu as any).menuItems;
-              if (items) {
-                // Items is a nested structure
-              }
             },
           },
           {
@@ -690,7 +672,7 @@ export function launchFileExplorer(): void {
   toolbars.appendChild(menuToolbar);
 
   // ── Standard Buttons toolbar ──
-  stdToolbarEl = document.createElement('div');
+  const stdToolbarEl: HTMLElement = document.createElement('div');
   stdToolbarEl.className = 'toolbar';
   stdToolbarEl.id = 'standard-buttons-toolbar';
 
@@ -756,7 +738,7 @@ export function launchFileExplorer(): void {
   toolbars.appendChild(stdToolbarEl);
 
   // ── Address bar toolbar ──
-  addrToolbarEl = document.createElement('div');
+  const addrToolbarEl: HTMLElement = document.createElement('div');
   addrToolbarEl.className = 'toolbar';
   addrToolbarEl.id = 'address-bar-toolbar';
 
@@ -811,10 +793,10 @@ export function launchFileExplorer(): void {
   contentArea.className = 'content-with-panel inset-deep';
 
   // ── Left panel (matches FOLDER.HTT structure) ──
-  panelEl = document.createElement('div');
+  const panelEl: HTMLElement = document.createElement('div');
   panelEl.id = 'panel';
 
-  panelFolderIcon = document.createElement('img');
+  const panelFolderIcon: HTMLImageElement = document.createElement('img');
   panelFolderIcon.className = 'panel-folder-icon';
   panelFolderIcon.src = '/images/icons/my-documents-folder-32x32.png';
   panelFolderIcon.width = 32;
@@ -822,7 +804,7 @@ export function launchFileExplorer(): void {
   panelFolderIcon.alt = '';
   panelEl.appendChild(panelFolderIcon);
 
-  panelTitle = document.createElement('p');
+  const panelTitle: HTMLParagraphElement = document.createElement('p');
   panelTitle.className = 'panel-title';
   panelTitle.textContent = 'My Documents';
   panelEl.appendChild(panelTitle);
@@ -839,7 +821,7 @@ export function launchFileExplorer(): void {
 
   const infoP = document.createElement('p');
   infoP.className = 'panel-info';
-  panelInfo = document.createElement('span');
+  const panelInfo: HTMLSpanElement = document.createElement('span');
   panelInfo.id = 'panel-info';
   panelInfo.textContent = 'Select an item to view its description.';
   infoP.appendChild(panelInfo);
@@ -848,7 +830,7 @@ export function launchFileExplorer(): void {
   contentArea.appendChild(panelEl);
 
   // ── Right content (file list area) ──
-  contentEl = document.createElement('div');
+  const contentEl: HTMLElement = document.createElement('div');
   contentEl.id = 'content';
   contentArea.appendChild(contentEl);
 
@@ -857,20 +839,20 @@ export function launchFileExplorer(): void {
   // ══════════════════════════════════════════════════════════════════
   // STATUS BAR
   // ══════════════════════════════════════════════════════════════════
-  statusBarEl = document.createElement('div');
+  const statusBarEl: HTMLElement = document.createElement('div');
   statusBarEl.id = 'status-bar';
 
-  statusLeftEl = document.createElement('div');
+  const statusLeftEl: HTMLElement = document.createElement('div');
   statusLeftEl.id = 'status-bar-left';
   statusLeftEl.className = 'inset-shallow';
   statusBarEl.appendChild(statusLeftEl);
 
-  statusMiddleEl = document.createElement('div');
+  const statusMiddleEl: HTMLElement = document.createElement('div');
   statusMiddleEl.id = 'status-bar-middle';
   statusMiddleEl.className = 'inset-shallow';
   statusBarEl.appendChild(statusMiddleEl);
 
-  statusRightEl = document.createElement('div');
+  const statusRightEl: HTMLElement = document.createElement('div');
   statusRightEl.id = 'status-bar-right';
   statusRightEl.className = 'inset-shallow';
   statusBarEl.appendChild(statusRightEl);

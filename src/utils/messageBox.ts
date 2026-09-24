@@ -166,7 +166,7 @@ const MIN_MESSAGE_HEIGHT = 60;
  * does NOT register with the taskbar (true to Win98 behavior).
  */
 export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxResult> {
-  const $Window = (window as any).$Window;
+  const $Window = window.$Window;
 
   if (!$Window) {
     // Fallback: if os-gui isn't loaded, use native alert
@@ -288,7 +288,7 @@ export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxRe
 
     const buttonsEls: HTMLButtonElement[] = [];
 
-    buttonDefs.forEach((def, idx) => {
+    buttonDefs.forEach((def) => {
       const btn = document.createElement('button');
       btn.textContent = def.label;
       btn.style.cssText = `
@@ -343,13 +343,13 @@ export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxRe
 
     // Use keydown on the window's DOM element
     const winElement = $win.$element[0] || $win.$element;
-    if (winElement) {
+    if (winElement instanceof HTMLElement) {
       winElement.addEventListener('keydown', handleKeyDown);
     }
 
     // Clean up on close
     $win.onClosed(() => {
-      if (winElement) {
+      if (winElement instanceof HTMLElement) {
         winElement.removeEventListener('keydown', handleKeyDown);
       }
     });

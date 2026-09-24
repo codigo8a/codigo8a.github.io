@@ -7,7 +7,7 @@ export const MSDOSApp: React.FC = () => {
 };
 
 export function launchMSDOS(): void {
-  const $Window = (window as any).$Window;
+  const $Window = window.$Window;
   if (!$Window) return;
   const $win = $Window({
     title: 'MS-DOS Prompt',
