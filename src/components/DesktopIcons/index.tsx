@@ -301,11 +301,9 @@ export const DesktopIcons: React.FC = () => {
         openApp('iexplorer', { url: TANKSTRIKE_URL });
       }
     } else if (iconId === 'youtube') {
-      // Same behaviour as the radio and TankStrike icons: reuse the open
-      // browser window when there is one, otherwise open a new one on the channel
-      if (!navigateIExplorer(YOUTUBE_URL)) {
-        openApp('iexplorer', { url: YOUTUBE_URL });
-      }
+      // YouTube forbids embedding inside an iframe (X-Frame-Options and
+      // CSP frame-ancestors), so open the channel in a real browser tab.
+      window.open(YOUTUBE_URL, '_blank', 'noopener,noreferrer');
     } else if (iconId === 'winamp') {
       launchWinamp();
     } else if (iconId === 'portfolio') {
