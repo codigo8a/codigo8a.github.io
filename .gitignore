@@ -13,9 +13,11 @@ dist-ssr
 *.local
 
 # Environment variables
-.env
-.env.local
-.env.*.local
+# Every .env* file is ignored, except the committed template. The previous
+# patterns missed .env.development, which Vite reads and which holds the
+# client secret.
+.env*
+!.env.example
 
 # Editor directories and files
 .vscode/*
