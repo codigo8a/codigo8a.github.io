@@ -36,3 +36,31 @@ export const LOCAL_STORAGE_KEYS = {
   WINAMP_STATE: 'winamp_state',
   WINAMP_PLAYLIST: 'winamp_playlist'
 };
+
+/**
+ * Google Drive integration. The app never stores its workspace id: it
+ * *discovers* the folder by name on every session (see `findWorkspaceFolder`).
+ * That is why WORKSPACE_FOLDER_NAME has to stay stable — changing it orphans the
+ * previously created folder.
+ *
+ * Only non-secret values belong here. The OAuth token is deliberately absent:
+ * it lives in memory only, never in any storage.
+ */
+export const DRIVE = {
+  /** Stable name of the app-managed workspace folder. Changing it orphans the old folder. */
+  WORKSPACE_FOLDER_NAME: 'juandavid desktop',
+  /** Google-native folder mime type (also used to discover the workspace in files.list). */
+  FOLDER_MIME_TYPE: 'application/vnd.google-apps.folder',
+  /** Mime type for the markdown/text files the app uploads and edits. */
+  MARKDOWN_MIME_TYPE: 'text/markdown',
+  /** sessionStorage key for the PKCE code verifier of an in-flight authorization. */
+  AUTH_VERIFIER_STORAGE_KEY: 'drive.auth.codeVerifier',
+  /** sessionStorage key for the CSRF state of an in-flight authorization. */
+  AUTH_STATE_STORAGE_KEY: 'drive.auth.state',
+  /** localStorage key used only to hand the short-lived code between browser tabs. */
+  AUTH_PENDING_CODE_STORAGE_KEY: 'drive.auth.pendingCode',
+  /** Delay between attempts while waiting for the callback tab to publish the code. */
+  AUTH_POLL_INTERVAL_MS: 500,
+  /** Give up waiting for the callback tab after this long (user may need longer). */
+  AUTH_POLL_TIMEOUT_MS: 180000
+};

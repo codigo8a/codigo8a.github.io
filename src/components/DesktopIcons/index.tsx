@@ -151,11 +151,20 @@ const APP_ICONS: Record<string, React.ReactNode> = {
       height={32} 
     />
   ),
+  drive: (
+    <img
+      src="/images/icons/drive-32x32.svg"
+      alt="My Drive"
+      width={32}
+      height={32}
+    />
+  ),
 };
 
 /**
  * Grid positions (2 columns) — Radio Código 2 sits directly below Winamp,
- * TankStrike directly below the radio and YouTube directly below TankStrike:
+ * TankStrike directly below the radio and YouTube directly below TankStrike,
+ * My Drive directly below YouTube:
  *   col 0         | col 1
  *   My Computer   | My Documents
  *   Recycle Bin   | Search
@@ -164,6 +173,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
  *   Notepad...    | Radio Código2
  *                 | TankStrike
  *                 | YouTube Juan D. Ochoa
+ *                 | My Drive
  * Icons without a grid slot flow below the grid in col 0.
  */
 const ICON_GRID: Record<string, [number, number]> = {
@@ -177,6 +187,7 @@ const ICON_GRID: Record<string, [number, number]> = {
   radio:         [1, 4],
   tankstrike:    [1, 5],
   youtube:       [1, 6],
+  drive:         [1, 7],
 };
 
 const DESKTOP_ICONS: DesktopIcon[] = [
@@ -192,6 +203,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'radio', icon: 'radio', label: 'Radio Código 2', labelKey: 'radioCodigo2' },
   { id: 'tankstrike', icon: 'tankstrike', label: 'TankStrike', labelKey: 'tankStrike' },
   { id: 'youtube', icon: 'youtube', label: 'YouTube Juan David Ochoa', labelKey: 'youtubeJuanDavidOchoa' },
+  { id: 'drive', icon: 'drive', label: 'My Drive', labelKey: 'googleDrive' },
   // Rest
   { id: 'network', icon: 'network', label: 'Network Neighborhood' },
   { id: 'notepad', icon: 'notepad', label: 'Notepad' },
@@ -322,6 +334,8 @@ export const DesktopIcons: React.FC = () => {
       openApp('soundRecorder');
     } else if (iconId === 'msdos') {
       openApp('msdos');
+    } else if (iconId === 'drive') {
+      openApp('driveApp');
     }
   }, [openApp, launchWinamp]);
 

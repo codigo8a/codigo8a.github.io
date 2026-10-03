@@ -55,6 +55,7 @@ export default defineConfig([
             'launchIExplorer',
             'launchMSDOS',
             'launchFileViewer',
+            'launchDrive',
             'launchMyComputer',
             'launchNetwork',
             'launchNotepad',

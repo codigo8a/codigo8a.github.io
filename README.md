@@ -64,6 +64,7 @@ src/
 │   ├── RecycleBin/              # Papelera de reciclaje
 │   ├── SoundRecorder/           # Grabador de sonido
 │   ├── MSDOS/                   # Símbolo del sistema MS-DOS
+│   ├── DriveApp/                # Unidad de Google Drive (index.tsx = placeholder, launchDrive.ts = ventana os-gui)
 │   └── apps.ts                  # Registro central de apps
 ├── components/                    # Componentes (Diseño Atómico)
 │   ├── molecules/               # Componentes simples
@@ -97,6 +98,8 @@ src/
 │   └── web/                    # Proyectos web
 ├── types/                       # Tipos TypeScript
 ├── constants/                   # Constantes del sistema
+├── services/                    # Integraciones con APIs externas
+│   └── googleDrive/             # OAuth + PKCE, cliente HTTP de Drive v3 y errores
 ├── utils/                       # Utilidades
 ├── App.tsx                     # Componente raíz
 └── main.tsx                    # Punto de entrada
@@ -130,6 +133,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 | **Recycle Bin** | Papelera de reciclaje | 500x350 | ✅ Sí |
 | **Sound Recorder** | Grabador de sonido simple | 270x130 | ✅ Sí |
 | **MS-DOS Prompt** | Símbolo del sistema | 640x400 | ✅ Sí |
+| **My Drive** | Unidad de Google Drive administrada por la app (carpeta propia): conectar, listar, crear, editar y mandar a la papelera | 820x580 | ✅ Sí |
 | **Winamp** | Reproductor de música clásico con Webamp — demo track "Llama Whippin' Intro" en primer inicio, playlist persistente entre sesiones | — | ✅ Sí |
 
 ## Características Principales
@@ -152,9 +156,10 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 
 ### Sistema de Traducciones (i18n)
 - Idiomas: Español e Inglés
-- Hook `useTranslation()` para todas las apps
+- Hook `useTranslation()` para las apps React (escritorio, Start menu, Settings)
+- Tabla local `TRANSLATIONS` + `tr(key)` para las apps os-gui, que corren fuera de React y no pueden usar hooks (`MarkdownViewerApp`, `DriveApp`)
 - Persistencia en localStorage
-- ~42 claves de traducción
+- 54 claves en `i18n/translations.ts` + 49 en la tabla local de DriveApp
 
 ### Explorador de Archivos
 - **Vista Iconos (My Documents)**: Cuadrícula de iconos estilo Windows 98
@@ -169,8 +174,55 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
   - Mismo comportamiento que el icono de radio (reutiliza la ventana del navegador si ya está abierta)
 - **YouTube Juan David Ochoa**: icono situado justo debajo de TankStrike, abre Internet Explorer en `https://www.youtube.com/@JuanDavidOchoa`
   - Mismo comportamiento que los iconos anteriores (reutiliza la ventana del navegador si ya está abierta)
+- **Google Drive**: icono situado justo debajo de YouTube, abre la app `driveApp` (Mi unidad)
 - Cualquier icono puede abrir una app pasando datos:
   `openApp('iexplorer', { url: 'https://…' })` → `launchIExplorer(url)`
+
+### Google Drive (Mi unidad)
+
+App nueva que explora una **carpeta propia administrada por la app** dentro del Drive del visitante. No es "tu Drive": la app pide el scope `drive.file`, que solo le da acceso a los archivos que ella misma crea, así que la UI lo dice explícitamente para que no parezca una feature rota.
+
+- **Capa de servicios** (`src/services/googleDrive/`): `client.ts` (Drive v3), `auth.ts` (OAuth + PKCE), `errors.ts` (códigos de error traducibles), `types.ts`. Ningún método tira excepciones: devuelven `DriveResult<T>` (`{ok:true,data}` | `{ok:false,error}`)
+- **UI** (`src/apps/DriveApp/`): `index.tsx` es el placeholder React que exige el registro de apps; `launchDrive.ts` construye la ventana os-gui de verdad (patrón idéntico al de `MyComputer`)
+- **Workspace**: carpeta `juandavid desktop` que la app **descubre por nombre** en cada sesión (`files.list`) y crea en el primer uso. Nunca se guarda el id de la carpeta
+- **Acciones por archivo**: **Abrir** (pasa el contenido al visor Markdown vía `openApp('markdownViewer', …)`), **Editar** (editor interno con textarea) y **Papelera** (`trashed: true`, nunca borrado definitivo — recuperable 30 días desde drive.google.com)
+- **Nuevo archivo**: crea un `.md` vacío en la carpeta del workspace
+- **Estados**: desconectado, conectando, lista, editor, token vencido (ofrece reconexión) y error (red, cuota, scope insuficiente)
+- **Barra de estado** estilo Win98 con el conteo de archivos y el email de la cuenta conectada
+
+#### Autenticación (OAuth 2.0 authorization code + PKCE)
+
+1. El botón **Conectar con Google** es un `<a target="_blank" rel="noopener">` real: no usa `window.open`, así que no depende de permisos de popup. El click primero guarda el *verifier* y el *state* de PKCE en `sessionStorage`
+2. Google redirige esa pestaña a la app con `?code=…`. El boot (`App.tsx`) detecta el callback, publica el código en `localStorage` bajo una clave transitoria y cierra esa pestaña
+3. La ventana principal hace polling de esa clave (`consumePendingCode`), valida el `state` contra el guardado, y recién entonces intercambia el código por un access token
+4. **El access token vive solo en memoria** (closure de `launchDrive`). Nunca se escribe en `localStorage` ni `sessionStorage`. Sin backend no hay refresh token, así que la sesión dura ~1 h y termina pidiendo reconectar
+5. **Desconectar** borra el token de memoria. No hay revoke remoto
+
+#### Configuración
+
+Requiere un OAuth Client de tipo **Web application** en Google Cloud con la Drive API habilitada y el scope `drive.file`. Variables (`.env`, ver `.env.example`):
+
+| Variable | Para qué |
+|---|---|
+| `VITE_GOOGLE_CLIENT_ID` | Client ID del cliente Web |
+| `VITE_GOOGLE_CLIENT_SECRET` | Client secret (ver el caveat de abajo) |
+| `VITE_GOOGLE_REDIRECT_URI` | Redirect URI registrado; tiene que coincidir con el origen |
+
+Sin las tres, la app abre igual y muestra el aviso de configuración faltante en vez del botón de conectar.
+
+#### ⚠️ El `client_secret` viaja en el bundle
+
+`VITE_GOOGLE_CLIENT_SECRET` se compila dentro del JS y cualquiera puede leerlo en el devtools. Eso no se puede evitar sin un backend, y el riesgo real **no es la exfiltración de datos**:
+
+- Google exige `client_secret` para clientes "Web application" incluso con PKCE, así que la app no funciona sin él
+- Un atacante que extraiga el secret **no puede obtener tokens ajenos**: solo puede abrir su propia sesión de OAuth, exactamente igual que cualquier visitante
+- El riesgo real es de **phishing / impersonación**: alguien puede montar una página que pase por la app y engañe a un usuario para que autorice a SU cuenta, y usar el secret como "prueba de que es la app real"
+
+Por eso lo que hay que proteger no es el secret en sí, sino la configuración del proyecto en Google Cloud: consent screen publicada, origenes JS autorizados bien definidos y, sobre todo, **no guardar archivos privados del usuario en el Drive de pruebas**. La rotación del secret es lo que sí mitiga el escenario de phishing.
+
+#### Conflictos de escritura
+
+`files.update` de Drive v3 **no tiene actualización condicional** (ni `If-Match`, ni "expected revision"), así que la app compara `headRevisionId` antes de escribir y avisa si el archivo cambió desde que se abrió. Eso **reduce** la ventana de lost update pero no la cierra: dos pestañas guardando el mismo archivo al mismo tiempo todavía pueden pisarse. El aviso dice "cambió desde que lo abriste", nunca "guardado seguro".
 
 ### Barra de Tareas
 - Botón Start con menú funcional
@@ -360,7 +412,7 @@ LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 
 ## Estadísticas
 
-- **Aplicaciones**: 14 (incluyendo Winamp)
+- **Aplicaciones**: 15 (incluyendo Winamp y My Drive)
 - **Componentes**: 15 principales
 - **Hooks**: 8 personalizados
 - **Contextos**: 3
@@ -375,7 +427,19 @@ LOCAL_STORAGE_KEYS.WINAMP_PLAYLIST = 'winamp_playlist'
 
 ## Variables de Entorno
 
-No requiere variables de entorno. La configuración de Vite está en `vite.config.js` (`base: "/"` para dominio personalizado).
+| Variable | Requerida | Para qué |
+|---|---|---|
+| `VITE_GOOGLE_CLIENT_ID` | Solo para Drive | Client ID del OAuth client "Web application" |
+| `VITE_GOOGLE_CLIENT_SECRET` | Solo para Drive | Client secret — viaja en el bundle, ver el [caveat](#google-drive-mi-unidad) |
+| `VITE_GOOGLE_REDIRECT_URI` | Solo para Drive | Redirect URI registrado en Google Cloud |
+
+El resto de la app funciona sin variables de entorno. Sin las de Drive, esa ventana abre igual y avisa que falta configuración. Definí las tuyas en `.env` (`.env.example` tiene la plantilla) o inline en el comando:
+
+```bash
+VITE_GOOGLE_CLIENT_ID=… VITE_GOOGLE_CLIENT_SECRET=… VITE_GOOGLE_REDIRECT_URI=… npm run dev
+```
+
+La configuración de Vite está en `vite.config.js` (`base: "/"` para dominio personalizado).
 
 ## Deploy
 
@@ -405,6 +469,7 @@ No requiere variables de entorno. La configuración de Vite está en `vite.confi
 - ✅ **Winamp** - Reproductor de música clásico usando Webamp con demo track y playlist persistente
 - ✅ **Portfolio** - Portafolio de proyectos con 4 vistas (Iconos grandes, pequeños, lista, detalles)
 - ✅ **My Computer** - Explorador del sistema
+- ✅ **Google Drive (Mi unidad)** - Carpeta propia administrada por la app: conectar con OAuth + PKCE (token solo en memoria), listar, crear, editar y mandar a la papelera
 - ✅ **Network, Recycle Bin, Sound Recorder, MS-DOS Prompt**
 - ✅ **Settings con 3 tabs** (General, Desktop, Advanced)
 - ✅ Responsive
