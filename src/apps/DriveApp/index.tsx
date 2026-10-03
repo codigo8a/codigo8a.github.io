@@ -4,6 +4,14 @@ import { getCascadeOffset } from '../../utils/cascadePosition';
 import { showMessageBox } from '../../utils/messageBox';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import {
+  DROPDOWN_ARROW_SVG,
+  SPRITE,
+  createCompoundButton,
+  createSeparator,
+  createToolbarButton,
+  ensureDisabledFilter,
+} from '../../utils/explorerChrome';
+import {
   buildConsentUrl,
   clearPendingAuth,
   consumePendingCode,
@@ -19,7 +27,12 @@ import { getDriveErrorMessage } from '../../services/googleDrive/errors';
 import { isDriveTokenExpired } from '../../services/googleDrive/types';
 import { DRIVE, LOCAL_STORAGE_KEYS } from '../../constants';
 import type { DriveError, DriveErrorCode, DriveFile, DriveFolder, DriveToken } from '../../services/googleDrive/types';
-import type { OsGuiWindow } from '../../types/os-gui';
+import type {
+  OsGuiMenuBar,
+  OsGuiMenuDefinition,
+  OsGuiMenuItem,
+  OsGuiWindow,
+} from '../../types/os-gui';
 import type { AppData } from '../../types';
 
 // ─── Translations ─────────────────────────────────────────────────────────────
@@ -71,11 +84,11 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
     es: 'Aprobá el acceso en la pestaña nueva. Esta ventana espera el código de autorización.',
     en: 'Approve access in the new tab. This window is waiting for the authorization code.',
   },
-  newFile: { es: 'Nuevo archivo', en: 'New file' },
+  newFile: { es: 'Nuevo', en: 'New' },
   newFileTitle: { es: 'Nuevo archivo', en: 'New file' },
   newFileHint: {
-    es: 'Se crea un archivo markdown vacío. Si no escribís ".md", se agrega solo.',
-    en: 'An empty markdown file is created. The ".md" extension is added when missing.',
+    es: 'Se crea un archivo markdown vacío. Si no escribís ".md", se agrega solo. Enter crea el archivo y Esc lo cancela.',
+    en: 'An empty markdown file is created. The ".md" extension is added when missing. Enter creates the file and Esc cancels it.',
   },
   newFileInvalid: {
     es: 'Ese nombre no sirve. No puede estar vacío ni llevar / \\ : * ? " < > |',
@@ -83,14 +96,14 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   },
   fileNameLabel: { es: 'Nombre del archivo', en: 'File name' },
   refresh: { es: 'Actualizar', en: 'Refresh' },
-  disconnect: { es: 'Desconectar', en: 'Disconnect' },
   open: { es: 'Abrir', en: 'Open' },
   edit: { es: 'Editar', en: 'Edit' },
   trash: { es: 'Papelera', en: 'Trash' },
   save: { es: 'Guardar', en: 'Save' },
   back: { es: 'Volver', en: 'Back' },
-  create: { es: 'Crear', en: 'Create' },
-  cancel: { es: 'Cancelar', en: 'Cancel' },
+  forward: { es: 'Adelante', en: 'Forward' },
+  up: { es: 'Subir', en: 'Up' },
+  views: { es: 'Vistas', en: 'Views' },
   retry: { es: 'Reintentar', en: 'Retry' },
   emptyFolder: {
     es: 'La carpeta está vacía. Usá "Nuevo archivo" para crear el primero.',
@@ -117,20 +130,77 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   },
   statusWorking: { es: 'Trabajando...', en: 'Working...' },
   statusWaiting: { es: 'Esperando a Google', en: 'Waiting for Google' },
-  statusEditing: { es: 'Editando', en: 'Editing' },
   statusReady: { es: 'Listo', en: 'Ready' },
   statusError: { es: 'Error', en: 'Error' },
-  fileCount: { es: 'archivo(s)', en: 'file(s)' },
+  fileCount: { es: '{count} archivo(s)', en: '{count} file(s)' },
   sizeUnknown: { es: '?', en: '?' },
   dateUnknown: { es: 'sin fecha', en: 'no date' },
   editorLabel: { es: 'Contenido del archivo', en: 'File content' },
   accountLabel: { es: 'Cuenta', en: 'Account' },
   anonymousAccount: { es: 'Cuenta desconocida', en: 'Unknown account' },
+  // ── Explorer chrome ──
+  addressLabel: { es: 'Dirección', en: 'Address' },
+  columnName: { es: 'Nombre', en: 'Name' },
+  columnSize: { es: 'Tamaño', en: 'Size' },
+  columnModified: { es: 'Modificado', en: 'Modified' },
+  columnType: { es: 'Tipo', en: 'Type' },
+  typeMarkdown: { es: 'Documento Markdown', en: 'Markdown Document' },
+  panelSelectPrompt: {
+    es: 'Seleccioná un elemento para ver su descripción.',
+    en: 'Select an item to view its description.',
+  },
+  panelLineSize: { es: 'Tamaño: {value}', en: 'Size: {value}' },
+  panelLineModified: { es: 'Modificado: {value}', en: 'Modified: {value}' },
+  panelLineType: { es: 'Tipo: {value}', en: 'Type: {value}' },
+  panelLineOpenHint: {
+    es: 'Hacé doble clic para abrirlo.',
+    en: 'Double click to open it.',
+  },
+  // ── Menus ──
+  menuFile: { es: '&Archivo', en: '&File' },
+  menuEdit: { es: '&Editar', en: '&Edit' },
+  menuView: { es: '&Ver', en: '&View' },
+  menuHelp: { es: 'A&yuda', en: '&Help' },
+  menuNew: { es: '&Nuevo', en: '&New' },
+  menuOpen: { es: '&Abrir', en: 'O&pen' },
+  menuSave: { es: '&Guardar', en: '&Save' },
+  menuDelete: { es: '&Papelera', en: '&Delete' },
+  menuRename: { es: 'Re&nombrar', en: 'Rena&me' },
+  menuProperties: { es: 'P&ropiedades', en: 'P&roperties' },
+  menuConnect: { es: '&Conectar', en: '&Connect' },
+  menuDisconnect: { es: '&Desconectar', en: '&Disconnect' },
+  menuClose: { es: '&Cerrar', en: '&Close' },
+  menuUndo: { es: '&Deshacer', en: '&Undo' },
+  menuCut: { es: 'Cor&tar', en: 'Cu&t' },
+  menuCopy: { es: '&Copiar', en: '&Copy' },
+  menuPaste: { es: '&Pegar', en: '&Paste' },
+  menuSelectAll: { es: 'Seleccionar &todo', en: 'Select &All' },
+  menuToolbars: { es: '&Barras de herramientas', en: '&Toolbars' },
+  menuStandardButtons: { es: 'Botones &estándar', en: '&Standard Buttons' },
+  menuAddressBar: { es: 'Barra de &dirección', en: '&Address Bar' },
+  menuStatusBar: { es: 'Barra de &estado', en: 'Status &Bar' },
+  menuViewModeGroup: { es: 'Modo de vista', en: 'View mode' },
+  menuViewLargeIcons: { es: 'Iconos &grandes', en: 'Lar&ge Icons' },
+  menuViewSmallIcons: { es: 'Iconos &pequeños', en: 'S&mall Icons' },
+  menuViewList: { es: '&Lista', en: '&List' },
+  menuViewDetails: { es: '&Detalles', en: '&Details' },
+  menuRefresh: { es: '&Actualizar', en: '&Refresh' },
+  menuAbout: { es: '&Acerca de Mi unidad', en: '&About My Drive' },
+  aboutTitle: { es: 'Acerca de Mi unidad', en: 'About My Drive' },
+  aboutMessage: {
+    es:
+      'Mi unidad\n\nExplorá la carpeta "{folder}" de tu Google Drive. La app solo pide permiso sobre los archivos que ella misma crea.\n\nCuatro modos de vista: iconos grandes, iconos pequeños, lista y detalles.\n\nVersión 1.0',
+    en:
+      'My Drive\n\nBrowse the "{folder}" folder in your Google Drive. The app only asks for access to the files it creates itself.\n\nFour view modes: Large Icons, Small Icons, List, Details.\n\nVersion 1.0',
+  },
 };
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
 type DriveView = 'disconnected' | 'reconnect' | 'connecting' | 'list' | 'editor' | 'newFile' | 'error';
+
+/** Explorer view mode, mirroring the four modes of My Computer. */
+type DriveViewMode = 'LARGE_ICONS' | 'SMALL_ICONS' | 'LIST' | 'DETAILS';
 
 interface DriveConfig {
   readonly clientId: string;
@@ -143,13 +213,55 @@ interface ConsentAttempt {
   readonly state: string;
 }
 
+/** One row of an os-gui radio group (`radioItems`, see MenuBar.js:930-950). */
+interface DriveRadioItem {
+  label: string;
+  value: DriveViewMode;
+  enabled?: boolean | (() => boolean);
+}
+
+/**
+ * A radio group as os-gui models it: the group owns the value, MenuBar derives
+ * each row's `checkbox.check` / `checkbox.toggle` from `getValue` / `setValue`.
+ * A group has to be used instead of four independent `action` items because an
+ * item carrying `checkbox` never runs `action` — MenuBar only calls
+ * `checkbox.toggle` for those (MenuBar.js:879-889).
+ */
+interface DriveRadioGroup {
+  ariaLabel: string;
+  radioItems: DriveRadioItem[];
+  getValue: () => DriveViewMode;
+  setValue: (value: DriveViewMode) => void;
+}
+
+/**
+ * Menu items as MenuBar.js actually reads them.
+ *
+ * `src/types/os-gui.d.ts` predates the shipped contract: it types `enabled` as a
+ * plain boolean, gives `checkbox` no `type`, and has no `radioItems` group form.
+ * The difference is load-bearing — a `function` `enabled` is re-evaluated on every
+ * menu open (`MenuBar.js:1050` dispatches `update`, `:673` reads both `enabled`
+ * and `checkbox.check`), and `checkbox.type === 'radio'` is what turns the check
+ * mark into the radio dot (`:705-708`). Widening the shared declaration is the
+ * proper fix but sits outside this work unit's edit surface.
+ */
+type DriveMenuItem =
+  | (Omit<OsGuiMenuItem, 'enabled' | 'checkbox' | 'submenu'> & {
+      enabled?: boolean | (() => boolean);
+      checkbox?: { type?: 'radio' | 'checkbox'; check?: () => boolean; toggle?: () => void };
+      submenu?: DriveMenuItem[];
+    })
+  | DriveRadioGroup;
+
 const DRIVE_ICON = '/images/icons/drive-32x32.svg';
 const FILE_ICON = '/images/icons/notepad-file-16x16.png';
+const FILE_ICON_LARGE = '/images/icons/notepad-file-32x32.png';
 const MARKDOWN_EXTENSION_PATTERN = /\.md$/i;
 const ILLEGAL_FILENAME_PATTERN = /[\\/:*?"<>|]/;
 const MAX_FILENAME_LENGTH = 120;
 const OPEN_FILE_APP_ID = 'markdownViewer';
 const DRIVE_APP_ID = 'driveApp';
+const LOGO_LINE_SRC = '/images/icons/wvline.gif';
 
 /** Single-instance guard: the app registry lets os-gui apps open twice. */
 let activeWindow: OsGuiWindow | null = null;
@@ -221,19 +333,36 @@ function clearChildren(element: HTMLElement): void {
   while (element.firstChild) element.removeChild(element.firstChild);
 }
 
+/** File glyph markup. Sizes above 20 use the 32×32 sheet. */
+function fileIconMarkup(size: number): string {
+  const src = size > 20 ? FILE_ICON_LARGE : FILE_ICON;
+  return `<img src="${src}" width="${size}" height="${size}" alt="" style="pointer-events:none;image-rendering:pixelated">`;
+}
+
+/** True when the keystroke belongs to a text field and must not be stolen. */
+function isTextEntry(target: EventTarget | null): boolean {
+  return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+}
 
 /**
- * Opens the Drive window as a native os-gui window.
+ * Opens the Google Drive window as a native os-gui window with the Explorer
+ * chrome shared by My Computer and My Documents.
  *
- * The window is a small state machine over `view`: connect (or reconnect) →
- * waiting for the callback tab → workspace list → editor. Failures land on the
- * error view unless the failure is an expired token, which always offers a
- * reconnect.
+ * Two state machines run side by side: `view` picks the screen (connect →
+ * workspace list → editor, with failures landing on the error view), while
+ * `selectedFileId` and `currentView` drive the selection model inside the list
+ * screen. Because MenuBar re-reads a `function` `enabled` every time a menu
+ * opens, the menus stay in sync with the selection without being rebuilt; only
+ * the toolbar buttons need an explicit `syncEnabled()` pass.
  */
 export function launchDrive(): void {
   const $Window = window.$Window;
-  if (!$Window) {
-    console.error('os-gui not loaded.');
+  const MenuBar = window.MenuBar;
+
+  if (!$Window || !MenuBar) {
+    console.error(
+      'os-gui not loaded. Make sure jQuery and os-gui scripts are loaded.',
+    );
     return;
   }
 
@@ -243,6 +372,11 @@ export function launchDrive(): void {
     return;
   }
 
+  ensureDisabledFilter();
+
+  // The token is scoped to this window on purpose: closing the Drive window
+  // ends the Google session, so the next launch always starts from the connect
+  // screen. It never reaches `localStorage` or `sessionStorage` either.
   let token: DriveToken | null = null;
   let view: DriveView = 'disconnected';
   let errorCode: DriveErrorCode | null = null;
@@ -253,12 +387,21 @@ export function launchDrive(): void {
   let editorFile: DriveFile | null = null;
   let editorContent = '';
   let editorBaselineRevision: string | null = null;
+  let editorTextareaEl: HTMLTextAreaElement | null = null;
   let newFileName = '';
   let consentAttempt: ConsentAttempt | null = null;
+  let connectLinkEl: HTMLAnchorElement | null = null;
   let busy = false;
-  let statusLeft = '';
-  let statusMiddle = '';
-  let statusRight = '';
+
+  // ── Selection / chrome state ──
+  let selectedFileId: string | null = null;
+  let selectedRowEl: HTMLElement | null = null;
+  let currentView: DriveViewMode = 'SMALL_ICONS';
+  let statusBarVisible = true;
+  let stdToolbarVisible = true;
+  let addrBarVisible = true;
+  /** Set by the screens that render a failure, reset on every render pass. */
+  let statusKind: 'ready' | 'error' = 'ready';
 
   const title = tr('windowTitle');
   const $win = $Window({
@@ -267,7 +410,11 @@ export function launchDrive(): void {
       16: DRIVE_ICON,
       32: DRIVE_ICON,
     },
-    minWidth: 360,
+    // The standard-buttons toolbar needs ~610px of content (9 buttons at 54px,
+    // 2 compound at 70px, 2 separators, drag handle). `.os-explorer .toolbar`
+    // is `overflow: hidden` on desktop, so anything narrower silently clips
+    // buttons instead of scrolling them.
+    minWidth: 640,
     minHeight: 320,
   });
 
@@ -280,80 +427,662 @@ export function launchDrive(): void {
   $win.onClosed(() => {
     activeWindow = null;
     token = null;
+    accountEmail = null;
+    document.removeEventListener('keydown', handleKeyDown);
   });
 
-  const root = document.createElement('div');
-  root.className = 'drive-root';
+  // ══════════════════════════════════════════════════════════════════
+  // EXPLORER CHROME
+  // ══════════════════════════════════════════════════════════════════
+  const explorer = document.createElement('div');
+  explorer.className = 'os-explorer';
+  explorer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+    font-size: 11px;
+  `;
 
-  const toolbar = document.createElement('div');
-  toolbar.className = 'drive-toolbar';
+  // ── Toolbars ──
+  const toolbars = document.createElement('div');
+  toolbars.className = 'toolbars';
 
-  const body = document.createElement('div');
-  body.className = 'drive-body inset-deep';
+  const menuToolbarEl = document.createElement('div');
+  menuToolbarEl.className = 'toolbar';
 
-  const statusBar = document.createElement('div');
-  statusBar.className = 'drive-status';
+  const stdToolbarEl: HTMLElement = document.createElement('div');
+  stdToolbarEl.className = 'toolbar';
+  stdToolbarEl.id = 'standard-buttons-toolbar';
 
-  const statusCells: HTMLElement[] = [0, 1, 2].map(() => {
-    const cell = document.createElement('div');
-    cell.className = 'drive-status-cell';
-    statusBar.appendChild(cell);
-    return cell;
+  const stdDragHandle = document.createElement('div');
+  stdDragHandle.className = 'toolbar-drag-handle';
+  stdToolbarEl.appendChild(stdDragHandle);
+
+  const stdButtons = document.createElement('div');
+  stdButtons.id = 'standard-buttons';
+  stdToolbarEl.appendChild(stdButtons);
+
+  const addrToolbarEl: HTMLElement = document.createElement('div');
+  addrToolbarEl.className = 'toolbar';
+  addrToolbarEl.id = 'address-bar-toolbar';
+
+  const addrDragHandle = document.createElement('div');
+  addrDragHandle.className = 'toolbar-drag-handle';
+  addrToolbarEl.appendChild(addrDragHandle);
+
+  const addrBar = document.createElement('div');
+  addrBar.id = 'address-bar';
+
+  const addrLabel = document.createElement('label');
+  addrLabel.setAttribute('for', 'address');
+  addrLabel.textContent = tr('addressLabel');
+  addrBar.appendChild(addrLabel);
+
+  const compoundInput = document.createElement('div');
+  compoundInput.id = 'address-compound-input';
+  compoundInput.className = 'inset-deep';
+
+  const addrIcon = document.createElement('img');
+  addrIcon.id = 'address-icon';
+  addrIcon.width = 16;
+  addrIcon.height = 16;
+  addrIcon.src = DRIVE_ICON;
+  addrIcon.alt = '';
+  compoundInput.appendChild(addrIcon);
+
+  // Decorative, like in My Documents: the input is never edited, it only names
+  // the folder (or the file, while the editor is open).
+  const addrInput = document.createElement('input');
+  addrInput.type = 'text';
+  addrInput.id = 'address';
+  addrInput.autocomplete = 'off';
+  addrInput.readOnly = true;
+  compoundInput.appendChild(addrInput);
+
+  const addrDropdown = document.createElement('button');
+  addrDropdown.type = 'button';
+  addrDropdown.id = 'address-dropdown-button';
+  addrDropdown.className = 'lightweight';
+  addrDropdown.disabled = true;
+  addrDropdown.innerHTML = DROPDOWN_ARROW_SVG;
+  compoundInput.appendChild(addrDropdown);
+
+  addrBar.appendChild(compoundInput);
+  addrToolbarEl.appendChild(addrBar);
+
+  toolbars.append(menuToolbarEl, stdToolbarEl, addrToolbarEl);
+  explorer.appendChild(toolbars);
+
+  // ── Content area with the left info panel ──
+  const contentArea = document.createElement('div');
+  contentArea.className = 'content-with-panel inset-deep';
+
+  const panelEl: HTMLElement = document.createElement('div');
+  panelEl.id = 'panel';
+
+  const panelFolderIcon: HTMLImageElement = document.createElement('img');
+  panelFolderIcon.className = 'panel-folder-icon';
+  panelFolderIcon.src = DRIVE_ICON;
+  panelFolderIcon.width = 32;
+  panelFolderIcon.height = 32;
+  panelFolderIcon.alt = '';
+  panelEl.appendChild(panelFolderIcon);
+
+  const panelTitle: HTMLParagraphElement = document.createElement('p');
+  panelTitle.className = 'panel-title';
+  panelEl.appendChild(panelTitle);
+
+  const logoLine = document.createElement('p');
+  logoLine.className = 'panel-logoline';
+  const logoImg = document.createElement('img');
+  logoImg.src = LOGO_LINE_SRC;
+  logoImg.width = 100;
+  logoImg.height = 1;
+  logoImg.style.width = '100%';
+  logoImg.alt = '';
+  logoLine.appendChild(logoImg);
+  panelEl.appendChild(logoLine);
+
+  const infoP = document.createElement('p');
+  infoP.className = 'panel-info';
+  const panelInfo: HTMLSpanElement = document.createElement('span');
+  panelInfo.id = 'panel-info';
+  infoP.appendChild(panelInfo);
+  panelEl.appendChild(infoP);
+
+  contentArea.appendChild(panelEl);
+
+  const contentEl: HTMLElement = document.createElement('div');
+  contentEl.id = 'content';
+  contentArea.appendChild(contentEl);
+
+  explorer.appendChild(contentArea);
+
+  // ── Status bar ──
+  const statusBarEl: HTMLElement = document.createElement('div');
+  statusBarEl.id = 'status-bar';
+
+  const statusLeftEl: HTMLElement = document.createElement('div');
+  statusLeftEl.id = 'status-bar-left';
+  statusLeftEl.className = 'inset-shallow';
+
+  const statusMiddleEl: HTMLElement = document.createElement('div');
+  statusMiddleEl.id = 'status-bar-middle';
+  statusMiddleEl.className = 'inset-shallow';
+
+  const statusRightEl: HTMLElement = document.createElement('div');
+  statusRightEl.id = 'status-bar-right';
+  statusRightEl.className = 'inset-shallow';
+
+  statusBarEl.append(statusLeftEl, statusMiddleEl, statusRightEl);
+  explorer.appendChild(statusBarEl);
+
+  $win.$content.append(explorer);
+
+  // ── Menu bar ──
+  //
+  // Built once. Every `enabled` is a thunk and every `checkbox.check` reads live
+  // state, so opening a menu after a selection or view change shows the truth
+  // without rebuilding the MenuBar.
+  const menu: OsGuiMenuBar = createMenuBar({
+    [tr('menuFile')]: [
+      {
+        label: tr('menuNew'),
+        enabled: () => view === 'list',
+        action: startNewFile,
+      },
+      { separator: true },
+      {
+        label: tr('menuOpen'),
+        shortcutLabel: 'Ctrl+O',
+        enabled: () => hasSelection(),
+        action: openSelectedInViewer,
+      },
+      {
+        label: tr('menuSave'),
+        shortcutLabel: 'Ctrl+S',
+        enabled: () => view === 'editor',
+        action: () => void saveEditor(),
+      },
+      { separator: true },
+      {
+        label: tr('menuDelete'),
+        enabled: () => hasSelection(),
+        action: trashSelected,
+      },
+      { label: tr('menuRename'), enabled: false },
+      { label: tr('menuProperties'), enabled: false },
+      { separator: true },
+      {
+        label: tr('menuConnect'),
+        enabled: () => connectLinkEl !== null,
+        action: activateConnectLink,
+      },
+      {
+        label: tr('menuDisconnect'),
+        enabled: () => token !== null,
+        action: disconnect,
+      },
+      { separator: true },
+      { label: tr('menuClose'), action: closeCurrentView },
+    ],
+    [tr('menuEdit')]: [
+      { label: tr('menuUndo'), shortcutLabel: 'Ctrl+Z', enabled: false },
+      { separator: true },
+      { label: tr('menuCut'), shortcutLabel: 'Ctrl+X', enabled: false },
+      { label: tr('menuCopy'), shortcutLabel: 'Ctrl+C', enabled: false },
+      { label: tr('menuPaste'), shortcutLabel: 'Ctrl+V', enabled: false },
+      { separator: true },
+      {
+        label: tr('menuSelectAll'),
+        shortcutLabel: 'Ctrl+A',
+        enabled: () => view === 'editor',
+        action: selectEditorText,
+      },
+    ],
+    [tr('menuView')]: [
+      {
+        label: tr('menuToolbars'),
+        submenu: [
+          {
+            label: tr('menuStandardButtons'),
+            checkbox: {
+              type: 'checkbox',
+              check: () => stdToolbarVisible,
+              toggle: () => {
+                stdToolbarVisible = !stdToolbarVisible;
+                syncChromeVisibility();
+              },
+            },
+          },
+          {
+            label: tr('menuAddressBar'),
+            checkbox: {
+              type: 'checkbox',
+              check: () => addrBarVisible,
+              toggle: () => {
+                addrBarVisible = !addrBarVisible;
+                syncChromeVisibility();
+              },
+            },
+          },
+        ],
+      },
+      {
+        label: tr('menuStatusBar'),
+        checkbox: {
+          type: 'checkbox',
+          check: () => statusBarVisible,
+          toggle: () => {
+            statusBarVisible = !statusBarVisible;
+            syncChromeVisibility();
+          },
+        },
+      },
+      { separator: true },
+      viewModeGroup(),
+      { separator: true },
+      {
+        label: tr('menuRefresh'),
+        shortcutLabel: 'F5',
+        enabled: () => canRefresh(),
+        action: () => void loadWorkspace(),
+      },
+    ],
+    [tr('menuHelp')]: [
+      {
+        label: tr('menuAbout'),
+        action: () => {
+          void showMessageBox({
+            title: tr('aboutTitle'),
+            message: fill(tr('aboutMessage'), { folder: DRIVE.WORKSPACE_FOLDER_NAME }),
+            icon: 'info',
+          });
+        },
+      },
+    ],
   });
 
-  root.append(toolbar, body, statusBar);
-  $win.$content.append(root);
+  menuToolbarEl.appendChild(menu.element);
 
-  function updateStatus(left: string, middle: string, right: string): void {
-    statusLeft = left;
-    statusMiddle = middle;
-    statusRight = right;
-    statusCells[0].textContent = left;
-    statusCells[1].textContent = busy ? tr('statusWorking') : middle;
-    statusCells[2].textContent = busy ? tr('statusWorking') : right;
+  // ══════════════════════════════════════════════════════════════════
+  // STATE PREDICATES
+  // ══════════════════════════════════════════════════════════════════
+
+  /** The list view is the only screen where a row can be selected. */
+  function hasSelection(): boolean {
+    return view === 'list' && selectedFile() !== null;
+  }
+
+  function canRefresh(): boolean {
+    return !busy && (view === 'list' || view === 'editor');
+  }
+
+  /** Screens with browsable content keep the descriptive left panel. */
+  function hasLeftPanel(): boolean {
+    return view === 'list' || view === 'editor' || view === 'newFile';
+  }
+
+  /** Screens with actions to trigger show the standard buttons row. */
+  function hasStandardToolbar(): boolean {
+    return view === 'list' || view === 'editor' || view === 'error';
+  }
+
+  function selectedFile(): DriveFile | null {
+    if (selectedFileId === null) return null;
+    return files.find((file) => file.id === selectedFileId) ?? null;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // CHROME SYNCHRONIZATION
+  // ══════════════════════════════════════════════════════════════════
+
+  /**
+   * Applies the View > Toolbars / Status Bar toggles on top of what the current
+   * screen allows. A screen can hide a bar, never force one the user turned off.
+   */
+  function syncChromeVisibility(): void {
+    const withPanel = hasLeftPanel();
+    panelEl.style.display = withPanel ? '' : 'none';
+    contentArea.classList.toggle('drive-no-panel', !withPanel);
+    stdToolbarEl.style.display = hasStandardToolbar() && stdToolbarVisible ? '' : 'none';
+    addrToolbarEl.style.display = addrBarVisible ? '' : 'none';
+    statusBarEl.style.display = statusBarVisible ? '' : 'none';
+  }
+
+  /** The address names the workspace folder, or the open file in the editor. */
+  function syncAddressBar(): void {
+    const folderName = workspaceFolder?.name ?? DRIVE.WORKSPACE_FOLDER_NAME;
+    addrInput.value = view === 'editor' && editorFile !== null ? editorFile.name : folderName;
+  }
+
+  function syncStatusBar(): void {
+    const connected = hasLeftPanel() || view === 'error';
+    statusLeftEl.textContent = connected ? fill(tr('fileCount'), { count: files.length }) : '';
+    statusMiddleEl.textContent = view === 'connecting' ? tr('statusWaiting') : accountLabel();
+    statusRightEl.textContent = busy
+      ? tr('statusWorking')
+      : statusKind === 'error'
+        ? tr('statusError')
+        : tr('statusReady');
+  }
+
+  /** The left panel always describes the selection, or prompts for one. */
+  function syncPanel(): void {
+    if (!hasLeftPanel()) return;
+
+    if (view === 'editor' && editorFile !== null) {
+      panelFolderIcon.src = FILE_ICON_LARGE;
+      panelTitle.textContent = stripMarkdownExtension(editorFile.name);
+      renderPanelInfo(describeFile(editorFile));
+      return;
+    }
+
+    panelFolderIcon.src = DRIVE_ICON;
+    if (view === 'newFile') {
+      panelTitle.textContent = tr('newFileTitle');
+      renderPanelInfo([tr('newFileTitle'), tr('newFileHint')]);
+      return;
+    }
+
+    panelTitle.textContent = workspaceFolder?.name ?? DRIVE.WORKSPACE_FOLDER_NAME;
+    const file = selectedFile();
+    renderPanelInfo(file === null ? [tr('panelSelectPrompt')] : describeFile(file));
+  }
+
+  /** Panel lines: bold name first, then `Label: value` rows. */
+  function describeFile(file: DriveFile): string[] {
+    return [
+      file.name,
+      fill(tr('panelLineSize'), { value: formatSize(file.size) }),
+      fill(tr('panelLineModified'), { value: formatDate(file.modifiedTime) }),
+      fill(tr('panelLineType'), { value: tr('typeMarkdown') }),
+      tr('panelLineOpenHint'),
+    ];
+  }
+
+  /** Builds panel text with DOM nodes, never innerHTML: names come from Drive. */
+  function renderPanelInfo(lines: string[]): void {
+    clearChildren(panelInfo);
+    const head = document.createElement('strong');
+    head.textContent = lines[0] ?? '';
+    panelInfo.appendChild(head);
+    for (const line of lines.slice(1)) {
+      panelInfo.appendChild(document.createElement('br'));
+      panelInfo.appendChild(document.createTextNode(line));
+    }
   }
 
   function setBusy(value: boolean): void {
     busy = value;
-    updateStatus(statusLeft, statusMiddle, statusRight);
+    syncStatusBar();
+    syncEnabled();
   }
 
-  function createButton(label: string, className: string, onClick: () => void): HTMLButtonElement {
-    const button = document.createElement('button');
-    button.className = className;
-    button.type = 'button';
-    button.textContent = label;
-    button.disabled = busy;
-    button.addEventListener('click', () => {
-      // Views are rebuilt after every async result; disabling here stops a
-      // double click from firing the same Drive request twice.
-      button.disabled = true;
-      onClick();
+  // ══════════════════════════════════════════════════════════════════
+  // STANDARD BUTTONS
+  // ══════════════════════════════════════════════════════════════════
+
+  let backBtn: HTMLDivElement | null = null;
+  let forwardBtn: HTMLDivElement | null = null;
+  let upBtn: HTMLButtonElement | null = null;
+  let newBtn: HTMLButtonElement | null = null;
+  let openBtn: HTMLButtonElement | null = null;
+  let editBtn: HTMLButtonElement | null = null;
+  let saveBtn: HTMLButtonElement | null = null;
+  let deleteBtn: HTMLButtonElement | null = null;
+  let refreshBtn: HTMLButtonElement | null = null;
+  let viewsBtn: HTMLDivElement | null = null;
+  let retryBtn: HTMLButtonElement | null = null;
+
+  /**
+   * Rebuilds the standard buttons for the current screen.
+   *
+   * The row is rebuilt rather than hidden because the error screen offers a
+   * different pair of actions (Retry) than the list and editor screens.
+   */
+  function renderStandardButtons(): void {
+    clearChildren(stdButtons);
+    backBtn = null;
+    forwardBtn = null;
+    upBtn = null;
+    newBtn = null;
+    openBtn = null;
+    editBtn = null;
+    saveBtn = null;
+    deleteBtn = null;
+    refreshBtn = null;
+    viewsBtn = null;
+    retryBtn = null;
+
+    if (!hasStandardToolbar()) return;
+
+    if (view === 'error') {
+      retryBtn = createToolbarButton(tr('retry'), SPRITE.refresh);
+      retryBtn.addEventListener('click', () => void loadWorkspace());
+      stdButtons.appendChild(retryBtn);
+      return;
+    }
+
+    // Navigation buttons stay disabled for visual parity with My Computer: Drive
+    // has a single folder, so there is nowhere to go back, forward or up to.
+    backBtn = createCompoundButton(tr('back'), SPRITE.back, leaveEditor, () => {}, true);
+    forwardBtn = createCompoundButton(tr('forward'), SPRITE.forward, () => {}, () => {}, true);
+    stdButtons.append(backBtn, forwardBtn);
+
+    upBtn = createToolbarButton(tr('up'), SPRITE.up);
+    stdButtons.appendChild(upBtn);
+    stdButtons.appendChild(createSeparator());
+
+    newBtn = createToolbarButton(tr('newFile'), SPRITE.newFile);
+    newBtn.addEventListener('click', startNewFile);
+
+    openBtn = createToolbarButton(tr('open'), SPRITE.open);
+    openBtn.addEventListener('click', openSelectedInViewer);
+
+    editBtn = createToolbarButton(tr('edit'), SPRITE.edit);
+    editBtn.addEventListener('click', openSelectedInEditor);
+
+    saveBtn = createToolbarButton(tr('save'), SPRITE.save);
+    saveBtn.addEventListener('click', () => void saveEditor());
+
+    deleteBtn = createToolbarButton(tr('trash'), SPRITE.delete);
+    deleteBtn.addEventListener('click', trashSelected);
+
+    stdButtons.append(newBtn, openBtn, editBtn, saveBtn, deleteBtn);
+    stdButtons.appendChild(createSeparator());
+
+    refreshBtn = createToolbarButton(tr('refresh'), SPRITE.refresh);
+    refreshBtn.addEventListener('click', () => void loadWorkspace());
+
+    viewsBtn = createCompoundButton(tr('views'), SPRITE.viewLargeIcons, cycleViewMode, openViewsDropdown);
+
+    stdButtons.append(refreshBtn, viewsBtn);
+  }
+
+  function setDisabled(button: HTMLButtonElement | null, disabled: boolean): void {
+    if (button !== null) button.disabled = disabled;
+  }
+
+  /** A compound wrapper owns two controls; both have to track `disabled`. */
+  function setCompoundDisabled(wrapper: HTMLDivElement | null, disabled: boolean): void {
+    if (wrapper === null) return;
+    wrapper.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
+      button.disabled = disabled;
     });
-    return button;
   }
 
-  function createToolbarButton(label: string, onClick: () => void): HTMLButtonElement {
-    return createButton(label, 'drive-toolbar-button', onClick);
+  /**
+   * Re-evaluates every toolbar button against the current selection and screen.
+   *
+   * This doubles as the double-click guard: `setBusy(true)` runs before each
+   * Drive request, and every button that starts one reads `busy` here.
+   */
+  function syncEnabled(): void {
+    const selectable = hasSelection();
+    setCompoundDisabled(backBtn, view !== 'editor');
+    setCompoundDisabled(forwardBtn, true);
+    setDisabled(upBtn, true);
+    setDisabled(newBtn, view !== 'list');
+    setDisabled(openBtn, busy || !selectable);
+    setDisabled(editBtn, busy || !selectable);
+    setDisabled(saveBtn, busy || view !== 'editor');
+    setDisabled(deleteBtn, busy || !selectable);
+    setDisabled(refreshBtn, busy || !canRefresh());
+    setCompoundDisabled(viewsBtn, busy || view !== 'list');
+    setDisabled(retryBtn, busy);
   }
 
-  function createToolbarSpacer(): HTMLElement {
-    const spacer = document.createElement('span');
-    spacer.className = 'drive-toolbar-spacer';
-    return spacer;
+  // ── Views dropdown ──
+
+  /**
+   * Cycles LARGE_ICONS → SMALL_ICONS → LIST → LARGE_ICONS, matching 98.js,
+   * where the compound button advances instead of opening the dropdown.
+   */
+  function cycleViewMode(): void {
+    if (view !== 'list') return;
+    const cycle: DriveViewMode[] = ['LARGE_ICONS', 'SMALL_ICONS', 'LIST'];
+    const index = cycle.indexOf(currentView);
+    currentView = index === -1 ? 'LARGE_ICONS' : cycle[(index + 1) % cycle.length];
+    renderView();
   }
 
-  function createToolbarLabel(text: string): HTMLElement {
-    const label = document.createElement('span');
-    label.className = 'drive-toolbar-label';
-    label.textContent = text;
-    label.title = text;
-    return label;
+  function setCurrentView(mode: DriveViewMode): void {
+    if (view !== 'list' || currentView === mode) return;
+    currentView = mode;
+    renderView();
   }
+
+  /** The four view modes as an os-gui radio group, shared by both entry points. */
+  function viewModeGroup(): DriveRadioGroup {
+    return {
+      ariaLabel: tr('menuViewModeGroup'),
+      getValue: () => currentView,
+      setValue: (value) => setCurrentView(value),
+      radioItems: [
+        { label: tr('menuViewLargeIcons'), value: 'LARGE_ICONS', enabled: () => view === 'list' },
+        { label: tr('menuViewSmallIcons'), value: 'SMALL_ICONS', enabled: () => view === 'list' },
+        { label: tr('menuViewList'), value: 'LIST', enabled: () => view === 'list' },
+        { label: tr('menuViewDetails'), value: 'DETAILS', enabled: () => view === 'list' },
+      ],
+    };
+  }
+
+  /**
+   * Opens the Views dropdown with a temporary off-screen MenuBar parked at the
+   * button's position, then programmatically pressing it (the 98.js approach).
+   */
+  function openViewsDropdown(event: Event): void {
+    const dropBtn = event.currentTarget as HTMLElement | null;
+    const wrapper = dropBtn?.closest('.toolbar-compound-button-wrapper') as HTMLElement | null;
+    if (wrapper === null) return;
+    const rect = wrapper.getBoundingClientRect();
+
+    const dummyMenuBar = createMenuBar({ [tr('views')]: [viewModeGroup()] });
+    const dummyEl = document.createElement('div');
+    dummyEl.style.cssText = `
+      position: absolute;
+      left: ${rect.left}px;
+      top: ${rect.top}px;
+      visibility: hidden;
+      pointer-events: none;
+    `;
+    dummyEl.appendChild(dummyMenuBar.element);
+    document.body.appendChild(dummyEl);
+
+    const cleanup = (): void => {
+      if (document.body.contains(dummyEl)) document.body.removeChild(dummyEl);
+    };
+
+    const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement | null;
+    if (menuButton === null) {
+      cleanup();
+      return;
+    }
+
+    menuButton.dispatchEvent(new PointerEvent('pointerdown'));
+    menuButton.addEventListener('release', cleanup);
+    // MenuBar closes a popup it opened without signalling the opener, so a
+    // pick (or a click elsewhere) can leave the parked bar behind.
+    window.addEventListener('pointerup', cleanup, { once: true });
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // KEYBOARD
+  // ══════════════════════════════════════════════════════════════════
+
+  function handleKeyDown(event: KeyboardEvent): void {
+    if (event.defaultPrevented) return;
+
+    // Menus run their own keyboard handling and mark the event as handled.
+    const active = document.activeElement;
+    if (active !== null && active.closest('.menu-popup') !== null) return;
+
+    // Backspace leaves the editor, but only from an empty buffer so it can never
+    // eat content. Checked before the text-entry guard: in that screen the
+    // textarea holds the focus.
+    if (event.key === 'Backspace' && view === 'editor') {
+      if (editorContent === '') {
+        event.preventDefault();
+        leaveEditor();
+      }
+      return;
+    }
+
+    if (event.ctrlKey || event.metaKey) {
+      const key = event.key.toLowerCase();
+      if (key === 'o') {
+        event.preventDefault();
+        if (hasSelection()) openSelectedInViewer();
+      } else if (key === 's') {
+        event.preventDefault();
+        if (view === 'editor') void saveEditor();
+      } else if (key === 'a' && !isTextEntry(event.target)) {
+        event.preventDefault();
+        if (view === 'editor') selectEditorText();
+      }
+      return;
+    }
+
+    if (event.altKey) return;
+    if (isTextEntry(event.target)) return;
+
+    switch (event.key) {
+      case 'F5':
+        event.preventDefault();
+        if (canRefresh()) void loadWorkspace();
+        return;
+      case 'Delete':
+        if (hasSelection()) {
+          event.preventDefault();
+          trashSelected();
+        }
+        return;
+      case 'Enter':
+        if (hasSelection()) {
+          event.preventDefault();
+          openSelectedInViewer();
+        }
+        return;
+      default:
+        break;
+    }
+  }
+
+  document.addEventListener('keydown', handleKeyDown);
+
+  // ══════════════════════════════════════════════════════════════════
+  // RENDER
+  // ══════════════════════════════════════════════════════════════════
 
   function renderView(): void {
-    clearChildren(toolbar);
-    clearChildren(body);
+    statusKind = 'ready';
+    connectLinkEl = null;
+    editorTextareaEl = null;
+
+    renderStandardButtons();
+    clearChildren(contentEl);
 
     switch (view) {
       case 'reconnect':
@@ -372,6 +1101,7 @@ export function launchDrive(): void {
         buildNewFileView();
         break;
       case 'error':
+        statusKind = 'error';
         buildErrorView();
         break;
       case 'disconnected':
@@ -379,6 +1109,19 @@ export function launchDrive(): void {
         buildConnectView(false);
         break;
     }
+
+    syncChromeVisibility();
+    syncAddressBar();
+    syncPanel();
+    syncEnabled();
+    syncStatusBar();
+
+    // A view-mode change replaces every row, so the selected one has to take
+    // focus back: without it the row is highlighted but inert, and keyboard
+    // actions (Delete, Enter) would no longer reach the selection. Scoped to the
+    // list view so it cannot steal focus from the editor textarea or the
+    // new-file input.
+    if (view === 'list' && selectedRowEl !== null) selectedRowEl.focus();
   }
 
   // ── Authorization ──
@@ -418,8 +1161,8 @@ export function launchDrive(): void {
       missing.className = 'drive-panel-error';
       missing.textContent = tr('configMissing');
       panel.appendChild(missing);
-      body.appendChild(panel);
-      updateStatus('', '', tr('statusError'));
+      statusKind = 'error';
+      contentEl.appendChild(panel);
       return;
     }
 
@@ -450,10 +1193,15 @@ export function launchDrive(): void {
     diagnostics.textContent = tr('diagnosticsLabel') + ' ' + config.redirectUri;
     panel.appendChild(diagnostics);
 
-    body.appendChild(panel);
-    updateStatus(accountLabel(), '', tr('statusReady'));
+    contentEl.appendChild(panel);
+    connectLinkEl = link;
 
     void prepareConsent(link, config);
+  }
+
+  /** `File > Connect` reuses the real link so the PKCE flow stays in one place. */
+  function activateConnectLink(): void {
+    connectLinkEl?.click();
   }
 
   /**
@@ -495,7 +1243,7 @@ export function launchDrive(): void {
    * link re-arms the flow that just failed.
    */
   function renderNotice(message: string): void {
-    clearChildren(body);
+    clearChildren(contentEl);
     const panel = document.createElement('div');
     panel.className = 'drive-panel';
 
@@ -508,8 +1256,8 @@ export function launchDrive(): void {
     text.textContent = message;
 
     panel.append(heading, text);
-    body.appendChild(panel);
-    updateStatus('', '', tr('statusError'));
+    contentEl.appendChild(panel);
+    statusKind = 'error';
   }
 
   /** Wait for the callback tab to publish the code, then validate and use it. */
@@ -583,6 +1331,8 @@ export function launchDrive(): void {
     newFileName = '';
     errorCode = null;
     notice = null;
+    selectedFileId = null;
+    selectedRowEl = null;
     view = 'disconnected';
     renderView();
   }
@@ -642,6 +1392,10 @@ export function launchDrive(): void {
 
     editorFile = null;
     errorCode = null;
+    // A refresh can drop the file that was selected; keep the selection only
+    // when the refreshed listing still contains it.
+    if (selectedFile() === null) selectedFileId = null;
+    selectedRowEl = null;
     view = 'list';
     renderView();
   }
@@ -668,67 +1422,204 @@ export function launchDrive(): void {
   // ── List view ──
 
   function buildListView(): void {
-    toolbar.appendChild(createToolbarLabel(workspaceFolder?.name ?? DRIVE.WORKSPACE_FOLDER_NAME));
-    toolbar.appendChild(createToolbarSpacer());
-    toolbar.appendChild(createToolbarButton(tr('newFile'), () => {
-      newFileName = '';
-      view = 'newFile';
-      renderView();
-    }));
-    toolbar.appendChild(createToolbarButton(tr('refresh'), () => {
-      void loadWorkspace();
-    }));
-    toolbar.appendChild(createToolbarButton(tr('disconnect'), () => disconnect()));
+    // The rows about to be built replace the current DOM, so the previous
+    // row reference is already detached. Drop it before rebuilding; `bindItem`
+    // re-points it at whichever row matches `selectedFileId`.
+    selectedRowEl = null;
 
     if (files.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'drive-empty';
       empty.textContent = tr('emptyFolder');
-      body.appendChild(empty);
-      updateStatus(fill(tr('fileCount'), { count: 0 }), accountLabel(), tr('statusReady'));
+      contentEl.appendChild(empty);
       return;
     }
 
-    const list = document.createElement('div');
-    list.className = 'drive-list';
-    for (const file of files) list.appendChild(buildFileRow(file));
-    body.appendChild(list);
-    updateStatus(fill(tr('fileCount'), { count: files.length }), accountLabel(), tr('statusReady'));
+    switch (currentView) {
+      case 'LARGE_ICONS':
+        contentEl.appendChild(buildLargeIconsView());
+        break;
+      case 'LIST':
+        contentEl.appendChild(buildTableView(false));
+        break;
+      case 'DETAILS':
+        contentEl.appendChild(buildTableView(true));
+        break;
+      case 'SMALL_ICONS':
+      default:
+        contentEl.appendChild(buildSmallIconsView());
+        break;
+    }
   }
 
-  function buildFileRow(file: DriveFile): HTMLElement {
-    const row = document.createElement('div');
-    row.className = 'drive-row';
+  /** Builds the large icons view — a wrapping grid of 32×32 glyphs. */
+  function buildLargeIconsView(): HTMLElement {
+    const grid = document.createElement('div');
+    grid.className = 'drive-view drive-view-large';
+    grid.setAttribute('role', 'listbox');
 
-    const nameCell = document.createElement('span');
-    nameCell.className = 'drive-row-name';
+    for (const file of files) {
+      const item = document.createElement('div');
+      item.className = 'drive-item drive-item-large';
+      item.title = file.name;
+      item.setAttribute('role', 'option');
 
-    const icon = document.createElement('img');
-    icon.className = 'drive-row-icon';
-    icon.src = FILE_ICON;
-    icon.width = 16;
-    icon.height = 16;
-    icon.alt = '';
+      const icon = document.createElement('div');
+      icon.className = 'drive-item-icon';
+      icon.innerHTML = fileIconMarkup(32);
 
-    const name = document.createElement('span');
-    name.className = 'drive-row-name-text';
-    name.textContent = file.name;
-    name.title = file.name;
+      const label = document.createElement('span');
+      label.className = 'drive-item-label';
+      label.textContent = stripMarkdownExtension(file.name);
 
-    nameCell.append(icon, name);
+      item.append(icon, label);
+      bindItem(item, file);
+      grid.appendChild(item);
+    }
 
-    const metaCell = document.createElement('span');
-    metaCell.className = 'drive-row-meta';
-    metaCell.textContent = `${formatSize(file.size)} · ${formatDate(file.modifiedTime)}`;
+    return grid;
+  }
 
-    const actions = document.createElement('span');
-    actions.className = 'drive-row-actions';
-    actions.appendChild(createButton(tr('open'), 'drive-action-button', () => void openInViewer(file)));
-    actions.appendChild(createButton(tr('edit'), 'drive-action-button', () => void openEditor(file)));
-    actions.appendChild(createButton(tr('trash'), 'drive-action-button', () => void moveFileToTrash(file)));
+  /** Builds the small icons view — 16×16 glyphs with the label to the right. */
+  function buildSmallIconsView(): HTMLElement {
+    const grid = document.createElement('div');
+    grid.className = 'drive-view drive-view-small';
+    grid.setAttribute('role', 'listbox');
 
-    row.append(nameCell, metaCell, actions);
-    return row;
+    for (const file of files) {
+      const item = document.createElement('div');
+      item.className = 'drive-item drive-item-small';
+      item.title = file.name;
+      item.setAttribute('role', 'option');
+
+      const icon = document.createElement('span');
+      icon.className = 'drive-item-icon';
+      icon.innerHTML = fileIconMarkup(16);
+
+      const label = document.createElement('span');
+      label.className = 'drive-item-label';
+      label.textContent = stripMarkdownExtension(file.name);
+
+      item.append(icon, label);
+      bindItem(item, file);
+      grid.appendChild(item);
+    }
+
+    return grid;
+  }
+
+  /**
+   * Builds the list and details views.
+   *
+   * Both are tables; Details adds the Type column, which is the difference
+   * between "see the files" and "see what each file is".
+   */
+  function buildTableView(withType: boolean): HTMLElement {
+    const table = document.createElement('table');
+    table.className = 'drive-table';
+
+    const headers: { label: string; width: string }[] = withType
+      ? [
+          { label: tr('columnName'), width: '40%' },
+          { label: tr('columnSize'), width: '20%' },
+          { label: tr('columnModified'), width: '20%' },
+          { label: tr('columnType'), width: '20%' },
+        ]
+      : [
+          { label: tr('columnName'), width: '55%' },
+          { label: tr('columnSize'), width: '20%' },
+          { label: tr('columnModified'), width: '25%' },
+        ];
+
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    for (const header of headers) {
+      const th = document.createElement('th');
+      th.scope = 'col';
+      th.textContent = header.label;
+      th.style.width = header.width;
+      headRow.appendChild(th);
+    }
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (const file of files) {
+      const row = document.createElement('tr');
+      row.className = 'drive-item drive-row';
+      row.title = file.name;
+
+      const nameCell = document.createElement('td');
+      nameCell.className = 'drive-cell';
+      const nameIcon = document.createElement('span');
+      nameIcon.className = 'drive-cell-icon';
+      nameIcon.innerHTML = fileIconMarkup(16);
+      const nameText = document.createElement('span');
+      nameText.className = 'drive-cell-text';
+      nameText.textContent = stripMarkdownExtension(file.name);
+      nameCell.append(nameIcon, nameText);
+
+      const sizeCell = document.createElement('td');
+      sizeCell.className = 'drive-cell';
+      sizeCell.textContent = formatSize(file.size);
+
+      const dateCell = document.createElement('td');
+      dateCell.className = 'drive-cell';
+      dateCell.textContent = formatDate(file.modifiedTime);
+
+      row.append(nameCell, sizeCell, dateCell);
+
+      if (withType) {
+        const typeCell = document.createElement('td');
+        typeCell.className = 'drive-cell';
+        typeCell.textContent = tr('typeMarkdown');
+        row.appendChild(typeCell);
+      }
+
+      bindItem(row, file);
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+
+    return table;
+  }
+
+  /**
+   * Wires interaction on one row and repaints the selection onto it.
+   *
+   * Every view builder runs again on each render, so the selection highlight has
+   * to be re-applied here rather than only on click. Painting it from the
+   * builders is what keeps the invariant "the toolbar is enabled only while a
+   * row visibly looks selected" true across a view-mode change.
+   */
+  function bindItem(item: HTMLElement, file: DriveFile): void {
+    item.tabIndex = 0;
+    item.addEventListener('click', () => selectFile(file, item));
+    item.addEventListener('dblclick', () => void openInViewer(file));
+
+    if (file.id !== selectedFileId) return;
+    item.classList.add('drive-item-selected');
+    item.setAttribute('aria-selected', 'true');
+    selectedRowEl = item;
+  }
+
+  /** Drops the highlight from the row that was selected until now. */
+  function clearRowHighlight(row: HTMLElement | null): void {
+    if (row === null) return;
+    row.classList.remove('drive-item-selected');
+    row.removeAttribute('aria-selected');
+  }
+
+  /** Highlights a row and republishes it to the panel and the toolbar. */
+  function selectFile(file: DriveFile, row: HTMLElement): void {
+    selectedFileId = file.id;
+    if (selectedRowEl !== row) clearRowHighlight(selectedRowEl);
+    selectedRowEl = row;
+    row.classList.add('drive-item-selected');
+    row.setAttribute('aria-selected', 'true');
+
+    syncPanel();
+    syncEnabled();
   }
 
   /** Hand the file to the markdown viewer through the desktop open event. */
@@ -780,14 +1671,50 @@ export function launchDrive(): void {
     renderView();
   }
 
+  function openSelectedInViewer(): void {
+    const file = selectedFile();
+    if (file !== null) void openInViewer(file);
+  }
+
+  function openSelectedInEditor(): void {
+    const file = selectedFile();
+    if (file !== null) void openEditor(file);
+  }
+
+  function trashSelected(): void {
+    const file = selectedFile();
+    if (file !== null) void moveFileToTrash(file);
+  }
+
   // ── Editor ──
 
   function leaveEditor(): void {
+    if (view !== 'editor') return;
     editorFile = null;
     editorBaselineRevision = null;
     editorContent = '';
     view = 'list';
     renderView();
+  }
+
+  function selectEditorText(): void {
+    editorTextareaEl?.select();
+  }
+
+  /**
+   * `File > Close` (and the toolbar Back) step out of whatever is open before it
+   * closes the window, which is what Win98 does from a folder view.
+   */
+  function closeCurrentView(): void {
+    if (view === 'editor') {
+      leaveEditor();
+      return;
+    }
+    if (view === 'newFile') {
+      cancelNewFile();
+      return;
+    }
+    $win.close();
   }
 
   function buildEditorView(): void {
@@ -797,11 +1724,6 @@ export function launchDrive(): void {
       renderView();
       return;
     }
-
-    toolbar.appendChild(createToolbarLabel(file.name));
-    toolbar.appendChild(createToolbarSpacer());
-    toolbar.appendChild(createToolbarButton(tr('save'), () => void saveEditor()));
-    toolbar.appendChild(createToolbarButton(tr('back'), () => leaveEditor()));
 
     const editor = document.createElement('div');
     editor.className = 'drive-editor';
@@ -816,8 +1738,8 @@ export function launchDrive(): void {
     });
 
     editor.appendChild(textarea);
-    body.appendChild(editor);
-    updateStatus(file.name, tr('statusEditing'), tr('statusReady'));
+    contentEl.appendChild(editor);
+    editorTextareaEl = textarea;
     textarea.focus();
   }
 
@@ -882,16 +1804,21 @@ export function launchDrive(): void {
 
   // ── New file ──
 
-  function buildNewFileView(): void {
-    toolbar.appendChild(createToolbarLabel(tr('newFileTitle')));
-    toolbar.appendChild(createToolbarSpacer());
-    toolbar.appendChild(createToolbarButton(tr('create'), () => void createFile()));
-    toolbar.appendChild(createToolbarButton(tr('cancel'), () => {
-      newFileName = '';
-      view = 'list';
-      renderView();
-    }));
+  function startNewFile(): void {
+    if (view !== 'list') return;
+    newFileName = '';
+    view = 'newFile';
+    renderView();
+  }
 
+  function cancelNewFile(): void {
+    if (view !== 'newFile') return;
+    newFileName = '';
+    view = 'list';
+    renderView();
+  }
+
+  function buildNewFileView(): void {
     const panel = document.createElement('div');
     panel.className = 'drive-panel drive-panel-left';
 
@@ -909,7 +1836,11 @@ export function launchDrive(): void {
       newFileName = input.value;
     });
     input.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') void createFile();
+      if (event.key === 'Enter') {
+        void createFile();
+        return;
+      }
+      if (event.key === 'Escape') cancelNewFile();
     });
 
     const hint = document.createElement('p');
@@ -917,8 +1848,7 @@ export function launchDrive(): void {
     hint.textContent = tr('newFileHint');
 
     panel.append(label, input, hint);
-    body.appendChild(panel);
-    updateStatus('', accountLabel(), tr('statusReady'));
+    contentEl.appendChild(panel);
     input.focus();
   }
 
@@ -975,6 +1905,10 @@ export function launchDrive(): void {
     }
 
     files = files.filter((entry) => entry.id !== file.id);
+    if (selectedFileId === file.id) {
+      selectedFileId = null;
+      selectedRowEl = null;
+    }
     if (editorFile !== null && editorFile.id === file.id) {
       editorFile = null;
       editorBaselineRevision = null;
@@ -1004,15 +1938,10 @@ export function launchDrive(): void {
     spinner.setAttribute('aria-label', tr('connectingHeading'));
 
     panel.append(heading, text, spinner);
-    body.appendChild(panel);
-    updateStatus('', tr('statusWaiting'), tr('statusReady'));
+    contentEl.appendChild(panel);
   }
 
   function buildErrorView(): void {
-    toolbar.appendChild(createToolbarButton(tr('retry'), () => void loadWorkspace()));
-    toolbar.appendChild(createToolbarSpacer());
-    toolbar.appendChild(createToolbarButton(tr('disconnect'), () => disconnect()));
-
     const panel = document.createElement('div');
     panel.className = 'drive-panel';
 
@@ -1034,11 +1963,21 @@ export function launchDrive(): void {
       panel.appendChild(hint);
     }
 
-    body.appendChild(panel);
-    updateStatus('', accountLabel(), tr('statusError'));
+    contentEl.appendChild(panel);
   }
 
   renderView();
+}
+
+/**
+ * Builds an os-gui MenuBar from the widened item shapes declared above.
+ *
+ * The single assertion is what bridges `src/types/os-gui.d.ts`, whose item
+ * declaration is narrower than the contract MenuBar.js implements. See
+ * {@link DriveMenuItem}.
+ */
+function createMenuBar(menus: Record<string, DriveMenuItem[]>): OsGuiMenuBar {
+  return new window.MenuBar(menus as unknown as OsGuiMenuDefinition);
 }
 
 /**
@@ -1048,4 +1987,3 @@ export function launchDrive(): void {
 export const DriveApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
 };
-

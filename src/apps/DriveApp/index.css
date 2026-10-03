@@ -1,136 +1,164 @@
 /**
  * DriveApp styles for the os-gui native window.
  *
- * Mobile-first: the base rules target narrow viewports (stacked rows, wrapping
- * actions) and the single media query restores the two-column explorer row from
- * 768px up. Colors come from the os-gui custom properties so the window keeps
- * the Windows 98 theme.
+ * The Explorer chrome itself (menu bar, toolbars, address bar, panel, content
+ * area, status bar) is styled globally, so this file only covers what the shared
+ * stylesheet does not: the centered status panels, the Drive-specific form
+ * fields, the editor, and the selection highlight inside the four view modes.
+ *
+ * `.os-explorer .content-with-panel #content` is absolutely positioned next to
+ * the left panel, so the screens without a panel need to reclaim that space.
  */
 
-.drive-root {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  background: var(--ButtonFace, #c0c0c0);
-  color: var(--ButtonText, #000);
-  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
-  font-size: 11px;
+.os-explorer .content-with-panel.drive-no-panel #content {
+  left: 0;
+  width: 100%;
 }
 
-/* ── Toolbar ── */
+/* ── Item views (large icons, small icons) ── */
 
-.drive-toolbar {
+.drive-view {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-content: flex-start;
   gap: 4px;
-  padding: 3px 4px;
-  border-bottom: 1px solid var(--ButtonShadow, #808080);
+  padding: 8px;
 }
 
-.drive-toolbar:empty {
-  display: none;
+.drive-view-large {
+  gap: 4px;
 }
 
-.drive-toolbar-spacer {
-  flex: 1 1 auto;
-}
-
-.drive-toolbar-label {
-  font-weight: bold;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 60%;
-}
-
-.drive-toolbar-button,
-.drive-action-button,
-.drive-connect-link {
-  font-family: inherit;
-  font-size: 11px;
-  padding: 3px 10px;
-  color: var(--ButtonText, #000);
-  background: var(--ButtonFace, #c0c0c0);
-  border: 2px outset var(--ButtonFace, #c0c0c0);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.drive-toolbar-button:active:not(:disabled),
-.drive-action-button:active:not(:disabled),
-.drive-connect-link:active {
-  border-style: inset;
-}
-
-.drive-toolbar-button:disabled,
-.drive-action-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* ── Body ── */
-
-.drive-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin: 4px;
-  padding: 6px;
-  overflow: auto;
-  background: var(--Window, #ffffff);
-  color: var(--WindowText, #000);
-}
-
-.drive-list {
-  display: flex;
-  flex-direction: column;
+.drive-view-small {
   gap: 2px;
+  padding: 4px;
 }
 
-.drive-row {
+.drive-item {
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.drive-item-large {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  width: 72px;
   padding: 4px;
-  border: 1px solid transparent;
 }
 
-.drive-row:hover {
-  background: #c0e0ff;
-  border-color: #000080;
-}
-
-.drive-row-name {
+.drive-item-small {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
+  gap: 3px;
+  width: 160px;
+  padding: 2px 4px;
 }
 
-.drive-row-icon {
+.drive-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  image-rendering: pixelated;
   pointer-events: none;
 }
 
-.drive-row-name-text {
+.drive-item-large .drive-item-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 2px;
+}
+
+.drive-item-small .drive-item-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.drive-item-label {
+  font-size: 11px;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.drive-item-large .drive-item-label {
+  max-width: 68px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.drive-item-small .drive-item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Table views (list, details) ── */
+
+.drive-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  table-layout: fixed;
+}
+
+.drive-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 3px 6px;
+  font-weight: normal;
+  text-align: left;
+  background: var(--ButtonFace, #c0c0c0);
+  border-bottom: 1px solid var(--ButtonShadow, #808080);
+}
+
+.drive-cell {
+  padding: 2px 6px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.drive-row-meta {
-  color: #404040;
+.drive-cell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  pointer-events: none;
 }
 
-.drive-row-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+.drive-cell-text {
+  vertical-align: middle;
+}
+
+/* ── Selection ── */
+
+.drive-item:hover {
+  background: #c0e0ff;
+}
+
+.drive-row:hover > .drive-cell {
+  background: #c0e0ff;
+}
+
+.drive-item-selected,
+.drive-item-selected:hover,
+.drive-row.drive-item-selected:hover > .drive-cell {
+  background: #000080;
+  color: #fff;
+}
+
+.drive-item:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -2px;
 }
 
 .drive-empty {
+  margin: auto;
   padding: 16px 8px;
   text-align: center;
   color: #404040;
@@ -143,27 +171,33 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  margin: auto;
   padding: 20px 10px;
   text-align: center;
 }
 
 .drive-panel-left {
   align-items: stretch;
+  margin: 0;
+  padding: 10px;
   text-align: left;
 }
 
 .drive-panel-heading {
+  margin: 0;
   font-size: 13px;
   font-weight: bold;
 }
 
 .drive-panel-text {
   max-width: 44ch;
+  margin: 0;
   line-height: 1.5;
 }
 
 .drive-panel-hint {
   max-width: 46ch;
+  margin: 0;
   color: #404040;
   font-style: italic;
   line-height: 1.5;
@@ -171,6 +205,7 @@
 
 .drive-panel-notice {
   max-width: 46ch;
+  margin: 0;
   padding: 6px 8px;
   border: 1px solid var(--ButtonShadow, #808080);
   background: var(--ButtonFace, #c0c0c0);
@@ -179,21 +214,28 @@
 
 .drive-panel-error {
   max-width: 46ch;
+  margin: 0;
   color: #800000;
   font-weight: bold;
   line-height: 1.5;
 }
 
+/*
+ * The connect link is the one action the auth flow needs as a real anchor
+ * target. It deliberately does not restyle itself as a toolbar button: the
+ * chrome comes from the panel, and only the disabled state is expressed here.
+ */
 .drive-connect-link {
   display: inline-block;
-  text-decoration: none;
-  padding: 5px 18px;
+  text-decoration: underline;
 }
 
 .drive-connect-link[aria-disabled='true'] {
   opacity: 0.5;
   cursor: default;
 }
+
+/* ── Spinner ── */
 
 .drive-spinner {
   width: 26px;
@@ -209,6 +251,8 @@
     transform: rotate(360deg);
   }
 }
+
+/* ── New file field ── */
 
 .drive-field-label {
   display: block;
@@ -236,7 +280,8 @@
 
 .drive-editor {
   display: flex;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .drive-textarea {
@@ -256,44 +301,6 @@
 .drive-textarea::selection {
   background: var(--Highlight, #000080);
   color: var(--HighlightText, #ffffff);
-}
-
-/* ── Status bar ── */
-
-.drive-status {
-  display: flex;
-  gap: 1px;
-  margin: 0 1px 1px;
-}
-
-.drive-status-cell {
-  flex: 1 1 0;
-  padding: 2px 4px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  background: var(--ButtonFace, #c0c0c0);
-  box-shadow: inset -1px -1px #dfdfdf, inset 1px 1px grey;
-}
-
-@media (min-width: 768px) {
-  .drive-row {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .drive-row-name {
-    flex: 1 1 45%;
-  }
-
-  .drive-row-meta {
-    flex: 0 0 25%;
-  }
-
-  .drive-row-actions {
-    flex: 0 0 auto;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

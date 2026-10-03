@@ -64,7 +64,7 @@ src/
 │   ├── RecycleBin/              # Papelera de reciclaje
 │   ├── SoundRecorder/           # Grabador de sonido
 │   ├── MSDOS/                   # Símbolo del sistema MS-DOS
-│   ├── DriveApp/                # Unidad de Google Drive (index.tsx = placeholder, launchDrive.ts = ventana os-gui)
+│   ├── DriveApp/                # Unidad de Google Drive (index.tsx = placeholder React + launchDrive() construye la ventana os-gui)
 │   └── apps.ts                  # Registro central de apps
 ├── components/                    # Componentes (Diseño Atómico)
 │   ├── molecules/               # Componentes simples
@@ -159,7 +159,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 - Hook `useTranslation()` para las apps React (escritorio, Start menu, Settings)
 - Tabla local `TRANSLATIONS` + `tr(key)` para las apps os-gui, que corren fuera de React y no pueden usar hooks (`MarkdownViewerApp`, `DriveApp`)
 - Persistencia en localStorage
-- 54 claves en `i18n/translations.ts` + 49 en la tabla local de DriveApp
+- 54 claves en `i18n/translations.ts` + 91 en la tabla local de DriveApp
 
 ### Explorador de Archivos
 - **Vista Iconos (My Documents)**: Cuadrícula de iconos estilo Windows 98
@@ -183,12 +183,21 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 App nueva que explora una **carpeta propia administrada por la app** dentro del Drive del visitante. No es "tu Drive": la app pide el scope `drive.file`, que solo le da acceso a los archivos que ella misma crea, así que la UI lo dice explícitamente para que no parezca una feature rota.
 
 - **Capa de servicios** (`src/services/googleDrive/`): `client.ts` (Drive v3), `auth.ts` (OAuth + PKCE), `errors.ts` (códigos de error traducibles), `types.ts`. Ningún método tira excepciones: devuelven `DriveResult<T>` (`{ok:true,data}` | `{ok:false,error}`)
-- **UI** (`src/apps/DriveApp/`): `index.tsx` es el placeholder React que exige el registro de apps; `launchDrive.ts` construye la ventana os-gui de verdad (patrón idéntico al de `MyComputer`)
+- **UI** (`src/apps/DriveApp/`): `index.tsx` es el placeholder React que exige el registro de apps y, en el mismo archivo, `launchDrive()` construye la ventana os-gui de verdad (patrón idéntico al de `MyComputer`)
+- **Chrome Explorer**: la ventana usa la misma estructura que `MyComputer` y `MyDocuments`, sin CSS propio para eso: `.os-explorer` → `.toolbars` (menú + `#standard-buttons-toolbar` + `#address-bar-toolbar`) → `.content-with-panel` (`#panel` + `#content`) → `#status-bar`. Los helpers de toolbar viven en `src/utils/explorerChrome.ts`; los helpers de `MyComputer` y `FileExplorerApp` todavía son copias propias y migrarlos es un follow-up
 - **Workspace**: carpeta `juandavid desktop` que la app **descubre por nombre** en cada sesión (`files.list`) y crea en el primer uso. Nunca se guarda el id de la carpeta
-- **Acciones por archivo**: **Abrir** (pasa el contenido al visor Markdown vía `openApp('markdownViewer', …)`), **Editar** (editor interno con textarea) y **Papelera** (`trashed: true`, nunca borrado definitivo — recuperable 30 días desde drive.google.com)
-- **Nuevo archivo**: crea un `.md` vacío en la carpeta del workspace
-- **Estados**: desconectado, conectando, lista, editor, token vencido (ofrece reconexión) y error (red, cuota, scope insuficiente)
-- **Barra de estado** estilo Win98 con el conteo de archivos y el email de la cuenta conectada
+- **Modelo de acciones por selección**: click simple selecciona la fila y llena el panel izquierdo (nombre, tamaño, modificado, tipo); doble click **abre** en el visor Markdown vía `openApp('markdownViewer', …)`, **Editar** abre el textarea interno y **Papelera** manda el archivo con `trashed: true` (nunca borrado definitivo, recuperable 30 días desde drive.google.com). No hay botones por fila: todo pasa por la selección y los menús
+- **Vistas**: las 4 del Explorer — iconos grandes, iconos pequeños, lista y detalles (Detalles suma la columna Tipo)
+- **Nuevo archivo**: crea un `.md` vacío en la carpeta del workspace (Enter crea, Esc cancela)
+- **Estados**: desconectado, conectando, lista, editor, token vencido (ofrece reconexión) y error (red, cuota, scope insuficiente). Los que no tienen nada seleccionable (desconectado, reconexión, conectando, error) muestran el panel centrado, sin panel izquierdo
+- **Barra de estado** estilo Win98: conteo de archivos, cuenta conectada y listo / trabajando / error
+
+| Superficie | Dónde |
+|---|---|
+| Menú | `Archivo` (`Nuevo`, `Abrir` Ctrl+O, `Guardar` Ctrl+S, `Papelera`, `Conectar`, `Desconectar`, `Cerrar`) · `Editar` · `Ver` (`Barras de herramientas`, `Barra de estado`, modo de vista, `Actualizar` F5) · `Ayuda` |
+| Botones estándar | `Atrás` `Adelante` `Subir` (deshabilitados: Drive tiene una sola carpeta) · `Nuevo` `Abrir` `Editar` `Guardar` `Papelera` · `Actualizar` · `Vistas` |
+| Barra de dirección | Nombre de la carpeta del workspace, o el nombre del archivo abierto en el editor |
+| Teclado | `F5` actualiza · `Supr` manda la selección a la papelera · `Enter` abre la selección · `Retroceso` (buffer vacío) sale del editor |
 
 #### Autenticación (OAuth 2.0 authorization code + PKCE)
 
@@ -486,7 +495,7 @@ La configuración de Vite está en `vite.config.js` (`base: "/"` para dominio pe
 - ✅ **Winamp** - Reproductor de música clásico usando Webamp con demo track y playlist persistente
 - ✅ **Portfolio** - Portafolio de proyectos con 4 vistas (Iconos grandes, pequeños, lista, detalles)
 - ✅ **My Computer** - Explorador del sistema
-- ✅ **Google Drive (Mi unidad)** - Carpeta propia administrada por la app: conectar con OAuth + PKCE (token solo en memoria), listar, crear, editar y mandar a la papelera
+- ✅ **Google Drive (Mi unidad)** - Carpeta propia administrada por la app: conectar con OAuth + PKCE (token solo en memoria), listar, crear, editar y mandar a la papelera, con la misma chrome Explorer que My Computer / My Documents
 - ✅ **Network, Recycle Bin, Sound Recorder, MS-DOS Prompt**
 - ✅ **Settings con 3 tabs** (General, Desktop, Advanced)
 - ✅ Responsive
