@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import { registerOsWindow } from '../../utils/osWindowRegistry';
+import { registerOsWindow, setOsWindowTitle } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
 
@@ -12,6 +12,50 @@ export const NotepadApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
 };
 
+/** File name used before the document is named by the user. */
+const UNTITLED = 'Untitled';
+
+// ── Document store ───────────────────────────────────────────────────────────
+
+/** A markdown document held by the Notepad store. */
+interface NotepadDocument {
+  /** File name without the `.md` extension, e.g. `notes`. */
+  name: string;
+  content: string;
+}
+
+/**
+ * Module-level in-memory document store, shared by every Notepad window so a
+ * document saved in one window can be opened in another.
+ *
+ * Nothing here is persisted on purpose: no localStorage, no sessionStorage, no
+ * IndexedDB, no backend. Every document is lost on page reload. That trade-off
+ * is intentional — the real markdown sources under `src/data/files/` are
+ * resolved at build time by `import.meta.glob`, so the site has no runtime
+ * write path for them.
+ */
+const documents = new Map<string, NotepadDocument>();
+
+/**
+ * Titlebar/taskbar text for a document name + dirty state.
+ * Clean: `notes.md - Notepad`. Dirty: `notes.md * - Notepad`.
+ */
+function buildWindowTitle(name: string, dirty: boolean): string {
+  return `${name}.md${dirty ? ' *' : ''} - Notepad`;
+}
+
+/** One Markdown format toolbar button, described as data then built as DOM. */
+interface FormatButtonDef {
+  /** Text glyph — there are no image assets for these actions. */
+  glyph: string;
+  /** Accessible name and tooltip. */
+  label: string;
+  /** Optional extra class for glyphs needing different width or typography. */
+  glyphClass?: string;
+  /** Runs the action; focus/caret handling lives in the shared helpers. */
+  action: () => void;
+}
+
 /**
  * Custom launch function that creates an authentic Win98 Notepad window
  * using os-gui $Window and MenuBar.
@@ -19,8 +63,10 @@ export const NotepadApp: React.FC = () => {
  * Features:
  *   - Native os-gui window with Win98 titlebar, borders, resize handles
  *   - Menu bar (File, Edit, Help)
+ *   - Markdown formatting toolbar with correct caret placement
  *   - Large textarea with Ln/Col tracking in status bar
  *   - Time/Date insertion (F5 / Edit menu)
+ *   - File New/Open/Save backed by the module-level in-memory store
  */
 export function launchNotepad(): void {
   const $Window = window.$Window;
@@ -33,7 +79,7 @@ export function launchNotepad(): void {
 
   // ── Create the os-gui window ──
   const $win = $Window({
-    title: 'Untitled - Notepad',
+    title: buildWindowTitle(UNTITLED, false),
     icons: {
       16: '/images/icons/notepad-16x16.png',
       32: '/images/icons/notepad-32x32.png',
@@ -44,12 +90,18 @@ export function launchNotepad(): void {
 
   $win.css({
     width: '450px',
-    height: '350px',
+    height: '400px',
   });
   $win.center();
   const cascadeOffset = getCascadeOffset();
   $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
-  registerOsWindow($win, 'notepad', 'Untitled - Notepad', '/images/icons/notepad-32x32.png');
+  const windowId = registerOsWindow($win, 'notepad', buildWindowTitle(UNTITLED, false), '/images/icons/notepad-32x32.png');
+
+  // ── Per-window state ──
+  /** Name of the document in the textarea ('Untitled' until saved under a name). */
+  let documentName = UNTITLED;
+  /** True when the textarea holds changes that are not in the store. */
+  let isDirty = false;
 
   // ── Build Notepad layout ──
   const container = document.createElement('div');
@@ -62,23 +114,78 @@ export function launchNotepad(): void {
         label: '&New',
         shortcutLabel: 'Ctrl+N',
         action: () => {
-          if (textarea.value && !confirm('Save changes to Untitled?')) return;
+          if (!confirmDiscard()) return;
           textarea.value = '';
+          documentName = UNTITLED;
+          isDirty = false;
           updateStatus();
+          applyWindowTitle();
+          textarea.focus();
         },
       },
       {
         label: '&Open...',
         shortcutLabel: 'Ctrl+O',
-        action: () => showMessageBox({ title: 'Notepad', message: 'Open file dialog (not implemented)', icon: 'info' }),
+        action: () => {
+          if (documents.size === 0) {
+            showMessageBox({
+              title: 'Notepad',
+              message: 'There are no saved documents in this session yet.\n\nUse File > Save to store the current document.',
+              icon: 'info',
+            });
+            return;
+          }
+          if (!confirmDiscard()) return;
+          const available = Array.from(documents.keys()).join(', ');
+          const answer = prompt(`Open which document?\n\nSaved in this session: ${available}`, documentName);
+          if (answer === null) return;
+          const wanted = answer.trim();
+          const doc = documents.get(wanted);
+          if (!doc) {
+            showMessageBox({
+              title: 'Notepad',
+              message: wanted
+                ? `"${wanted}" is not a document saved in this session.`
+                : 'Type the name of a document to open.',
+              icon: 'warning',
+            });
+            return;
+          }
+          textarea.value = doc.content;
+          documentName = doc.name;
+          isDirty = false;
+          updateStatus();
+          applyWindowTitle();
+          textarea.focus();
+        },
       },
       {
         label: '&Save',
         shortcutLabel: 'Ctrl+S',
-        action: () => showMessageBox({ title: 'Notepad', message: 'Save dialog (not implemented)', icon: 'info' }),
+        action: () => {
+          let name = documentName;
+          if (name === UNTITLED) {
+            const answer = prompt('Save as (name without the .md extension):', UNTITLED);
+            // A cancelled or empty prompt means "do not save".
+            if (answer === null) return;
+            name = answer.trim();
+            if (!name) return;
+          }
+          documents.set(name, { name, content: textarea.value });
+          documentName = name;
+          isDirty = false;
+          applyWindowTitle();
+          showMessageBox({ title: 'Notepad', message: `Saved ${name}.md`, icon: 'info' });
+        },
       },
       { separator: true },
-      { label: 'E&xit', action: () => $win.close() },
+      {
+        label: 'E&xit',
+        action: () => {
+          if (!confirmDiscard()) return;
+          $win.close();
+        },
+      },
     ],
     '&Edit': [
       { label: '&Undo', shortcutLabel: 'Ctrl+Z', enabled: false },
@@ -125,6 +232,88 @@ export function launchNotepad(): void {
   menuToolbar.appendChild(menu.element);
   container.appendChild(menuToolbar);
 
+  // ══════ Markdown format toolbar ══════
+  // Sits between the menu bar and the sunken edit area, and takes its natural
+  // height (the container is a column flexbox and the edit area is flex:1).
+  const formatToolbar = document.createElement('div');
+  formatToolbar.className = 'notepad-format-toolbar';
+  formatToolbar.setAttribute('role', 'toolbar');
+  formatToolbar.setAttribute('aria-label', 'Markdown formatting');
+
+  // 1-3 wrap the selection (or insert an empty pair), 4-6 toggle a line
+  // prefix, 7-8 ask for a URL because their closing half needs one.
+  const formatButtons: FormatButtonDef[] = [
+    {
+      glyph: 'B',
+      label: 'Bold — wrap selection in **',
+      glyphClass: 'is-bold',
+      action: () => wrapSelection('**', '**', 2),
+    },
+    {
+      glyph: 'I',
+      label: 'Italic — wrap selection in _',
+      glyphClass: 'is-italic',
+      action: () => wrapSelection('_', '_', 1),
+    },
+    {
+      glyph: '</>',
+      label: 'Inline code — wrap selection in `',
+      glyphClass: 'is-mono',
+      action: () => wrapSelection('`', '`', 1),
+    },
+    {
+      glyph: 'H',
+      label: 'Heading — toggle ## on the current line',
+      action: () => toggleLinePrefix('## '),
+    },
+    {
+      glyph: '•',
+      label: 'Bullet list — toggle - on the current line',
+      action: () => toggleLinePrefix('- '),
+    },
+    {
+      glyph: '”',
+      label: 'Quote — toggle > on the current line',
+      action: () => toggleLinePrefix('> '),
+    },
+    {
+      glyph: '[..]',
+      label: 'Link — insert [text](url)',
+      glyphClass: 'is-mono is-wide',
+      action: () => {
+        if (hasSelection()) {
+          wrapSelection('[', '](url)', 1);
+          return;
+        }
+        const url = prompt('Link URL:');
+        if (url === null) return;
+        wrapSelection('[', `](${url})`, 1);
+      },
+    },
+    {
+      glyph: '![..]',
+      label: 'Image — insert ![alt](url)',
+      glyphClass: 'is-mono is-wide',
+      action: () => {
+        if (hasSelection()) {
+          wrapSelection('![', '](url)', 2);
+          return;
+        }
+        const url = prompt('Image URL:');
+        if (url === null) return;
+        wrapSelection('![', `](${url})`, 2);
+      },
+    },
+  ];
+
+  formatButtons.forEach((def, index) => {
+    // Separator between the inline group (bold/italic/code) and the block group.
+    if (index === 3) formatToolbar.appendChild(createFormatSeparator());
+    formatToolbar.appendChild(createFormatButton(def));
+  });
+
+  container.appendChild(formatToolbar);
+
   // ══════ Textarea (edit area) ══════
   const editArea = document.createElement('div');
   editArea.className = 'sunken-panel';
@@ -162,6 +351,125 @@ export function launchNotepad(): void {
     statusBar.textContent = `Ln ${lineCount}, Col ${col}`;
   }
 
+  // ── Title / dirty state ──
+
+  /**
+   * Single place that applies the window title, so the titlebar, the os-gui
+   * task and the React taskbar button never drift apart.
+   */
+  function applyWindowTitle(): void {
+    const title = buildWindowTitle(documentName, isDirty);
+    $win.title(title);
+    setOsWindowTitle(windowId, title);
+  }
+
+  /** Flag unsaved buffer changes and refresh the dirty marker in the title. */
+  function markDirty(): void {
+    isDirty = true;
+    applyWindowTitle();
+  }
+
+  /** Ask before throwing away unsaved edits. */
+  function confirmDiscard(): boolean {
+    if (!isDirty) return true;
+    return confirm(`Save changes to ${documentName}.md?`);
+  }
+
+  // ── Markdown insertion helpers ──
+
+  /** True when the textarea has a non-empty selection. */
+  function hasSelection(): boolean {
+    return textarea.selectionStart !== textarea.selectionEnd;
+  }
+
+  /**
+   * Wrap the current selection in an inline delimiter pair.
+   *
+   * With a selection the pair wraps it and the caret ends up after the closing
+   * delimiter. With no selection the empty pair is inserted and the caret is
+   * parked at `emptyCaretIndex` (measured from the start of the inserted text)
+   * so the user types inside the delimiters.
+   */
+  function wrapSelection(before: string, after: string, emptyCaretIndex: number): void {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = textarea.value.slice(start, end);
+    const inserted = `${before}${selected}${after}`;
+    textarea.setRangeText(inserted, start, end, 'end');
+    const caret = start + (selected ? selected.length + after.length : emptyCaretIndex);
+    textarea.setSelectionRange(caret, caret);
+    textarea.focus();
+    markDirty();
+    updateStatus();
+  }
+
+  /**
+   * Toggle a line prefix on the caret line, or on every line of a multi-line
+   * selection. Lines that already carry the exact prefix have it removed, so
+   * pressing the button twice never stacks the prefix.
+   */
+  function toggleLinePrefix(prefix: string): void {
+    const value = textarea.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    // selectionStart === 0 must short-circuit: lastIndexOf('\n', -1) clamps its
+    // start to index 0, so a document beginning with a newline would report the
+    // caret line as starting one character late and prefix the wrong line.
+    const blockStart = selectionStart === 0 ? 0 : value.lastIndexOf('\n', selectionStart - 1) + 1;
+    const newlineAfter = value.indexOf('\n', selectionEnd);
+    const blockEnd = newlineAfter === -1 ? value.length : newlineAfter;
+
+    const lines = value.slice(blockStart, blockEnd).split('\n');
+    const remove = lines.every((line) => line.startsWith(prefix));
+    const updated = lines
+      .map((line) => (remove ? line.slice(prefix.length) : `${prefix}${line}`))
+      .join('\n');
+
+    textarea.setRangeText(updated, blockStart, blockEnd, 'end');
+    const delta = updated.length - (blockEnd - blockStart);
+    textarea.setSelectionRange(
+      Math.max(blockStart, selectionStart + delta),
+      Math.max(blockStart, selectionEnd + delta),
+    );
+    textarea.focus();
+    markDirty();
+    updateStatus();
+  }
+
+  /** Build one format toolbar button: text glyph, tooltip, accessible name. */
+  function createFormatButton(def: FormatButtonDef): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = def.glyphClass ? `notepad-format-button ${def.glyphClass}` : 'notepad-format-button';
+    btn.title = def.label;
+    btn.setAttribute('aria-label', def.label);
+
+    const glyph = document.createElement('span');
+    glyph.className = 'notepad-format-glyph';
+    glyph.setAttribute('aria-hidden', 'true');
+    glyph.textContent = def.glyph;
+    btn.appendChild(glyph);
+
+    btn.addEventListener('click', def.action);
+    return btn;
+  }
+
+  /** Vertical separator between toolbar groups. */
+  function createFormatSeparator(): HTMLHRElement {
+    const hr = document.createElement('hr');
+    hr.className = 'notepad-format-separator';
+    hr.setAttribute('aria-orientation', 'vertical');
+    return hr;
+  }
+
+  /** Flag typing as unsaved without touching the title from the listeners. */
+  function handleInput(): void {
+    isDirty = true;
+    applyWindowTitle();
+  }
+
+  textarea.addEventListener('input', handleInput);
   textarea.addEventListener('input', updateStatus);
   textarea.addEventListener('keyup', updateStatus);
   textarea.addEventListener('click', updateStatus);
@@ -181,9 +489,11 @@ export function launchNotepad(): void {
     const end = textarea.selectionEnd;
     textarea.setRangeText(stamp, start, end, 'end');
     textarea.focus();
+    markDirty();
     updateStatus();
   }
 
+  applyWindowTitle();
   container.appendChild(statusBar);
 
   // ── Append everything to the os-gui window ──

@@ -103,6 +103,21 @@ export function registerOsWindow(
 }
 
 /**
+ * Update the taskbar label of a registered os-gui window by ID.
+ * Used by windows that rename themselves while open (e.g. Notepad documents),
+ * so the task button never shows the title captured at registration time.
+ *
+ * Silently ignores unknown IDs.
+ */
+export function setOsWindowTitle(id: string, title: string): void {
+  const entry = registry.get(id);
+  if (!entry) return;
+
+  entry.title = title;
+  dispatchChange();
+}
+
+/**
  * Focus/restore an os-gui window by ID.
  * Called when the user clicks the corresponding taskbar button.
  */

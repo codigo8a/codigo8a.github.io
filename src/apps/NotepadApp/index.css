@@ -29,6 +29,84 @@
   color: var(--HighlightText, #fff);
 }
 
+/* ── Markdown format toolbar ── */
+/* Buttons are plain DOM (os-gui's explorerChrome helpers need the Explorer icon
+   sprite, which has no text-formatting glyphs). The raised/pressed borders
+   match the Win98 pattern used by os-gui's `button:not(.lightweight)`: os-gui
+   paints the pixel-exact border-image and these declarations are the fallback. */
+.notepad-format-toolbar {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 1px;
+  padding: 2px;
+  border-bottom: 1px solid var(--ButtonShadow, #808080);
+  background: var(--ButtonFace, #c0c0c0);
+}
+
+.notepad-format-toolbar .notepad-format-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--ButtonText, #000);
+  background: var(--ButtonFace, #c0c0c0);
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--ButtonLight, #dfdfdf) var(--ButtonShadow, #808080) var(--ButtonShadow, #808080) var(--ButtonLight, #dfdfdf);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Glyphs need more room than a single character ([..], ![..]). */
+.notepad-format-toolbar .notepad-format-button.is-wide {
+  width: 34px;
+  font-size: 10px;
+}
+
+.notepad-format-toolbar .notepad-format-button.is-bold {
+  font-weight: 700;
+}
+
+.notepad-format-toolbar .notepad-format-button.is-italic {
+  font-style: italic;
+}
+
+.notepad-format-toolbar .notepad-format-button.is-mono {
+  font-family: 'Courier New', 'Lucida Console', monospace;
+}
+
+.notepad-format-toolbar .notepad-format-button:hover:not(:active) {
+  background: var(--ButtonLight, #dfdfdf);
+}
+
+/* Pressed: swap the raised bevel for the sunken one. */
+.notepad-format-toolbar .notepad-format-button:active {
+  border-color: var(--ButtonShadow, #808080) var(--ButtonHilight, #fff) var(--ButtonHilight, #fff) var(--ButtonShadow, #808080);
+}
+
+.notepad-format-toolbar .notepad-format-button:focus-visible {
+  outline: 1px dotted var(--ButtonDkShadow, #000);
+  outline-offset: -3px;
+}
+
+.notepad-format-toolbar .notepad-format-separator {
+  align-self: stretch;
+  flex: 0 0 auto;
+  width: 0;
+  margin: 1px 3px;
+  border: 0;
+  border-left: 1px solid var(--ButtonShadow, #808080);
+  border-right: 1px solid var(--ButtonHilight, #fff);
+}
+
 .notepad-statusbar-os {
   border-top: 1px solid var(--ButtonShadow, #808080);
   padding: 2px 8px;

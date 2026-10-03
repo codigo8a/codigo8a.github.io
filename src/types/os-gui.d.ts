@@ -38,6 +38,12 @@ export interface OsGuiWindow {
   css(property: string): string;
   css(properties: Record<string, string | number>): this;
   center(): void;
+  /** Set the titlebar text (and the os-gui task, if any) to `text`. */
+  title(text: string): OsGuiWindow;
+  /** Read the current titlebar text back. */
+  title(): string;
+  /** Read the current titlebar text back (os-gui alias of `title()`). */
+  getTitle(): string;
   onClosed(callback: () => void): void;
   close(): void;
   show(): this;
