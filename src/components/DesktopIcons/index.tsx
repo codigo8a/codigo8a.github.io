@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useDesktop } from '../../context/DesktopContext';
-import { navigateIExplorer } from '../../apps/IExplorerApp';
 import { useTranslation } from '../../i18n/translations';
 import type { TranslationKeys } from '../../i18n/translations';
 import './index.css';
@@ -294,17 +293,11 @@ export const DesktopIcons: React.FC = () => {
     } else if (iconId === 'browser') {
       openApp('iexplorer');
     } else if (iconId === 'radio') {
-      // Reuse the browser window if one is already open, otherwise open a new
-      // one straight on the radio station
-      if (!navigateIExplorer(RADIO_URL)) {
-        openApp('iexplorer', { url: RADIO_URL });
-      }
+      // Always a new browser window: reusing the most recently opened one
+      // would navigate away whatever the user was looking at.
+      openApp('iexplorer', { url: RADIO_URL });
     } else if (iconId === 'tankstrike') {
-      // Same behaviour as the radio icon: reuse the open browser window when
-      // there is one, otherwise open a new one on the game
-      if (!navigateIExplorer(TANKSTRIKE_URL)) {
-        openApp('iexplorer', { url: TANKSTRIKE_URL });
-      }
+      openApp('iexplorer', { url: TANKSTRIKE_URL });
     } else if (iconId === 'youtube') {
       // YouTube forbids embedding inside an iframe (X-Frame-Options and
       // CSP frame-ancestors), so open the channel in a real browser tab.
