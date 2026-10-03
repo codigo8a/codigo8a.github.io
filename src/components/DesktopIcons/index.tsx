@@ -162,53 +162,44 @@ const APP_ICONS: Record<string, React.ReactNode> = {
 };
 
 /**
- * Grid positions (2 columns) — Radio Código 2 sits directly below Winamp,
- * TankStrike directly below the radio and YouTube directly below TankStrike,
- * My Drive directly below YouTube:
- *   col 0         | col 1
- *   My Computer   | My Documents
- *   Recycle Bin   | Search
- *   Internet Exp. | Portfolio
- *   Network...    | Winamp
- *   Notepad...    | Radio Código2
- *                 | TankStrike
- *                 | YouTube Juan D. Ochoa
- *                 | My Drive
- * Icons without a grid slot flow below the grid in col 0.
+ * Grid positions (2 columns) — column 0 is the primary column (system and
+ * documents), column 1 the media and remote column:
+ *   col 0          | col 1
+ *   My Computer    | My Drive
+ *   My Documents   | Winamp
+ *   Search         | Internet Exp.
+ *   Portfolio      | Radio Código2
+ *   Notepad        | TankStrike
+ *   YouTube        |
  */
 const ICON_GRID: Record<string, [number, number]> = {
   myComputer:    [0, 0],
-  recycleBin:    [0, 1],
-  browser:       [0, 2],
-  myDocuments:   [1, 0],
-  search:        [1, 1],
-  portfolio:     [1, 2],
-  winamp:        [1, 3],
-  radio:         [1, 4],
-  tankstrike:    [1, 5],
-  youtube:       [1, 6],
-  drive:         [1, 7],
+  myDocuments:   [0, 1],
+  search:        [0, 2],
+  portfolio:     [0, 3],
+  notepad:       [0, 4],
+  youtube:       [0, 5],
+  drive:         [1, 0],
+  winamp:        [1, 1],
+  browser:       [1, 2],
+  radio:         [1, 3],
+  tankstrike:    [1, 4],
 };
 
 const DESKTOP_ICONS: DesktopIcon[] = [
   // Column 0, top to bottom
   { id: 'myComputer', icon: 'myComputer', label: 'My Computer' },
-  { id: 'recycleBin', icon: 'recycleBin', label: 'Recycle Bin' },
-  { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
-  // Column 1, top to bottom (to the right of column 0)
   { id: 'myDocuments', icon: 'myDocuments', label: 'My Documents' },
   { id: 'search', icon: 'search', label: 'Search documents' },
   { id: 'portfolio', icon: 'portfolio', label: 'Portfolio' },
+  { id: 'notepad', icon: 'notepad', label: 'Notepad' },
+  { id: 'youtube', icon: 'youtube', label: 'YouTube Juan David Ochoa', labelKey: 'youtubeJuanDavidOchoa' },
+  // Column 1, top to bottom (to the right of column 0)
+  { id: 'drive', icon: 'drive', label: 'My Drive', labelKey: 'googleDrive' },
   { id: 'winamp', icon: 'winamp', label: 'Winamp' },
+  { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
   { id: 'radio', icon: 'radio', label: 'Radio Código 2', labelKey: 'radioCodigo2' },
   { id: 'tankstrike', icon: 'tankstrike', label: 'TankStrike', labelKey: 'tankStrike' },
-  { id: 'youtube', icon: 'youtube', label: 'YouTube Juan David Ochoa', labelKey: 'youtubeJuanDavidOchoa' },
-  { id: 'drive', icon: 'drive', label: 'My Drive', labelKey: 'googleDrive' },
-  // Rest
-  { id: 'network', icon: 'network', label: 'Network Neighborhood' },
-  { id: 'notepad', icon: 'notepad', label: 'Notepad' },
-  { id: 'soundRecorder', icon: 'soundRecorder', label: 'Sound Recorder' },
-  { id: 'msdos', icon: 'msdos', label: 'MS-DOS Prompt' },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -324,16 +315,8 @@ export const DesktopIcons: React.FC = () => {
       openApp('portfolio');
     } else if (iconId === 'myComputer') {
       openApp('myComputer');
-    } else if (iconId === 'network') {
-      openApp('network');
-    } else if (iconId === 'recycleBin') {
-      openApp('recycleBin');
     } else if (iconId === 'notepad') {
       openApp('notepad');
-    } else if (iconId === 'soundRecorder') {
-      openApp('soundRecorder');
-    } else if (iconId === 'msdos') {
-      openApp('msdos');
     } else if (iconId === 'drive') {
       openApp('driveApp');
     }
