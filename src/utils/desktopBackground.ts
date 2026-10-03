@@ -2,8 +2,9 @@
  * desktopBackground — persistence layer for the custom desktop background image.
  *
  * The image the user picks (from Settings or from the "Custom image" wallpaper
- * tile) is read as a Data URL (`FileReader.readAsDataURL`) and stored in
- * localStorage under {@link BACKGROUND_KEY} ('desktop.backgroundImage').
+ * tile) is decoded straight from the `File` with `createImageBitmap`, downscaled
+ * to fit the byte budget, re-encoded as JPEG and stored in localStorage under
+ * {@link BACKGROUND_KEY} ('desktop.backgroundImage').
  *
  * PERSISTENCE IS LOCAL ONLY: the image never leaves the browser. It is not
  * uploaded to a server, there is no backend copy and it is not tied to any user
@@ -19,17 +20,30 @@
  *     cookies, disabled storage or SSR must never throw at the caller.
  */
 
-import { LOCAL_STORAGE_KEYS } from '../constants';
+import { COLORS, LOCAL_STORAGE_KEYS } from '../constants';
 
 /** localStorage key that holds the custom background (a Data URL). */
 export const BACKGROUND_KEY = LOCAL_STORAGE_KEYS.DESKTOP_BACKGROUND_IMAGE;
 
 /**
  * Hard limit for the value we are willing to keep in localStorage: 2 MB of
- * *stored Data URL* (base64 grows a file by ~4/3, so this accepts image files
- * of up to ~1.5 MB — {@link readImageFileAsDataUrl} applies the same budget).
+ * *stored Data URL* (base64 grows a file by ~4/3). This is the final authority —
+ * {@link setBackgroundImage} rejects anything larger, and
+ * {@link downscaleImageFileToDataUrl} encodes until the result fits it.
  */
 export const MAX_BYTES = 2 * 1024 * 1024; // 2 MB
+
+/**
+ * Longest edge, in pixels, of the image we keep.
+ *
+ * The desktop renders the background with `background-size: cover`, which
+ * already scales the bitmap to the viewport — so anything past the largest
+ * plausible screen is bytes spent for zero visible gain, while those bytes are
+ * the ones competing with the rest of localStorage. 2560 keeps 1440p crisp and
+ * 4K reasonable, and leaves several times of headroom inside {@link MAX_BYTES}
+ * even for a very detailed photograph.
+ */
+export const MAX_IMAGE_EDGE_PX = 2560;
 
 /** @deprecated Use {@link MAX_BYTES} (same value, kept for existing imports). */
 export const MAX_BACKGROUND_IMAGE_BYTES = MAX_BYTES;
@@ -153,42 +167,168 @@ export function clearBackgroundImage(): void {
   notifyBackgroundChanged();
 }
 
-/** Size of the `data:image/<type>;base64,` header, in characters. */
-const DATA_URL_HEADER_LENGTH = 64;
+/**
+ * JPEG quality ladder used at the full (edge-capped) dimensions. Visually lossless
+ * enough for a wallpaper at 0.85, and each step below trades a little sharpness
+ * for roughly a third of the bytes.
+ */
+const JPEG_QUALITY_LADDER: readonly number[] = [0.85, 0.75, 0.65, 0.55];
 
 /**
- * Validate and read a picked file as a Data URL.
+ * Ladder used once the dimensions have been halved. Dropping resolution costs
+ * more visible quality than dropping JPEG quality, so the retry restarts at the
+ * second step rather than at 0.85.
+ */
+const JPEG_QUALITY_LADDER_REDUCED: readonly number[] = [0.75, 0.65, 0.55];
+
+/**
+ * Hard cap on encode attempts. Every attempt is a full canvas draw + JPEG
+ * encode, so a pathological input (huge, extremely detailed, or crafted to
+ * defeat the ladder) must not be able to spin the main thread: we give up and
+ * let the 'too-large' safety net report it.
+ */
+const MAX_ENCODE_ATTEMPTS = 8;
+
+/**
+ * Smallest edge we are willing to shrink to. The attempt cap already bounds the
+ * loop; this only keeps the final retry from producing a meaningless 2×2 image.
+ */
+const MIN_IMAGE_EDGE_PX = 64;
+
+/** One candidate encode: target size plus JPEG quality. */
+type EncodeAttempt = { width: number; height: number; quality: number };
+
+/**
+ * Scale the picked image so its longest edge is at most {@link MAX_IMAGE_EDGE_PX},
+ * never enlarging it: a 300×200 picture stays 300×200 rather than being blown up
+ * into 2560×1707 of blur stored in localStorage.
+ */
+function fitWithinEdgeLimit(width: number, height: number): { width: number; height: number } {
+  const longestEdge = Math.max(width, height);
+  const scale = longestEdge > 0 ? Math.min(1, MAX_IMAGE_EDGE_PX / longestEdge) : 1;
+  return {
+    // Math.round can reach 0 only for sub-pixel inputs; clamp so the canvas
+    // never gets a zero dimension (which makes toDataURL return "data:,").
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
+/**
+ * Ordered list of encodes to try: the quality ladder at full size, then the same
+ * idea with halved dimensions, until {@link MAX_ENCODE_ATTEMPTS} is reached.
+ */
+function buildEncodePlan(width: number, height: number): EncodeAttempt[] {
+  const plan: EncodeAttempt[] = [];
+  let currentWidth = width;
+  let currentHeight = height;
+  let pass = 0;
+
+  while (plan.length < MAX_ENCODE_ATTEMPTS) {
+    const ladder = pass === 0 ? JPEG_QUALITY_LADDER : JPEG_QUALITY_LADDER_REDUCED;
+    for (const quality of ladder) {
+      if (plan.length >= MAX_ENCODE_ATTEMPTS) return plan;
+      plan.push({ width: currentWidth, height: currentHeight, quality });
+    }
+    if (currentWidth <= MIN_IMAGE_EDGE_PX && currentHeight <= MIN_IMAGE_EDGE_PX) return plan;
+    currentWidth = Math.max(MIN_IMAGE_EDGE_PX, Math.round(currentWidth / 2));
+    currentHeight = Math.max(MIN_IMAGE_EDGE_PX, Math.round(currentHeight / 2));
+    pass += 1;
+  }
+
+  return plan;
+}
+
+/** Release a decoded bitmap eagerly so a failed retry loop cannot leak GPU memory. */
+function releaseBitmap(bitmap: ImageBitmap | null): void {
+  try {
+    bitmap?.close();
+  } catch {
+    // Already released (or no close() support): nothing left to do.
+  }
+}
+
+/**
+ * Draw `bitmap` onto an opaque canvas of the attempt's size and encode it as a
+ * JPEG Data URL.
+ *
+ * The fill is deliberate, not cosmetic: JPEG has no alpha channel, so a
+ * transparent PNG encoded without it would come out against black. Compositing
+ * on the desktop teal means transparency reads as "the desktop shows through",
+ * which is what the user saw in their editor.
+ */
+function encodeAttempt(bitmap: ImageBitmap, attempt: EncodeAttempt): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = attempt.width;
+  canvas.height = attempt.height;
+  try {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('read-failed' satisfies BackgroundReadError);
+    ctx.fillStyle = COLORS.DESKTOP_BG;
+    ctx.fillRect(0, 0, attempt.width, attempt.height);
+    ctx.drawImage(bitmap, 0, 0, attempt.width, attempt.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', attempt.quality);
+    if (!isValidBackgroundDataUrl(dataUrl)) {
+      throw new Error('read-failed' satisfies BackgroundReadError);
+    }
+    return dataUrl;
+  } finally {
+    // Detach the backing bitmap immediately; the Data URL already holds a copy.
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+}
+
+/**
+ * Decode a picked image file and produce a Data URL that always fits
+ * {@link MAX_BYTES}: the image is downscaled to {@link MAX_IMAGE_EDGE_PX} and
+ * re-encoded as JPEG, degrading quality and then resolution until it fits.
  *
  * Rejects with a {@link BackgroundReadError} code (never logs to the console):
- * 'not-image' for non-image files, 'too-large' when the resulting Data URL
- * would not fit {@link MAX_BYTES}, 'read-failed' when FileReader cannot read
- * the file or returns something that is not an image Data URL.
+ * 'not-image' for non-image files, 'read-failed' when the browser cannot decode
+ * the file or the canvas cannot encode it, and 'too-large' only when the whole
+ * {@link MAX_ENCODE_ATTEMPTS} ladder failed to fit — a safety net that a
+ * normal photograph should never reach, kept so a value {@link setBackgroundImage}
+ * would reject is never handed to it as a "successful" read.
+ *
+ * Decoding goes through `createImageBitmap(file)` rather than
+ * `FileReader.readAsDataURL` on purpose: base64-encoding an 8 MB photo first
+ * means building an ~11 MB string in memory before any resizing can happen,
+ * which is the main-thread stall this function exists to avoid.
  */
-export function readImageFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (!file.type.startsWith('image/')) {
-      reject(new Error('not-image' satisfies BackgroundReadError));
-      return;
+export async function downscaleImageFileToDataUrl(file: File): Promise<string> {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('not-image' satisfies BackgroundReadError);
+  }
+
+  let bitmap: ImageBitmap;
+  try {
+    if (typeof createImageBitmap !== 'function') {
+      throw new Error('createImageBitmap unavailable');
     }
-    // base64 encodes 3 bytes into 4 characters: reject up front so an accepted
-    // file is always storable (setBackgroundImage never answers 'too-large').
-    const encodedSize = Math.ceil((file.size * 4) / 3) + DATA_URL_HEADER_LENGTH;
-    if (encodedSize > MAX_BYTES) {
-      reject(new Error('too-large' satisfies BackgroundReadError));
-      return;
+    bitmap = await createImageBitmap(file);
+  } catch {
+    // Undecodable file, an image type the browser does not support, or no
+    // createImageBitmap (very old Safari): all of them are a failed read.
+    throw new Error('read-failed' satisfies BackgroundReadError);
+  }
+
+  try {
+    if (bitmap.width < 1 || bitmap.height < 1) {
+      throw new Error('read-failed' satisfies BackgroundReadError);
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result === 'string' && isValidBackgroundDataUrl(result)) {
-        resolve(result);
-      } else {
-        reject(new Error('read-failed' satisfies BackgroundReadError));
-      }
-    };
-    reader.onerror = () => reject(new Error('read-failed' satisfies BackgroundReadError));
-    reader.readAsDataURL(file);
-  });
+    const fitted = fitWithinEdgeLimit(bitmap.width, bitmap.height);
+    for (const attempt of buildEncodePlan(fitted.width, fitted.height)) {
+      const dataUrl = encodeAttempt(bitmap, attempt);
+      if (dataUrl.length <= MAX_BYTES) return dataUrl;
+    }
+    // Effectively unreachable: 8 encodes from 2560px down to half that fit in
+    // 2 MB unless the source is pathological. Keep it so an oversized value is
+    // never passed off as a valid read.
+    throw new Error('too-large' satisfies BackgroundReadError);
+  } finally {
+    releaseBitmap(bitmap);
+  }
 }
 
 /** @deprecated Use {@link getBackgroundImage}. */

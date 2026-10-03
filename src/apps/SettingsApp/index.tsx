@@ -9,7 +9,7 @@ import {
   getBackgroundImage,
   setBackgroundImage,
   clearBackgroundImage,
-  readImageFileAsDataUrl,
+  downscaleImageFileToDataUrl,
 } from '../../utils/desktopBackground';
 
 /**
@@ -31,8 +31,8 @@ const WALLPAPERS = [
 
 /**
  * Pseudo-wallpaper id for the user's own picture. There is no file behind it:
- * clicking the tile opens the native file dialog and the picked image is read
- * as a Data URL and kept in localStorage (local only, never uploaded).
+ * clicking the tile opens the native file dialog and the picked image is
+ * downscaled, re-encoded and kept in localStorage (local only, never uploaded).
  */
 const CUSTOM_WALLPAPER_ID = 'custom';
 
@@ -51,7 +51,7 @@ const STRINGS: Record<string, Record<string, string>> = {
     wallpaper: 'Wallpaper',
     customImage: 'Custom image',
     customImageFileLabel: 'Image file:',
-    customImageInfo: 'Click "Custom image" and pick a picture from your computer: it is applied immediately as the desktop background. It is stored ONLY in this browser (localStorage) — nothing is uploaded to a server, and it is gone if the browser data is cleared. While a custom image is set it replaces the wallpaper above.',
+    customImageInfo: 'Click "Custom image" and pick a picture from your computer: it is applied immediately as the desktop background. Large images are downscaled and re-encoded so they always fit, so the stored copy may be slightly softer than your original file. It is stored ONLY in this browser (localStorage) — nothing is uploaded to a server, and it is gone if the browser data is cleared. While a custom image is set it replaces the wallpaper above.',
     bgRemove: 'Remove background',
     bgEmpty: 'No custom image',
     bgApplied: 'Background applied and saved in this browser.',
@@ -84,7 +84,7 @@ const STRINGS: Record<string, Record<string, string>> = {
     wallpaper: 'Fondo de pantalla',
     customImage: 'Imagen personalizada',
     customImageFileLabel: 'Archivo de imagen:',
-    customImageInfo: 'Haz clic en "Imagen personalizada" y elige una imagen de tu equipo: se aplica al instante como fondo del escritorio. Se guarda SOLO en este navegador (localStorage): no se sube a ningún servidor y desaparece al borrar los datos del navegador. Mientras haya una imagen personalizada, sustituye al fondo de pantalla de arriba.',
+    customImageInfo: 'Haz clic en "Imagen personalizada" y elige una imagen de tu equipo: se aplica al instante como fondo del escritorio. Las imágenes grandes se reducen y se vuelven a codificar para que siempre quepan, por lo que la copia guardada puede quedar algo más suave que tu archivo original. Se guarda SOLO en este navegador (localStorage): no se sube a ningún servidor y desaparece al borrar los datos del navegador. Mientras haya una imagen personalizada, sustituye al fondo de pantalla de arriba.',
     bgRemove: 'Quitar fondo',
     bgEmpty: 'Sin imagen personalizada',
     bgApplied: 'Fondo aplicado y guardado en este navegador.',
@@ -411,12 +411,13 @@ export function launchSettings(): void {
 
   // ── "Custom image" tile ──
   //
-  // LOCAL ONLY: the picked file is read as a Data URL with
-  // FileReader.readAsDataURL and saved in localStorage under
-  // 'desktop.backgroundImage'. It is never uploaded to a server, never sent to
-  // a backend and never attached to any user account; if the browser storage is
-  // cleared (or "Delete Saved Data" is used) the desktop goes back to the
-  // selected wallpaper.
+  // LOCAL ONLY: the picked file is decoded with createImageBitmap, downscaled
+  // and re-encoded as JPEG inside the browser, and only the resulting small
+  // Data URL is saved in localStorage under 'desktop.backgroundImage'. The
+  // original file is never uploaded to a server, never sent to a backend and
+  // never attached to any user account; if the browser storage is cleared (or
+  // "Delete Saved Data" is used) the desktop goes back to the selected
+  // wallpaper.
   const customItem = document.createElement('div');
   customItem.className = 'settings-wallpaper-item';
   customItem.dataset.wpId = CUSTOM_WALLPAPER_ID;
@@ -539,7 +540,7 @@ export function launchSettings(): void {
     if (!file) return;
     showBackgroundMessage('', false);
 
-    readImageFileAsDataUrl(file)
+    downscaleImageFileToDataUrl(file)
       .then((dataUrl) => {
         const result = setBackgroundImage(dataUrl);
         if (result.ok) {
