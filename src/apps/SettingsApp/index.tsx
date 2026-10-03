@@ -149,13 +149,18 @@ export function launchSettings(): void {
       32: '/images/icons/settings-icon-32x32.png',
       any: '/images/icons/settings-icon.png',
     },
+    // The panel scrolls internally (`.settings-body` is `flex: 1; overflow-y:
+    // auto`), so the window height is what decides how much fits before the
+    // scrollbar appears. 480px clipped the Desktop tab; 600px fits a full
+    // 1080p viewport and stays inside the ~620px usable height of a 1366x768
+    // laptop screen.
     minWidth: 380,
     minHeight: 360,
   });
 
   $win.css({
     width: '450px',
-    height: '480px',
+    height: '600px',
   });
   $win.center();
   const cascadeOffset = getCascadeOffset();
