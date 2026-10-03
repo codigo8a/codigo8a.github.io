@@ -253,7 +253,10 @@ const listAllItems = async <T>(
   for (let page = 0; page < DRIVE_MAX_PAGES; page += 1) {
     const params = new URLSearchParams({
       q: query,
-      fields,
+      // files.list returns a FileList, so item fields must be nested under `files`.
+      // A bare selection makes Google look for a top-level field named after the
+      // first item field on the list resource and fail with "Invalid field selection".
+      fields: `files(${fields}),nextPageToken`,
       pageSize: String(DRIVE_PAGE_SIZE),
       orderBy: 'createdTime desc'
     });
