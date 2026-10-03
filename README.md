@@ -210,6 +210,23 @@ Requiere un OAuth Client de tipo **Web application** en Google Cloud con la Driv
 
 Sin las tres, la app abre igual y muestra el aviso de configuración faltante en vez del botón de conectar.
 
+#### Desarrollo local: por qué `dev:https`
+
+```
+npm run dev:https   # HTTPS con certificado autofirmado
+```
+
+La política OAuth 2.0 de Google exige **esquema HTTPS** en los redirect URIs y en los JavaScript origins, así que la app **no se puede conectar a Google sobre `http://localhost`**. `npm run dev` sigue disponible para trabajar sobre otras cosas; para probar el login hay que usar `dev:https`.
+
+El certificado es autofirmado, así que el browser muestra un warning: se acepta una vez por sesión con *Advanced → Proceed*. El certificado cubre `localhost`; si entrás por una IP de red el navegador además va a marcar un error de hostname, y conviene entrar por `localhost`.
+
+Un cliente OAuth por etapa de despliegue, como pide la política de Google: uno de desarrollo con `https://localhost:5173` y otro de producción con `https://juandavid.site`. Así, cambiar scopes o revocar permisos en desarrollo no toca a los usuarios reales.
+
+| Entorno | `VITE_GOOGLE_REDIRECT_URI` |
+|---|---|
+| Desarrollo | `https://localhost:5173/` |
+| Producción | `https://juandavid.site/` |
+
 #### ⚠️ El `client_secret` viaja en el bundle
 
 `VITE_GOOGLE_CLIENT_SECRET` se compila dentro del JS y cualquiera puede leerlo en el devtools. Eso no se puede evitar sin un backend, y el riesgo real **no es la exfiltración de datos**:

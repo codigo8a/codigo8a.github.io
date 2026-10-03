@@ -29,6 +29,13 @@ export default defineConfig([
     },
   },
   {
+    // Build-time config runs in Node, not the browser.
+    files: ['vite.config.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [
       ...tseslint.configs.recommended,
