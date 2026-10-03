@@ -12,6 +12,7 @@ import { MSDOSApp, launchMSDOS } from './MSDOS';
 import { RecycleBinApp, launchRecycleBin } from './RecycleBin';
 import { NetworkApp, launchNetwork } from './Network';
 import { MyComputerApp, launchMyComputer } from './MyComputer';
+import { DriveApp, launchDrive } from './DriveApp';
 
 export const APPS: Record<string, AppDefinition> = {
   welcome: {
@@ -132,6 +133,15 @@ export const APPS: Record<string, AppDefinition> = {
     defaultSize: { width: 600, height: 450 },
     centered: true,
     customLaunch: launchPortfolio,
+  },
+  driveApp: {
+    id: 'driveApp',
+    title: 'My Drive',
+    icon: '/images/icons/drive-32x32.svg',
+    component: DriveApp,
+    defaultSize: { width: 820, height: 580 },
+    centered: true,
+    customLaunch: launchDrive,
   },
 };
 

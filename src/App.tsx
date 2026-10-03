@@ -7,8 +7,22 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { APPS } from './apps/apps';
 import { LOCAL_STORAGE_KEYS } from './constants';
 import { WindowConfig } from './types';
+import {
+  isAuthorizationCallback,
+  publishAuthorizationCode,
+  readAuthorizationResponse,
+} from './services/googleDrive/auth';
 
 const SIX_HOURS_IN_MS = 6 * 60 * 60 * 1000; // 6 horas en milisegundos
+
+/**
+ * Guard for the Drive authorization callback.
+ *
+ * The callback tab publishes the code and closes itself. React StrictMode runs
+ * effects twice in development, and publishing the same single-use code twice
+ * would leave a stale code in storage for a later connect attempt to pick up.
+ */
+let authorizationCallbackHandled = false;
 
 /** Determina si Welcome debe mostrarse al inicio (respeta cooldown de 6h) */
 const shouldShowWelcomeAtStart = (): boolean => {
@@ -34,6 +48,16 @@ function App() {
   const handleLoadingComplete = () => {
     setIsLoading(false);
   };
+
+  // Hand the Google authorization code to the main window and close this tab
+  useEffect(() => {
+    if (authorizationCallbackHandled) return;
+    if (!isAuthorizationCallback()) return;
+    authorizationCallbackHandled = true;
+    if (!publishAuthorizationCode(readAuthorizationResponse())) {
+      console.error('Drive authorization response could not be published; the tab stays open.');
+    }
+  }, []);
 
   // Launch welcome at startup AFTER providers are mounted
   useEffect(() => {
