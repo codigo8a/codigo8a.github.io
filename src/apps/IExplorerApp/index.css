@@ -12,17 +12,6 @@
   font-size: 11px;
 }
 
-/* ── Proxy Banner ── */
-
-.ie-proxy-banner {
-  background: #ffffcc;
-  border-bottom: 1px solid var(--ButtonShadow, #808080);
-  padding: 3px 8px;
-  font-size: 11px;
-  text-align: center;
-  color: #333;
-}
-
 /* ── Content Area ── */
 
 .ie-iframe {

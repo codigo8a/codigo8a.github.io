@@ -4,8 +4,6 @@ import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
 
-const PROXY_BASE = 'https://corsproxy.io/?url=';
-
 /** Default page shown when the browser is opened without a target URL */
 const HOME_URL = 'https://masinfo.online/';
 
@@ -127,7 +125,6 @@ export function launchIExplorer(initialUrl?: string): void {
   let currentUrl = startUrl;
   let isLoading = false;
   let hasError = false;
-  let useProxy = false;
   let loadTimeout: number | null = null;
   let checkTimeout: number | null = null;
 
@@ -146,8 +143,6 @@ export function launchIExplorer(initialUrl?: string): void {
   let errorMsgEl: HTMLParagraphElement | null = null;
   let errorUrlEl: HTMLParagraphElement | null = null;
   let errorActionsEl: HTMLDivElement | null = null;
-  let proxyBanner: HTMLDivElement | null = null;
-  let proxyBtnEl: HTMLButtonElement | null = null;
   let statusBarEl: HTMLDivElement | null = null;
 
   // Toolbar button refs for enabling/disabling
@@ -159,11 +154,6 @@ export function launchIExplorer(initialUrl?: string): void {
   let refreshBtn: HTMLButtonElement | null = null;
   let homeBtn: HTMLButtonElement | null = null;
 
-  function buildSrc(targetUrl: string, proxy: boolean): string {
-    if (!proxy) return targetUrl;
-    return `${PROXY_BASE}${encodeURIComponent(targetUrl)}`;
-  }
-
   function clearTimeouts(): void {
     if (loadTimeout !== null) { clearTimeout(loadTimeout); loadTimeout = null; }
     if (checkTimeout !== null) { clearTimeout(checkTimeout); checkTimeout = null; }
@@ -171,38 +161,23 @@ export function launchIExplorer(initialUrl?: string): void {
 
   function updateUi(): void {
     if (loadingDiv) loadingDiv.style.display = (isLoading && !hasError) ? '' : 'none';
-    if (loadingTextEl) loadingTextEl.textContent = useProxy ? 'Loading via proxy...' : 'Loading...';
+    if (loadingTextEl) loadingTextEl.textContent = 'Loading...';
     if (errorDiv) errorDiv.style.display = hasError ? '' : 'none';
     if (iframeEl) iframeEl.style.display = hasError ? 'none' : '';
-    if (proxyBanner) proxyBanner.style.display = useProxy ? '' : 'none';
-    if (proxyBtnEl) {
-      proxyBtnEl.classList.toggle('active', useProxy);
-      proxyBtnEl.title = useProxy ? 'Proxy ON — click to disable' : 'Proxy OFF — click to enable';
-    }
     if (statusLeftEl) {
       if (hasError) statusLeftEl.textContent = 'Error loading page';
       else if (isLoading) statusLeftEl.textContent = 'Transferring data...';
-      else if (useProxy) statusLeftEl.textContent = 'Proxy active';
       else statusLeftEl.textContent = 'Done';
     }
     if (statusRightEl) {
       if (hasError) statusRightEl.textContent = '⚠ Error';
-      else if (useProxy) statusRightEl.textContent = '⚡ Proxy';
       else statusRightEl.textContent = '🔒 Internet';
     }
     if (hasError && errorMsgEl && errorUrlEl && errorActionsEl) {
-      errorMsgEl.textContent = useProxy
-        ? 'The proxy could not load this website. The site may be down, blocked by the proxy service, or the URL is invalid.'
-        : 'This website has security restrictions (X-Frame-Options) that prevent it from loading inside an embedded browser.';
+      errorMsgEl.textContent =
+        'This website has security restrictions (X-Frame-Options) that prevent it from loading inside an embedded browser.';
       errorUrlEl.innerHTML = `<strong>URL:</strong> <code style="background:#eee;padding:2px 4px">${currentUrl}</code>`;
       errorActionsEl.innerHTML = '';
-      if (!useProxy) {
-        const tryProxy = document.createElement('button');
-        tryProxy.className = 'lightweight';
-        tryProxy.textContent = '🔁 Try via Proxy';
-        tryProxy.addEventListener('click', toggleProxy);
-        errorActionsEl.appendChild(tryProxy);
-      }
       const newTab = document.createElement('button');
       newTab.className = 'lightweight';
       newTab.textContent = 'Open in New Tab';
@@ -239,27 +214,25 @@ export function launchIExplorer(initialUrl?: string): void {
     updateNavButtons();
 
     if (urlInput) urlInput.value = targetUrl;
-    if (iframeEl) iframeEl.src = buildSrc(targetUrl, useProxy);
+    if (iframeEl) iframeEl.src = targetUrl;
 
-    if (!useProxy) {
-      checkTimeout = window.setTimeout(() => {
-        try {
-          if (iframeEl && iframeEl.contentWindow) {
-            const loc = iframeEl.contentWindow.location;
-            if (loc.href === 'about:blank' || loc.href === '') {
-              clearTimeouts();
-              isLoading = false;
-              hasError = true;
-              updateUi();
-            }
+    checkTimeout = window.setTimeout(() => {
+      try {
+        if (iframeEl && iframeEl.contentWindow) {
+          const loc = iframeEl.contentWindow.location;
+          if (loc.href === 'about:blank' || loc.href === '') {
+            clearTimeouts();
+            isLoading = false;
+            hasError = true;
+            updateUi();
           }
-        } catch { /* cross-origin means page loaded */ }
-      }, 1500);
-    }
+        }
+      } catch { /* cross-origin means page loaded */ }
+    }, 1500);
     loadTimeout = window.setTimeout(() => {
       isLoading = false;
       if (!hasError) { hasError = true; updateUi(); }
-    }, useProxy ? 8000 : 3000);
+    }, 3000);
   }
 
   function handleNavigate(): void {
@@ -314,11 +287,6 @@ export function launchIExplorer(initialUrl?: string): void {
       try { iframeEl.src = 'about:blank'; } catch { /* no-op */ }
     }
     updateUi();
-  }
-
-  function toggleProxy(): void {
-    useProxy = !useProxy;
-    navigate(currentUrl, 'init');
   }
 
   // ── Create window ──
@@ -547,7 +515,7 @@ export function launchIExplorer(initialUrl?: string): void {
       {
         label: '&About Internet Explorer',
         action: () => {
-          showMessageBox({ title: 'About Internet Explorer', message: 'Internet Explorer\n\nEmbedded web browser with CORS proxy support.\n\nVersion 5.0\n© 2024-2026 Código 8A', icon: 'info' })
+          showMessageBox({ title: 'About Internet Explorer', message: 'Internet Explorer\n\nEmbedded web browser.\n\nVersion 5.0\n© 2024-2026 Código 8A', icon: 'info' })
         },
       },
     ],
@@ -626,23 +594,6 @@ export function launchIExplorer(initialUrl?: string): void {
   });
   stdButtons.appendChild(printBtn);
 
-  // Proxy toggle button (custom, not in IE but useful)
-  stdButtons.appendChild(createSeparator());
-  proxyBtnEl = document.createElement('button');
-  proxyBtnEl.className = 'toolbar-button lightweight';
-  proxyBtnEl.title = 'Proxy OFF — click to enable';
-  const proxyIcon = document.createElement('div');
-  proxyIcon.className = 'icon';
-  proxyIcon.style.cssText = 'display:flex;align-items:center;justify-content:center;width:20px;height:20px;position:absolute;top:2px;';
-  proxyIcon.innerHTML = `<svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="8" width="14" height="10" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><path d="M7 8V5a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="10" cy="13" r="1.5" fill="currentColor"/></svg>`;
-  proxyBtnEl.appendChild(proxyIcon);
-  const proxyLabel = document.createElement('span');
-  proxyLabel.className = 'label-text';
-  proxyLabel.textContent = 'Proxy';
-  proxyBtnEl.appendChild(proxyLabel);
-  proxyBtnEl.addEventListener('click', toggleProxy);
-  stdButtons.appendChild(proxyBtnEl);
-
   stdToolbar.appendChild(stdButtons);
   toolbars.appendChild(stdToolbar);
 
@@ -699,13 +650,6 @@ export function launchIExplorer(initialUrl?: string): void {
 
   explorer.appendChild(toolbars);
 
-  // ── Proxy Banner ──
-  proxyBanner = document.createElement('div');
-  proxyBanner.className = 'ie-proxy-banner';
-  proxyBanner.textContent = '⚡ Proxy mode enabled — some sites may load slower or look different';
-  proxyBanner.style.display = 'none';
-  explorer.appendChild(proxyBanner);
-
   // ═══════════════════════════════════════
   // CONTENT AREA
   // ═══════════════════════════════════════
@@ -719,7 +663,7 @@ export function launchIExplorer(initialUrl?: string): void {
   iframeEl.className = 'ie-iframe';
   iframeEl.title = 'Internet Explorer';
   iframeEl.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
-  iframeEl.src = buildSrc(currentUrl, useProxy);
+  iframeEl.src = currentUrl;
   iframeEl.addEventListener('load', handleLoad);
   iframeEl.addEventListener('error', handleError);
   contentEl.appendChild(iframeEl);
