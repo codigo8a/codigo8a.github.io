@@ -13,6 +13,7 @@ import {
   loadPendingAuth,
   savePendingAuth,
 } from '../../services/googleDrive/auth';
+import { GoogleAuthError } from '../../services/googleDrive/auth';
 import { driveClient } from '../../services/googleDrive/client';
 import { getDriveErrorMessage } from '../../services/googleDrive/errors';
 import { isDriveTokenExpired } from '../../services/googleDrive/types';
@@ -170,6 +171,13 @@ function fill(template: string, values: Record<string, string | number>): string
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     template,
   );
+}
+
+function describeAuthorizationFailure(error: unknown, fallback: string): string {
+  if (error instanceof GoogleAuthError) {
+    return `${fallback}\n\nGoogle: ${error.code} — ${error.description}`;
+  }
+  return `${fallback}\n\n${error instanceof Error ? error.message : String(error)}`;
 }
 
 function readDriveConfig(): DriveConfig | null {
@@ -548,9 +556,9 @@ export function launchDrive(): void {
         redirectUri: config.redirectUri,
       });
     } catch (error) {
-      console.error('Drive token exchange failed.', error);
       clearPendingAuth();
-      notice = tr('connectExchangeFailed');
+      consentAttempt = null;
+      notice = describeAuthorizationFailure(error, tr('connectExchangeFailed'));
       view = 'disconnected';
       renderView();
       return;

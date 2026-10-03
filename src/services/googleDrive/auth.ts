@@ -166,6 +166,39 @@ export function buildConsentUrl(params: ConsentUrlParams): string {
  * error text from Google is worth showing. Everything past the token — the API
  * layer — returns results instead.
  */
+/**
+ * OAuth failure returned by the token endpoint, carrying Google's own error code and
+ * description. The description is what identifies problems like a code that was already
+ * used or a redirect_uri that does not match the authorization request, so it must
+ * survive to the caller instead of collapsing into one generic message.
+ */
+export class GoogleAuthError extends Error {
+  readonly code: string;
+  readonly description: string;
+
+  constructor(code: string, description: string) {
+    super(`${code}: ${description}`);
+    this.name = 'GoogleAuthError';
+    this.code = code;
+    this.description = description;
+  }
+}
+
+function parseGoogleAuthError(detail: string): { code: string; description: string } {
+  try {
+    const parsed: unknown = JSON.parse(detail);
+    if (typeof parsed === 'object' && parsed !== null) {
+      const body = parsed as Record<string, unknown>;
+      const code = typeof body.error === 'string' ? body.error : 'unknown';
+      const raw = typeof body.error_description === 'string' ? body.error_description : '';
+      return { code, description: raw.replace(/\+/g, ' ') };
+    }
+  } catch {
+    /* not JSON: fall through and surface the raw body */
+  }
+  return { code: 'unknown', description: detail.trim() };
+}
+
 export async function exchangeCodeForToken(params: TokenExchangeParams): Promise<DriveToken> {
   const payload = new URLSearchParams({
     client_id: params.clientId,
@@ -184,7 +217,8 @@ export async function exchangeCodeForToken(params: TokenExchangeParams): Promise
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw new Error(`token exchange failed (${response.status}): ${detail}`);
+    const parsed = parseGoogleAuthError(detail);
+    throw new GoogleAuthError(parsed.code, parsed.description);
   }
 
   const parsed: unknown = await response.json();
