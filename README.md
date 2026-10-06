@@ -159,7 +159,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 - Hook `useTranslation()` para las apps React (escritorio, Start menu, Settings)
 - Tabla local `TRANSLATIONS` + `tr(key)` para las apps os-gui, que corren fuera de React y no pueden usar hooks (`MarkdownViewerApp`, `DriveApp`)
 - Persistencia en localStorage
-- 54 claves en `i18n/translations.ts` + 92 en la tabla local de DriveApp
+- 54 claves en `i18n/translations.ts` + 103 en la tabla local de DriveApp
 
 ### Explorador de Archivos
 - **Vista Iconos (My Documents)**: Cuadrícula de iconos estilo Windows 98
@@ -187,15 +187,15 @@ App nueva que explora una **carpeta propia administrada por la app** dentro del 
 - **UI** (`src/apps/DriveApp/`): `index.tsx` es el placeholder React que exige el registro de apps y, en el mismo archivo, `launchDrive()` construye la ventana os-gui de verdad (patrón idéntico al de `MyComputer`)
 - **Chrome Explorer**: la ventana usa la misma estructura que `MyComputer` y `MyDocuments`, sin CSS propio para eso: `.os-explorer` → `.toolbars` (menú + `#standard-buttons-toolbar` + `#address-bar-toolbar`) → `.content-with-panel` (`#panel` + `#content`) → `#status-bar`. Los helpers de toolbar viven en `src/utils/explorerChrome.ts`; los helpers de `MyComputer` y `FileExplorerApp` todavía son copias propias y migrarlos es un follow-up
 - **Workspace**: carpeta `desktop-web` que la app **descubre por nombre** en cada sesión (`files.list`) y crea en el primer uso. Nunca se guarda el id de la carpeta
-- **Modelo de acciones por selección**: click simple selecciona la fila y llena el panel izquierdo (nombre, tamaño, modificado, tipo); doble click y `Abrir` **abren** en el visor Markdown vía `openApp('markdownViewer', …)`, **Editar** **abre el archivo en Notepad** (que guarda de vuelta a Drive, ver [edición en Notepad](#edición-en-notepad-edit-y-file--save)) y **Papelera** manda el archivo con `trashed: true` (nunca borrado definitivo, recuperable durante 30 días desde la [Papelera](#papelera-recycle-bin) del escritorio). No hay botones por fila: todo pasa por la selección y los menús
+- **Modelo de acciones por selección**: click simple selecciona la fila y llena el panel izquierdo (nombre, tamaño, modificado, tipo); doble click y `Abrir` **abren** en el visor Markdown vía `openApp('markdownViewer', …)`, **Editar** **abre el archivo en Notepad** (que guarda de vuelta a Drive, ver [edición en Notepad](#edición-en-notepad-edit-y-file--save)) y **Papelera** manda el archivo con `trashed: true` (nunca borrado definitivo, recuperable durante 30 días desde la [Papelera](#papelera-recycle-bin) del escritorio). `Archivo ▸ Renombrar` abre el editor de nombre en el lugar sobre la fila seleccionada. No hay botones por fila: todo pasa por la selección y los menús
 - **Vistas**: las 4 del Explorer — iconos grandes, iconos pequeños, lista y detalles (Detalles suma la columna Tipo)
-- **Nuevo archivo**: crea un `.md` vacío en la carpeta del workspace (Enter crea, Esc cancela)
-- **Estados**: desconectado, conectando, lista, nuevo archivo, token vencido (ofrece reconexión) y error (red, cuota, scope insuficiente). Los que no tienen nada seleccionable (desconectado, reconexión, conectando, error) muestran el panel centrado, sin panel izquierdo
+- **Nuevo archivo**: `Archivo ▸ Nuevo ▸ Documento de texto` (y el botón `Nuevo` de la toolbar, que crea directo sin submenú) crea el `.md` vacío **al instante** en la carpeta del workspace con el nombre por defecto localizado (`Nuevo documento de texto` / `New Text Document`). El nombre queda **editable en el lugar**, con el texto seleccionado, en los 4 modos de vista: `Enter` y salir del campo confirman el cambio (`PATCH` de `name` vía `renameFile`), `Esc` abandona la edición y deja el nombre por defecto —el archivo **no se borra**—, y un nombre vacío o con caracteres ilegales avisa y sigue editando. Las otras 6 filas del submenú (`Carpeta`, `Acceso directo`, `Sonido`, `WordPad`, `Imagen`, `Maletín`) están grises a propósito, por paridad con la captura de Win98
+- **Estados**: desconectado, conectando, lista, token vencido (ofrece reconexión) y error (red, cuota, scope insuficiente). Los que no tienen nada seleccionable (desconectado, reconexión, conectando, error) muestran el panel centrado, sin panel izquierdo
 - **Barra de estado** estilo Win98: conteo de archivos, cuenta conectada y listo / trabajando / error
 
 | Superficie | Dónde |
 |---|---|
-| Menú | `Archivo` (`Nuevo`, `Abrir` Ctrl+O, `Papelera`, `Conectar`, `Desconectar`, `Cerrar`) · `Editar` · `Ver` (`Barras de herramientas`, `Barra de estado`, modo de vista, `Actualizar` F5) · `Ayuda` |
+| Menú | `Archivo` (`Nuevo ▸ Documento de texto`, `Abrir` Ctrl+O, `Renombrar`, `Papelera`, `Conectar`, `Desconectar`, `Cerrar`) · `Editar` · `Ver` (`Barras de herramientas`, `Barra de estado`, modo de vista, `Actualizar` F5) · `Ayuda` |
 | Botones estándar | `Atrás` `Adelante` `Subir` (deshabilitados: Drive tiene una sola carpeta) · `Nuevo` `Abrir` `Editar` `Papelera` · `Actualizar` · `Vistas` |
 | Barra de dirección | Nombre de la carpeta del workspace (el archivo editado vive en su propia ventana) |
 | Teclado | `F5` actualiza · `Supr` manda la selección a la papelera · `Enter` abre la selección en el visor |
