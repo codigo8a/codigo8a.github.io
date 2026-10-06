@@ -58,7 +58,15 @@ export interface OsGuiWindow {
   $content: OsGuiJQuery;
   $titlebar: OsGuiJQuery;
   $minimize: OsGuiJQuery | null;
-  $element: OsGuiJQuery;
+  /**
+   * The window's root DOM node, without the `$` prefix that every other
+   * jQuery-wrapped member carries.
+   *
+   * Window.js:129 assigns `$w.element = $w[0]`. There is no `$element`, and
+   * declaring one here let `messageBox` read `undefined` and throw a TypeError
+   * inside its own promise — which silently killed every confirmation dialog.
+   */
+  element: HTMLElement;
 }
 
 /** A menu item as consumed by `new MenuBar(...)`. */

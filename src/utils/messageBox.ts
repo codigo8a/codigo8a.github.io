@@ -341,17 +341,16 @@ export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxRe
       }
     };
 
-    // Use keydown on the window's DOM element
-    const winElement = $win.$element[0] || $win.$element;
-    if (winElement instanceof HTMLElement) {
-      winElement.addEventListener('keydown', handleKeyDown);
-    }
+    // Keydown lives on the window's root node. os-gui exposes it as `element`
+    // (Window.js:129), not `$element` — reading the latter here threw a
+    // TypeError inside this promise, which then never settled: every caller
+    // awaiting a YesNo dialog hung forever and its action never ran.
+    const winElement = $win.element;
+    winElement.addEventListener('keydown', handleKeyDown);
 
     // Clean up on close
     $win.onClosed(() => {
-      if (winElement instanceof HTMLElement) {
-        winElement.removeEventListener('keydown', handleKeyDown);
-      }
+      winElement.removeEventListener('keydown', handleKeyDown);
     });
   });
 }
