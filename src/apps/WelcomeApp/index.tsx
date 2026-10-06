@@ -82,9 +82,13 @@ const TRANSLATIONS: Record<string, Record<'en' | 'es', string>> = {
     en: "What's New",
     es: 'Qué hay de nuevo',
   },
-  onlineRegistration: {
-    en: 'Online Registration',
-    es: 'Registro en línea',
+  privacyPolicy: {
+    en: 'Privacy Policy',
+    es: 'Política de Privacidad',
+  },
+  termsOfService: {
+    en: 'Terms of Service',
+    es: 'Términos del Servicio',
   },
   close: {
     en: 'Close',
@@ -447,11 +451,13 @@ export function launchWelcome(): void {
     openFileInViewer('features', 'content', tr('whatsNew', currentLang));
   });
 
-  const onlineRegBtn = createWinButton(
-    tr('onlineRegistration', currentLang),
-    () => {},
-    true,
-  );
+  const privacyBtn = createWinButton(tr('privacyPolicy', currentLang), () => {
+    window.open('/privacy/', '_blank', 'noopener');
+  });
+
+  const termsBtn = createWinButton(tr('termsOfService', currentLang), () => {
+    window.open('/terms/', '_blank', 'noopener');
+  });
 
   const closeBtn = createWinButton(tr('close', currentLang), () => {
     $win.close();
@@ -459,7 +465,8 @@ export function launchWelcome(): void {
 
   rightCol.appendChild(nextTipBtn);
   rightCol.appendChild(whatsNewBtn);
-  rightCol.appendChild(onlineRegBtn);
+  rightCol.appendChild(privacyBtn);
+  rightCol.appendChild(termsBtn);
   rightCol.appendChild(closeBtn);
 
   // ── Language fieldset ──
@@ -563,7 +570,8 @@ export function launchWelcome(): void {
     headingEl.textContent = tr('didYouKnow', lang);
     nextTipBtn.textContent = tr('nextTip', lang);
     whatsNewBtn.textContent = tr('whatsNew', lang);
-    onlineRegBtn.textContent = tr('onlineRegistration', lang);
+    privacyBtn.textContent = tr('privacyPolicy', lang);
+    termsBtn.textContent = tr('termsOfService', lang);
     closeBtn.textContent = tr('close', lang);
     footerLabel.textContent = tr('showWelcomeScreen', lang);
     legend.textContent = tr('language', lang);
