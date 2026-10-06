@@ -106,16 +106,27 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
     en: 'Looking for the files in your "{folder}" folder on Google Drive.',
   },
   newFile: { es: 'Nuevo', en: 'New' },
-  newFileTitle: { es: 'Nuevo archivo', en: 'New file' },
-  newFileHint: {
-    es: 'Se crea un archivo markdown vacío. Si no escribís ".md", se agrega solo. Enter crea el archivo y Esc lo cancela.',
-    en: 'An empty markdown file is created. The ".md" extension is added when missing. Enter creates the file and Esc cancels it.',
-  },
+  // The seven rows of the Win98 "New" submenu. Only the text document is
+  // implemented; the rest are greyed for visual parity with the reference
+  // screenshot instead of dropped, because the shape of the menu is the point.
+  menuNewFolder: { es: 'Carpeta', en: 'Folder' },
+  menuNewShortcut: { es: 'Acceso directo', en: 'Shortcut' },
+  menuNewSound: { es: 'Sonido', en: 'Wave Sound' },
+  menuNewTextDocument: { es: 'Documento de texto', en: 'Text Document' },
+  menuNewWordPad: { es: 'WordPad', en: 'WordPad Document' },
+  menuNewImage: { es: 'Imagen', en: 'Bitmap Image' },
+  menuNewBriefcase: { es: 'Maletín', en: 'Briefcase' },
+  newDocumentDefaultName: { es: 'Nuevo documento de texto', en: 'New Text Document' },
   newFileInvalid: {
     es: 'Ese nombre no sirve. No puede estar vacío ni llevar / \\ : * ? " < > |',
     en: 'That name will not work. It cannot be empty or contain / \\ : * ? " < > |',
   },
-  fileNameLabel: { es: 'Nombre del archivo', en: 'File name' },
+  renameTitle: { es: 'Renombrar', en: 'Rename' },
+  renameLabel: { es: 'Nombre', en: 'Name' },
+  renameFailed: {
+    es: 'No se pudo renombrar. El archivo quedó como "{name}".',
+    en: 'Could not rename it. The file kept the name "{name}".',
+  },
   refresh: { es: 'Actualizar', en: 'Refresh' },
   open: { es: 'Abrir', en: 'Open' },
   edit: { es: 'Editar', en: 'Edit' },
@@ -126,8 +137,8 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   views: { es: 'Vistas', en: 'Views' },
   retry: { es: 'Reintentar', en: 'Retry' },
   emptyFolder: {
-    es: 'La carpeta está vacía. Usá "Nuevo archivo" para crear el primero.',
-    en: 'This folder is empty. Use "New file" to create the first one.',
+    es: 'La carpeta está vacía. Usá Archivo ▸ Nuevo ▸ Documento de texto para crear el primero.',
+    en: 'This folder is empty. Use File ▸ New ▸ Text Document to create the first one.',
   },
   conflictTitle: { es: 'El archivo cambió', en: 'The file changed' },
   conflictMessage: {
@@ -258,7 +269,6 @@ type DriveView =
   | 'connecting'
   | 'loading'
   | 'list'
-  | 'newFile'
   | 'error';
 
 /** Explorer view mode, mirroring the four modes of My Computer. */
@@ -395,7 +405,7 @@ function isTextEntry(target: EventTarget | null): boolean {
  * chrome shared by My Computer and My Documents.
  *
  * Two state machines run side by side: `view` picks the screen (connect →
- * workspace list → new file, with failures landing on the error view), while
+ * workspace list, with failures landing on the error view), while
  * `selectedFileId` and `currentView` drive the selection model inside the list
  * screen. Because MenuBar re-reads a `function` `enabled` every time a menu
  * opens, the menus stay in sync with the selection without being rebuilt; only
@@ -439,7 +449,19 @@ export function launchDrive(): void {
   let workspaceFolder: DriveFolder | null = null;
   let files: DriveFile[] = [];
   let accountEmail: string | null = null;
-  let newFileName = '';
+  /**
+   * The in-place rename editor, as closure state rather than a saved node.
+   *
+   * Every render rebuilds the rows from scratch (see the view builders), so an
+   * editor that held an `<input>` reference would be editing a node that no
+   * longer exists after the next repaint. What survives is the id of the file
+   * being edited plus its draft; the builders turn that pair into a fresh input
+   * on each pass. `renamingFileId` is also the commit guard: clearing it before
+   * the request goes out means the `blur` fired by tearing the input down finds
+   * no editor and cannot start a second rename.
+   */
+  let renamingFileId: string | null = null;
+  let renameDraft = '';
   /**
    * The armed connect this window's link points at, or `null` while it is unarmed.
    *
@@ -682,8 +704,20 @@ export function launchDrive(): void {
     [tr('menuFile')]: [
       {
         label: tr('menuNew'),
-        enabled: () => view === 'list',
-        action: startNewFile,
+        enabled: () => canCreateDocument(),
+        // A real submenu, matching the Win98 folder menu: seven rows, one live
+        // action. The greyed rows are the reference screenshot's shape, not
+        // hidden features; creating folders, sounds and shortcuts is out of
+        // scope for this window today.
+        submenu: [
+          { label: tr('menuNewFolder'), enabled: false },
+          { label: tr('menuNewShortcut'), enabled: false },
+          { label: tr('menuNewSound'), enabled: false },
+          { label: tr('menuNewTextDocument'), action: () => void createNewDocument() },
+          { label: tr('menuNewWordPad'), enabled: false },
+          { label: tr('menuNewImage'), enabled: false },
+          { label: tr('menuNewBriefcase'), enabled: false },
+        ],
       },
       { separator: true },
       {
@@ -697,7 +731,7 @@ export function launchDrive(): void {
         enabled: () => hasSelection(),
         action: trashSelected,
       },
-      { label: tr('menuRename'), enabled: false },
+      { label: tr('menuRename'), enabled: () => canRename(), action: renameSelected },
       { label: tr('menuProperties'), enabled: false },
       { separator: true },
       {
@@ -800,7 +834,7 @@ export function launchDrive(): void {
 
   /** Screens with browsable content keep the descriptive left panel. */
   function hasLeftPanel(): boolean {
-    return view === 'list' || view === 'newFile';
+    return view === 'list';
   }
 
   /** Screens with actions to trigger show the standard buttons row. */
@@ -851,12 +885,6 @@ export function launchDrive(): void {
     if (!hasLeftPanel()) return;
 
     panelFolderIcon.src = DRIVE_ICON;
-    if (view === 'newFile') {
-      panelTitle.textContent = tr('newFileTitle');
-      renderPanelInfo([tr('newFileTitle'), tr('newFileHint')]);
-      return;
-    }
-
     panelTitle.textContent = workspaceFolder?.name ?? DRIVE.WORKSPACE_FOLDER_NAME;
     const file = selectedFile();
     renderPanelInfo(file === null ? [tr('panelSelectPrompt')] : describeFile(file));
@@ -945,7 +973,7 @@ export function launchDrive(): void {
     stdButtons.appendChild(createSeparator());
 
     newBtn = createToolbarButton(tr('newFile'), SPRITE.newFile);
-    newBtn.addEventListener('click', startNewFile);
+    newBtn.addEventListener('click', () => void createNewDocument());
 
     openBtn = createToolbarButton(tr('open'), SPRITE.open);
     openBtn.addEventListener('click', openSelectedInViewer);
@@ -990,7 +1018,7 @@ export function launchDrive(): void {
     setCompoundDisabled(backBtn, true);
     setCompoundDisabled(forwardBtn, true);
     setDisabled(upBtn, true);
-    setDisabled(newBtn, view !== 'list');
+    setDisabled(newBtn, !canCreateDocument());
     setDisabled(openBtn, busy || !selectable);
     setDisabled(editBtn, busy || !selectable);
     setDisabled(deleteBtn, busy || !selectable);
@@ -1144,9 +1172,6 @@ export function launchDrive(): void {
       case 'list':
         buildListView();
         break;
-      case 'newFile':
-        buildNewFileView();
-        break;
       case 'error':
         statusKind = 'error';
         buildErrorView();
@@ -1165,9 +1190,18 @@ export function launchDrive(): void {
 
     // A view-mode change replaces every row, so the selected one has to take
     // focus back: without it the row is highlighted but inert, and keyboard
-    // actions (Delete, Enter) would no longer reach the selection. Scoped to the
-    // list view so it cannot steal focus from the new-file input.
-    if (view === 'list' && selectedRowEl !== null) selectedRowEl.focus();
+    // actions (Delete, Enter) would no longer reach the selection. While an
+    // in-place rename is active the focus belongs to its input instead, and the
+    // row focus would pull the caret out of it mid-edit.
+    if (view === 'list' && renamingFileId !== null) {
+      const renameInput = contentEl.querySelector<HTMLInputElement>('.drive-rename-input');
+      if (renameInput !== null) {
+        renameInput.focus();
+        renameInput.select();
+      }
+    } else if (view === 'list' && selectedRowEl !== null) {
+      selectedRowEl.focus();
+    }
   }
 
   // ── Authorization ──
@@ -1355,11 +1389,14 @@ export function launchDrive(): void {
     workspaceFolder = null;
     files = [];
     accountEmail = null;
-    newFileName = '';
     errorCode = null;
     notice = null;
     selectedFileId = null;
     selectedRowEl = null;
+    // The editor dies with the session it was editing against: reopening the
+    // same file id after a reconnect would otherwise resurrect a draft.
+    renamingFileId = null;
+    renameDraft = '';
     view = 'disconnected';
     renderView();
   }
@@ -1425,6 +1462,12 @@ export function launchDrive(): void {
       return;
     }
     files = listed.data;
+    // Called here rather than next to the selection below, because
+    // `loadAccountEmail` can bail out to the reconnect screen in between and
+    // that early return has already replaced `files`. Placing it up here keeps
+    // the invariant true on every path that can drop the edited file, not only
+    // on the one that reaches the bottom of this function.
+    dropEditorIfFileIsGone();
 
     const authorized = await loadAccountEmail(activeToken);
     setBusy(false);
@@ -1511,11 +1554,7 @@ export function launchDrive(): void {
       icon.className = 'drive-item-icon';
       icon.innerHTML = fileIconMarkup(32);
 
-      const label = document.createElement('span');
-      label.className = 'drive-item-label';
-      label.textContent = stripMarkdownExtension(file.name);
-
-      item.append(icon, label);
+      item.append(icon, buildNameNode(file, 'drive-item-label'));
       bindItem(item, file);
       grid.appendChild(item);
     }
@@ -1539,11 +1578,7 @@ export function launchDrive(): void {
       icon.className = 'drive-item-icon';
       icon.innerHTML = fileIconMarkup(16);
 
-      const label = document.createElement('span');
-      label.className = 'drive-item-label';
-      label.textContent = stripMarkdownExtension(file.name);
-
-      item.append(icon, label);
+      item.append(icon, buildNameNode(file, 'drive-item-label'));
       bindItem(item, file);
       grid.appendChild(item);
     }
@@ -1597,10 +1632,7 @@ export function launchDrive(): void {
       const nameIcon = document.createElement('span');
       nameIcon.className = 'drive-cell-icon';
       nameIcon.innerHTML = fileIconMarkup(16);
-      const nameText = document.createElement('span');
-      nameText.className = 'drive-cell-text';
-      nameText.textContent = stripMarkdownExtension(file.name);
-      nameCell.append(nameIcon, nameText);
+      nameCell.append(nameIcon, buildNameNode(file, 'drive-cell-text'));
 
       const sizeCell = document.createElement('td');
       sizeCell.className = 'drive-cell';
@@ -1625,6 +1657,54 @@ export function launchDrive(): void {
     table.appendChild(tbody);
 
     return table;
+  }
+
+  /**
+   * The name node of one row: an in-place editor while this file is being
+   * renamed, and the plain label otherwise.
+   *
+   * Rebuilt from closure state on every pass instead of mutated in place, which
+   * is the only shape that survives the builders replacing every row on each
+   * render. Focus and selection are applied by `renderView` once the input is
+   * attached, not here, so a builder running against a detached tree cannot
+   * steal the caret.
+   */
+  function buildNameNode(file: DriveFile, labelClassName: string): HTMLElement {
+    if (file.id !== renamingFileId) {
+      const label = document.createElement('span');
+      label.className = labelClassName;
+      label.textContent = stripMarkdownExtension(file.name);
+      return label;
+    }
+
+    const input = document.createElement('input');
+    input.className = 'drive-rename-input';
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.value = renameDraft;
+    input.setAttribute('aria-label', tr('renameLabel'));
+    input.addEventListener('input', () => {
+      renameDraft = input.value;
+    });
+    // The row treats a double click as "open", which would fire while the user
+    // is selecting a word in the editor. The row's single click only selects
+    // the file, which is wanted here, so it is left alone.
+    input.addEventListener('dblclick', (event) => event.stopPropagation());
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        void commitRename();
+        return;
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelRename();
+      }
+    });
+    // Win98 semantics: leaving the field confirms what was typed, `Esc` reverts.
+    // The commit guard makes the blur that follows a commit a no-op.
+    input.addEventListener('blur', () => void commitRename());
+    return input;
   }
 
   /**
@@ -1752,15 +1832,8 @@ export function launchDrive(): void {
     if (file !== null) void moveFileToTrash(file);
   }
 
-  /**
-   * `File > Close` steps out of whatever is open before it closes the window,
-   * which is what Win98 does from a folder view.
-   */
+  /** `File > Close` closes this window; there is no inner screen to step out of. */
   function closeCurrentView(): void {
-    if (view === 'newFile') {
-      cancelNewFile();
-      return;
-    }
     $win.close();
   }
 
@@ -1887,71 +1960,35 @@ export function launchDrive(): void {
     return { ok: false, message: fill(tr('remoteSaveFailed'), { name: file.name }) };
   }
 
-  // ── New file ──
+  // ── New document / rename ──
 
-  function startNewFile(): void {
-    if (view !== 'list') return;
-    newFileName = '';
-    view = 'newFile';
-    renderView();
+  /** True when the New gesture can start from the current screen. */
+  function canCreateDocument(): boolean {
+    return view === 'list' && !busy && renamingFileId === null;
   }
 
-  function cancelNewFile(): void {
-    if (view !== 'newFile') return;
-    newFileName = '';
-    view = 'list';
-    renderView();
+  /** True when the selected row can enter the in-place rename editor. */
+  function canRename(): boolean {
+    return view === 'list' && !busy && renamingFileId === null && selectedFile() !== null;
   }
 
-  function buildNewFileView(): void {
-    const panel = document.createElement('div');
-    panel.className = 'drive-panel drive-panel-left';
-
-    const label = document.createElement('label');
-    label.className = 'drive-field-label';
-    label.htmlFor = 'drive-new-file-name';
-    label.textContent = tr('fileNameLabel');
-
-    const input = document.createElement('input');
-    input.className = 'drive-field-input';
-    input.type = 'text';
-    input.autocomplete = 'off';
-    input.value = newFileName;
-    input.addEventListener('input', () => {
-      newFileName = input.value;
-    });
-    input.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        void createFile();
-        return;
-      }
-      if (event.key === 'Escape') cancelNewFile();
-    });
-
-    const hint = document.createElement('p');
-    hint.className = 'drive-panel-hint';
-    hint.textContent = tr('newFileHint');
-
-    panel.append(label, input, hint);
-    contentEl.appendChild(panel);
-    input.focus();
-  }
-
-  async function createFile(): Promise<void> {
+  /**
+   * Create the text document the `Nuevo ▸ Documento de texto` row stands for.
+   *
+   * The file exists in Drive BEFORE the user types anything, under the localized
+   * default name, and the editor opens on top of that. This is the point of the
+   * Win98 gesture: the menu is not a form, so `Esc` cannot un-create the file —
+   * it only abandons the name, leaving the default one in place.
+   */
+  async function createNewDocument(): Promise<void> {
+    if (!canCreateDocument()) return;
     const folder = workspaceFolder;
     if (folder === null) return;
     const activeToken = requireToken();
     if (activeToken === null) return;
 
-    const name = normalizeFileName(newFileName);
-    if (name === null) {
-      await showMessageBox({
-        title: tr('newFileTitle'),
-        message: tr('newFileInvalid'),
-        icon: 'warning',
-      });
-      return;
-    }
+    const name = normalizeFileName(tr('newDocumentDefaultName'));
+    if (name === null) return;
 
     setBusy(true);
     const created = await driveClient.createTextFile(activeToken, folder.id, name, '');
@@ -1962,8 +1999,128 @@ export function launchDrive(): void {
     }
 
     files = [created.data, ...files];
-    newFileName = '';
-    view = 'list';
+    // Selected before the repaint that builds the input, so the editor opens on
+    // the row the user just created rather than on whatever was selected.
+    selectedFileId = created.data.id;
+    selectedRowEl = null;
+    beginRename(created.data);
+  }
+
+  /**
+   * Open the in-place editor on one file, seeded with its name without the
+   * markdown extension — the listing never shows the extension.
+   */
+  function beginRename(file: DriveFile, draft: string = stripMarkdownExtension(file.name)): void {
+    renamingFileId = file.id;
+    renameDraft = draft;
+    selectedFileId = file.id;
+    renderView();
+  }
+
+  function renameSelected(): void {
+    const file = selectedFile();
+    if (file !== null) beginRename(file);
+  }
+
+  /**
+   * Stop editing without a request. The file keeps whatever name Drive already
+   * has — the default one for a freshly created file — which is what `Esc`
+   * means in Win98: abandon the edit, not the file.
+   */
+  function cancelRename(): void {
+    if (renamingFileId === null) return;
+    renamingFileId = null;
+    renameDraft = '';
+    renderView();
+  }
+
+  /**
+   * Close the in-place editor when the file it was editing is no longer listed.
+   *
+   * `buildNameNode` renders the input only while iterating a file that is still
+   * in `files`, so an editor left open on a dropped file would leave
+   * `renamingFileId` pointing at nothing: no input to type in, no input to
+   * `Esc`, and `canCreateDocument` / `canRename` — both gated on
+   * `renamingFileId === null` — would keep New and Rename greyed until
+   * Disconnect. Every path that removes a file from `files` owes this call.
+   */
+  function dropEditorIfFileIsGone(): void {
+    if (renamingFileId === null) return;
+    if (files.some((entry) => entry.id === renamingFileId)) return;
+    renamingFileId = null;
+    renameDraft = '';
+  }
+
+  /**
+   * Confirm the edit and push the typed name to Drive.
+   *
+   * `renamingFileId` is cleared synchronously, before the first `await`: the
+   * repaint that removes the input fires a `blur`, and without the guard that
+   * blur would start a second rename of the same file. One edit, one request.
+   */
+  async function commitRename(): Promise<void> {
+    const fileId = renamingFileId;
+    if (fileId === null || windowClosed) return;
+
+    const draft = renameDraft;
+    renamingFileId = null;
+    renameDraft = '';
+
+    const file = files.find((entry) => entry.id === fileId);
+    if (file === undefined) {
+      renderView();
+      return;
+    }
+
+    const name = normalizeFileName(draft);
+    if (name === null) {
+      // Keep editing so the typo is still there to fix instead of discarding it.
+      await showMessageBox({
+        title: tr('renameTitle'),
+        message: tr('newFileInvalid'),
+        icon: 'warning',
+      });
+      beginRename(file, draft);
+      return;
+    }
+
+    // An unchanged name is not worth a request; the editor still closes.
+    if (name === file.name) {
+      renderView();
+      return;
+    }
+
+    // Read last, so a typo never forces a reconnect: nothing above touches the
+    // network.
+    const activeToken = requireToken();
+    if (activeToken === null) return;
+
+    setBusy(true);
+    const renamed = await driveClient.renameFile(activeToken, file.id, name);
+    setBusy(false);
+    if (!renamed.ok) {
+      if (renamed.error.code === 'auth-expired') {
+        handleDriveError(renamed.error);
+        return;
+      }
+      // The create already landed, so the file exists with its previous name.
+      // Sending the window to the error screen would hide a file that is really
+      // there; the message box reports the failed second operation instead.
+      await showMessageBox({
+        title: tr('renameTitle'),
+        message: fill(tr('renameFailed'), { name: file.name }),
+        icon: 'warning',
+      });
+      renderView();
+      return;
+    }
+
+    const updated: DriveFile = {
+      ...file,
+      name: renamed.data.name,
+      modifiedTime: renamed.data.modifiedTime,
+    };
+    files = files.map((entry) => (entry.id === file.id ? updated : entry));
     renderView();
   }
 
@@ -1994,6 +2151,11 @@ export function launchDrive(): void {
       selectedFileId = null;
       selectedRowEl = null;
     }
+    // A trash can drop the very file the editor is open on. Not reachable today
+    // (every trigger blurs the input first, and `commitRename` clears the editor
+    // before the filter runs), but it is the same class as the refresh that drops
+    // a file, so it pays the same call rather than relying on a caller's timing.
+    dropEditorIfFileIsGone();
     renderView();
 
     // The Recycle Bin lists the same trash this write just changed, so it has to

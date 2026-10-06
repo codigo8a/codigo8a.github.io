@@ -164,7 +164,7 @@
   color: #404040;
 }
 
-/* ── Panels (connect, new file, error) ── */
+/* ── Panels (connect, loading, error) ── */
 
 .drive-panel {
   display: flex;
@@ -174,13 +174,6 @@
   margin: auto;
   padding: 20px 10px;
   text-align: center;
-}
-
-.drive-panel-left {
-  align-items: stretch;
-  margin: 0;
-  padding: 10px;
-  text-align: left;
 }
 
 .drive-panel-heading {
@@ -252,18 +245,20 @@
   }
 }
 
-/* ── New file field ── */
+/* ── In-place rename editor ── */
 
-.drive-field-label {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.drive-field-input {
-  width: 100%;
-  max-width: 320px;
-  padding: 3px 4px;
-  font-family: inherit;
+/*
+ * The editor replaces a row's name label in all four view modes, so it has to
+ * wear the same 11px face as the label it stands in for. The border is the
+ * 98.css inset field look; the focus ring is deliberately absent because the
+ * OS already shows the caret, and the old dotted `outline` read as a second,
+ * competing border on a 68px-wide icon caption.
+ */
+.drive-rename-input {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 1px 2px;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
   font-size: 11px;
   color: var(--WindowText, #000);
   background: var(--Window, #ffffff);
@@ -271,9 +266,23 @@
   box-shadow: inset -1px -1px #dfdfdf, inset 1px 1px grey, inset -2px -2px #0a0a0a;
 }
 
-.drive-field-input:focus {
-  outline: 1px dotted #000;
-  outline-offset: -4px;
+.drive-rename-input:focus {
+  outline: none;
+}
+
+.drive-item-large .drive-rename-input {
+  width: 100%;
+  text-align: center;
+}
+
+.drive-item-small .drive-rename-input {
+  flex: 1 1 auto;
+}
+
+/* Leave room for the 16px icon the table cell keeps next to the name. */
+.drive-cell .drive-rename-input {
+  width: calc(100% - 22px);
+  vertical-align: middle;
 }
 
 @media (prefers-reduced-motion: reduce) {
