@@ -126,12 +126,15 @@ Pedido explícito del usuario con dos capturas de referencia (2026-10-06): quier
 | El rename es un segundo request después del alta | Un fallo deja un archivo con nombre por defecto | Se avisa con `showMessageBox` y **no** se manda la ventana a la pantalla de error; el archivo existe y sigue listado |
 | Los tipos grises del submenú son "botones muertos" | Ruido de UX, precedente del proyecto: "botones muertos son peor que botones ausentes" (`drive-explorer-chrome.md`) | Decisión explícita del usuario: paridad visual con la captura. Queda anotado como deuda si molesta |
 
-## Evidencia de commits (rama `feat/drive-inline-new-file`, sin push)
+## Evidencia de commits
+
+Rama `feat/drive-inline-new-file`, mergeada a `main` con merge commit explícito (`--no-ff`), que es la convención del repo: el trabajo anterior de Drive entró igual (`d32cd7d merge: Google Drive app into main`).
 
 | Commit | Work-unit | Archivos |
 |---|---|---|
 | `d21d4c2` | `feat(drive): add renameFile to the Drive client` | `src/services/googleDrive/types.ts`, `src/services/googleDrive/client.ts` |
 | `91c4035` | `feat(drive): create the file on New and rename it in place` | `src/apps/DriveApp/index.tsx`, `src/apps/DriveApp/index.css` |
-| (este commit) | `docs(drive): document the new file and rename flow` | `README.md`, `odd/tasks/drive-inline-new-file.md` |
+| `f331500` | `docs(drive): document the new file and rename flow` | `README.md`, `odd/tasks/drive-inline-new-file.md` |
+| `10fda8a` | `merge: in-place New file flow into main` (merge commit, árbol idéntico al de la rama) | — |
 
-`main` queda intacta en `9fdb23a`; el merge y el push son decisiones del usuario.
+El push de `main` sigue la política ordinaria del repo (`AGENTS.md`): es decisión explícita del usuario, no del flujo de revisión. El deploy a producción es un paso aparte y manual (`npm run deploy`).
