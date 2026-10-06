@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy — juandavid.site</title>
+    <meta
+      name="description"
+      content="Privacy Policy for juandavid.site, a static personal desktop simulator by Juan David Ochoa. / Política de Privacidad de juandavid.site."
+    />
+    <link rel="stylesheet" href="/legal.css" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <nav class="lang-switch" aria-label="Language / Idioma">
+      <button type="button" data-lang="es" aria-pressed="true">ES</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </nav>
+
+    <main>
+      <h1>
+        <span class="lang-es">Política de Privacidad</span>
+        <span class="lang-en">Privacy Policy</span>
+      </h1>
+      <p class="subtitle">
+        <span class="lang-es">Última actualización: 6 de octubre de 2026</span>
+        <span class="lang-en">Last updated: October 6, 2026</span>
+      </p>
+
+      <h2>
+        <span class="lang-es">1. Responsable</span>
+        <span class="lang-en">1. Controller</span>
+      </h2>
+      <p class="lang-es">
+        Este sitio es un proyecto personal y privado, sin ánimo de lucro. El responsable del
+        tratamiento de los datos descritos aquí es
+        <strong>Juan David Ochoa</strong>, y puede contactarse en
+        <a href="mailto:juandavid8a@gmail.com">juandavid8a@gmail.com</a>.
+      </p>
+      <p class="lang-en">
+        This site is a non-commercial personal project. The data controller for the
+        information described here is <strong>Juan David Ochoa</strong>, reachable at
+        <a href="mailto:juandavid8a@gmail.com">juandavid8a@gmail.com</a>.
+      </p>
+
+      <h2>
+        <span class="lang-es">2. Qué es este sitio</span>
+        <span class="lang-en">2. What this site is</span>
+      </h2>
+      <p class="lang-es">
+        <code>juandavid.site</code> es un simulador de escritorio con estética de Windows 98,
+        publicado como sitio web estático. Incluye una integración opcional con Google Drive
+        descrita en la sección 4.
+      </p>
+      <p class="lang-es">
+        El sitio <strong>no tiene servidor de aplicación, ni base de datos, ni cuentas de
+        usuario propias, ni registro</strong>. Todos sus archivos se sirven como contenido
+        estático desde GitHub Pages. Nada de lo que hacés en el sitio se envía a un servidor
+        mío, porque no existe tal servidor.
+      </p>
+      <p class="lang-en">
+        <code>juandavid.site</code> is a Windows 98–styled desktop simulator published as a
+        static website. It includes an optional Google Drive integration, described in
+        section 4.
+      </p>
+      <p class="lang-en">
+        The site has <strong>no application server, no database, no user accounts and no
+        sign-up</strong>. Every file is served as static content from GitHub Pages. Nothing
+        you do on the site is sent to a server of mine, because no such server exists.
+      </p>
+
+      <h2>
+        <span class="lang-es">3. Qué NO recopilamos</span>
+        <span class="lang-en">3. What we do NOT collect</span>
+      </h2>
+      <ul class="lang-es">
+        <li>Sin analítica ni métricas: no hay Google Analytics, Plausible, Sentry ni herramienta equivalente.</li>
+        <li>Sin cookies de publicidad ni de seguimiento.</li>
+        <li>Sin perfiles de usuario, ni identificación de comportamiento, ni fingerprinting.</li>
+        <li>No vendo, alquilo ni comparto datos personales con terceros.</li>
+        <li>No hay servidor donde registrar tu actividad: la única forma de que yo sepa que visitaste el sitio es que mi servidor de hosting registre una petición, igual que con cualquier sitio web.</li>
+      </ul>
+      <ul class="lang-en">
+        <li>No analytics or metrics: there is no Google Analytics, Plausible, Sentry or equivalent tool.</li>
+        <li>No advertising or tracking cookies.</li>
+        <li>No user profiling, behavioural identification or fingerprinting.</li>
+        <li>I do not sell, rent or share personal data with third parties.</li>
+        <li>There is no server logging your activity: the only way I could know you visited is that my hosting server logs a request, exactly as with any website.</li>
+      </ul>
+
+      <h2>
+        <span class="lang-es">4. Integración con Google Drive (sólo si la usás)</span>
+        <span class="lang-en">4. Google Drive integration (only if you use it)</span>
+      </h2>
+      <p class="lang-es">
+        La ventana “My Drive” incluye una función para conectar tu cuenta de Google. Es
+        <strong>opcional</strong>: el resto del sitio funciona sin ella y no se conecta con
+        Google en ningún momento.
+      </p>
+      <p class="lang-en">
+        The “My Drive” window includes a feature to connect your Google account. It is
+        <strong>optional</strong>: the rest of the site works without it and never contacts
+        Google at any point.
+      </p>
+      <p class="lang-es">
+        Al conectarte, el sitio usa el flujo OAuth 2.0 de Google con
+        <em>authorization code + PKCE</em> y solicita <strong>un único permiso</strong>:
+      </p>
+      <p class="lang-en">
+        When you connect, the site uses Google's OAuth 2.0 flow with
+        <em>authorization code + PKCE</em> and requests <strong>a single permission</strong>:
+      </p>
+      <p class="lang-es"><code>https://www.googleapis.com/auth/drive.file</code></p>
+      <p class="lang-en"><code>https://www.googleapis.com/auth/drive.file</code></p>
+      <div class="note">
+        <p class="lang-es">
+          <strong>Qué te da y qué no te da ese permiso.</strong> El permiso
+          <code>drive.file</code> otorga acceso
+          <strong>únicamente a los archivos que crea esta propia aplicación</strong>. El sitio
+          <strong>no puede leer, listar ni acceder a los archivos que ya tenías en tu
+          Google Drive</strong>. Lo único que verás es una carpeta llamada
+          <code>desktop-web</code>, creada por la aplicación dentro de tu Drive.
+        </p>
+        <p class="lang-en">
+          <strong>What that permission does and does not give you.</strong> The
+          <code>drive.file</code> permission grants access
+          <strong>only to files created by this application itself</strong>. The site
+          <strong>cannot read, list or access files already in your Google Drive</strong>.
+          The only thing you will see is a folder named <code>desktop-web</code>, created by
+          the application inside your Drive.
+        </p>
+      </div>
+
+      <h3>
+        <span class="lang-es">Dónde queda cada dato</span>
+        <span class="lang-en">Where each piece of data is stored</span>
+      </h3>
+      <table class="lang-es block">
+        <caption>Datos del proceso de conexión a Google Drive</caption>
+        <thead>
+          <tr>
+            <th>Dato</th>
+            <th>Dónde se guarda</th>
+            <th>Cuánto dura</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Token de acceso de Drive</td>
+            <td>Exclusivamente en memoria del navegador. Nunca se escribe en <code>localStorage</code>, <code>sessionStorage</code>, cookies ni en la URL.</td>
+            <td>Alrededor de 1 hora. No hay token de refresco, así que al vencer te pide reconectar.</td>
+          </tr>
+          <tr>
+            <td>Identificador o correo de tu cuenta</td>
+            <td>Devuelto por Google y mostrado en la interfaz. Sólo en memoria.</td>
+            <td>Mientras la ventana esté abierta.</td>
+          </tr>
+          <tr>
+            <td>Archivos de la carpeta <code>desktop-web</code></td>
+            <td>En <strong>tu propia</strong> cuenta de Google Drive.</td>
+            <td>Hasta que vos los borres.</td>
+          </tr>
+          <tr>
+            <td>Verificador PKCE y valor <code>state</code> (protección contra CSRF)</td>
+            <td><code>sessionStorage</code>, sólo durante el flujo de autorización.</td>
+            <td>Se eliminan al completarse el flujo.</td>
+          </tr>
+          <tr>
+            <td>Código de autorización de un solo uso</td>
+            <td><code>localStorage</code>, durante los segundos en que se traspasa entre pestañas del navegador.</td>
+            <td>Se elimina al leerse, una única vez.</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="lang-en">
+        <caption>Google Drive connection process data</caption>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Where it is stored</th>
+            <th>How long</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Drive access token</td>
+            <td>Browser memory only. Never written to <code>localStorage</code>, <code>sessionStorage</code>, cookies or the URL.</td>
+            <td>About 1 hour. There is no refresh token, so you are asked to reconnect when it expires.</td>
+          </tr>
+          <tr>
+            <td>Your account identifier or email</td>
+            <td>Returned by Google and displayed in the interface. Memory only.</td>
+            <td>While the window is open.</td>
+          </tr>
+          <tr>
+            <td>Files inside the <code>desktop-web</code> folder</td>
+            <td>In <strong>your own</strong> Google Drive account.</td>
+            <td>Until you delete them.</td>
+          </tr>
+          <tr>
+            <td>PKCE verifier and <code>state</code> value (CSRF protection)</td>
+            <td><code>sessionStorage</code>, only during the authorization flow.</td>
+            <td>Deleted when the flow completes.</td>
+          </tr>
+          <tr>
+            <td>Single-use authorization code</td>
+            <td><code>localStorage</code>, for the few seconds it takes to hand over between browser tabs.</td>
+            <td>Removed on read, exactly once.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <p class="lang-es">
+          <strong>Desconectar no borra tus archivos.</strong> La opción
+          “Desconectar” sólo descarta el token de la memoria del navegador. Los archivos que
+          creaste siguen en tu Google Drive. Para borrarlos, tenés que hacerlo desde Google
+          Drive.
+        </p>
+        <p class="lang-en">
+          <strong>Disconnecting does not delete your files.</strong> The “Disconnect” option
+          only discards the in-memory token. Files you created remain in your Google Drive.
+          To delete them, do it from Google Drive.
+        </p>
+      </div>
+
+      <h2>
+        <span class="lang-es">5. Terceros</span>
+        <span class="lang-en">5. Third parties</span>
+      </h2>
+      <table class="lang-es block">
+        <thead>
+          <tr>
+            <th>Tercero</th>
+            <th>Función</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Google LLC</td>
+            <td>Autenticación (OAuth 2.0) y la API de Drive. Google actúa como responsable independiente de los datos de tu cuenta.</td>
+          </tr>
+          <tr>
+            <td>GitHub, Inc. (GitHub Pages)</td>
+            <td>Alojamiento del sitio y entrega de sus archivos estáticos.</td>
+          </tr>
+          <tr>
+            <td>Proveedor de DNS y alojamiento del dominio</td>
+            <td>Resolución de nombres y entrega del servidor que responde las peticiones. Sus registros de acceso los controla ese proveedor, no yo, y por eso no puedo afirmar nada más allá de eso.</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="lang-en">
+        <thead>
+          <tr>
+            <th>Third party</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Google LLC</td>
+            <td>Authentication (OAuth 2.0) and the Drive API. Google acts as an independent controller for your account data.</td>
+          </tr>
+          <tr>
+            <td>GitHub, Inc. (GitHub Pages)</td>
+            <td>Hosting of the site and delivery of its static files.</td>
+          </tr>
+          <tr>
+            <td>DNS and hosting provider for the domain</td>
+            <td>Name resolution and serving the requests. That provider controls its own access logs, not me, which is why I cannot detail anything beyond that.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>
+        <span class="lang-es">6. Transferencias internacionales</span>
+        <span class="lang-en">6. International transfers</span>
+      </h2>
+      <p class="lang-es">
+        Google opera globalmente, así que la autenticación y el acceso a Drive pueden
+        procesarse en centros de datos fuera de tu país. El alojamiento de GitHub Pages
+        también puede atender peticiones desde distintas regiones.
+      </p>
+      <p class="lang-en">
+        Google operates globally, so authentication and Drive access may be processed in data
+        centres outside your country. GitHub Pages hosting may likewise serve requests from
+        multiple regions.
+      </p>
+
+      <h2>
+        <span class="lang-es">7. Conservación</span>
+        <span class="lang-en">7. Retention</span>
+      </h2>
+      <p class="lang-es">
+        El token de acceso se descarta al vencer, al recibir un error 401 o cuando elegís
+        “Desconectar”, y no se guarda en ningún sitio. Los archivos que creás permanecen en tu
+        Google Drive hasta que vos los elimines. Los registros de petición del servidor de
+        alojamiento los conserva su proveedor según su propia política de retención, que no
+        controlo.
+      </p>
+      <p class="lang-en">
+        The access token is discarded when it expires, on a 401 response, or when you choose
+        “Disconnect”, and is never stored anywhere. Files you create remain in your Google
+        Drive until you delete them. Request logs on the hosting server are retained by that
+        provider under its own policy, which I do not control.
+      </p>
+
+      <h2>
+        <span class="lang-es">8. Tus derechos</span>
+        <span class="lang-en">8. Your rights</span>
+      </h2>
+      <ul class="lang-es">
+        <li>Acceder, editar y borrar los archivos: desde tu propia cuenta de Google Drive.</li>
+        <li>Revocar el acceso que le diste a este sitio: en la configuración de seguridad de tu cuenta de Google, en la sección de aplicaciones de terceros con acceso a tus datos.</li>
+        <li>Como el sitio no almacena datos personales más allá de lo descrito en la sección 4, no hay datos míos que exportarte ni corregir. Para algo que no esté cubierto acá, escribime a <a href="mailto:juandavid8a@gmail.com">juandavid8a@gmail.com</a>.</li>
+      </ul>
+      <ul class="lang-en">
+        <li>Access, edit and delete your files: from your own Google Drive account.</li>
+        <li>Revoke the access you granted to this site: in your Google account security settings, under third-party apps with access to your data.</li>
+        <li>Because the site stores no personal data beyond what section 4 describes, I hold nothing to export or correct for you. For anything not covered here, write to <a href="mailto:juandavid8a@gmail.com">juandavid8a@gmail.com</a>.</li>
+      </ul>
+
+      <h2>
+        <span class="lang-es">9. Seguridad</span>
+        <span class="lang-en">9. Security</span>
+      </h2>
+      <p class="lang-es">
+        La conexión a Google usa OAuth 2.0 con PKCE y con protección contra CSRF, y el sitio
+        se sirve íntegramente por HTTPS. El token de acceso nunca se escribe en almacenamiento
+        persistente. Aun así, ningún sistema es infalible: si sospechás que alguien accedió a tu
+        cuenta de Drive, revocalo desde Google y cambiá tu contraseña.
+      </p>
+      <p class="lang-en">
+        The Google connection uses OAuth 2.0 with PKCE and CSRF protection, and the site is
+        served entirely over HTTPS. The access token is never written to persistent storage.
+        Still, no system is infallible: if you suspect someone gained access to your Drive
+        account, revoke it from Google and change your password.
+      </p>
+
+      <h2>
+        <span class="lang-es">10. Menores de edad</span>
+        <span class="lang-en">10. Children</span>
+      </h2>
+      <p class="lang-es">
+        El sitio no está dirigido a menores de 13 años y no recopila datos conscientemente de
+        ellos. Si creés que un menor conectó su cuenta de Google, escribime para que podamos
+        revocar el acceso desde la configuración de la cuenta.
+      </p>
+      <p class="lang-en">
+        The site is not directed at children under 13 and does not knowingly collect data from
+        them. If you believe a child connected their Google account, write to me so access can
+        be revoked from the account settings.
+      </p>
+
+      <h2>
+        <span class="lang-es">11. Cambios en esta política</span>
+        <span class="lang-en">11. Changes to this policy</span>
+      </h2>
+      <p class="lang-es">
+        Si cambia el tratamiento de datos descrito acá, actualizo esta página y actualizo la
+        fecha de la parte superior. La versión vigente es siempre la que está publicada en
+        <code>juandavid.site/privacy/</code>.
+      </p>
+      <p class="lang-en">
+        If the handling of data described here changes, I will update this page and the date at
+        the top. The version in force is always the one published at
+        <code>juandavid.site/privacy/</code>.
+      </p>
+
+      <h2>
+        <span class="lang-es">12. Contacto</span>
+        <span class="lang-en">12. Contact</span>
+      </h2>
+      <p class="lang-es">
+        Juan David Ochoa — <a href="mailto:juandavid8a@gmail.com">juandavid8a@gmail.com</a>
+      </p>
+      <p class="lang-en">
+        Juan David Ochoa — <a href="mailto:juandavid8a@gmail.com">juandavid8a@gmail.com</a>
+      </p>
+
+      <p class="lang-es" style="margin-top: 2rem; font-size: 0.875rem; color: var(--ink-faint);">
+        Nota: este documento describe con precisión lo que hace el código fuente del sitio. No
+        constituye asesoramiento legal.
+      </p>
+      <p class="lang-en" style="margin-top: 2rem; font-size: 0.875rem; color: var(--ink-faint);">
+        Note: this document accurately describes what the site's source code does. It does not
+        constitute legal advice.
+      </p>
+    </main>
+
+    <footer class="colophon">
+      <p>
+        <a href="/">&larr; <span class="lang-es">Volver al sitio</span><span class="lang-en">Back to the site</span></a>
+        &nbsp;·&nbsp;
+        <a href="/terms/"><span class="lang-es">Términos del servicio</span><span class="lang-en">Terms of Service</span></a>
+      </p>
+    </footer>
+
+    <script>
+      (function () {
+        var KEY = 'legal.lang';
+        var root = document.documentElement;
+        var buttons = Array.prototype.slice.call(
+          document.querySelectorAll('.lang-switch button')
+        );
+
+        function apply(lang) {
+          root.setAttribute('data-lang', lang);
+          root.setAttribute('lang', lang);
+          buttons.forEach(function (button) {
+            button.setAttribute('aria-pressed', String(button.dataset.lang === lang));
+          });
+        }
+
+        buttons.forEach(function (button) {
+          button.addEventListener('click', function () {
+            try {
+              window.localStorage.setItem(KEY, button.dataset.lang);
+            } catch (error) {
+              /* Private browsing can block storage. The toggle still works. */
+            }
+            apply(button.dataset.lang);
+          });
+        });
+
+        var saved = null;
+        try {
+          saved = window.localStorage.getItem(KEY);
+        } catch (error) {
+          /* Fall through to the default language. */
+        }
+        apply(saved === 'en' ? 'en' : 'es');
+      })();
+    </script>
+  </body>
+</html>
