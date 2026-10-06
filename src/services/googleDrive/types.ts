@@ -144,6 +144,21 @@ export interface DriveTrashResult {
 }
 
 /**
+ * Result of `renameFile`.
+ *
+ * Its own type rather than a reuse of {@link DriveFile}: a rename changes the
+ * name and the `modifiedTime` Drive derives from it, and echoing back a full
+ * file would invite a caller to trust fields the `PATCH` never asked for. The
+ * `fields` mask is deliberately this narrow, so this type is the exact shape
+ * the request can promise.
+ */
+export interface DriveRenameResult {
+  readonly id: string;
+  readonly name: string;
+  readonly modifiedTime: string | null;
+}
+
+/**
  * Result of `restoreFile`.
  *
  * Its own type rather than a reuse of {@link DriveTrashResult}: the two

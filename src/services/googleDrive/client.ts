@@ -31,6 +31,7 @@ import type {
   DriveAccount,
   DriveFile,
   DriveFolder,
+  DriveRenameResult,
   DriveRestoreResult,
   DriveResult,
   DriveToken,
@@ -98,6 +99,7 @@ export interface DriveClient {
     content: string
   ): Promise<DriveResult<DriveWriteResult>>;
   trashFile(token: DriveToken, fileId: string): Promise<DriveResult<DriveTrashResult>>;
+  renameFile(token: DriveToken, fileId: string, name: string): Promise<DriveResult<DriveRenameResult>>;
   restoreFile(
     token: DriveToken,
     fileId: string,
@@ -588,6 +590,41 @@ export const driveClient: DriveClient = {
     );
     if (!result.ok) return { ok: false, error: result.error };
     return result;
+  },
+
+  /**
+   * Rename a file, leaving its content, parents and trash state untouched.
+   *
+   * A metadata-only `PATCH` (no `uploadType`), so it is a small request that
+   * cannot race a concurrent content write the way a media upload would. The
+   * caller owns the name: this layer repeats neither `normalizeFileName` nor the
+   * illegal-character check, exactly as {@link DriveClient.createTextFile} does.
+   */
+  renameFile: async (token, fileId, name) => {
+    const validId = requireDriveId(fileId, 'fileId');
+    if (!validId.ok) return { ok: false, error: validId.error };
+
+    const params = new URLSearchParams({ fields: 'id,name,modifiedTime' });
+
+    return driveJson<DriveRenameResult>(
+      token,
+      {
+        method: 'PATCH',
+        path: `/files/${encodeURIComponent(validId.data)}?${params.toString()}`,
+        body: JSON.stringify({ name }),
+        contentType: 'application/json; charset=UTF-8'
+      },
+      (payload) => {
+        if (typeof payload !== 'object' || payload === null) return null;
+        const body = payload as Record<string, unknown>;
+        if (typeof body.id !== 'string') return null;
+        return {
+          id: body.id,
+          name: typeof body.name === 'string' ? body.name : '',
+          modifiedTime: typeof body.modifiedTime === 'string' ? body.modifiedTime : null
+        };
+      }
+    );
   },
 
   /**
