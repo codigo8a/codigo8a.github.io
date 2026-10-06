@@ -3,6 +3,7 @@ import './index.css';
 import { registerOsWindow, setOsWindowTitle } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
+import type { AppData, RemoteSaveHandle } from '../../types';
 
 /**
  * Placeholder React component — Notepad uses os-gui natively via launchNotepad().
@@ -67,8 +68,15 @@ interface FormatButtonDef {
  *   - Large textarea with Ln/Col tracking in status bar
  *   - Time/Date insertion (F5 / Edit menu)
  *   - File New/Open/Save backed by the module-level in-memory store
+ *
+ * Two optional payload members redirect that last row:
+ *   - `file` seeds the document name and the buffer (Drive opens its markdown
+ *     files here instead of editing them in its own window)
+ *   - `remoteSave` makes `File > Save` write to the destination that handed it
+ *     over instead of the store. The destination owns every word the save shows,
+ *     so this window never describes what a write to it means.
  */
-export function launchNotepad(): void {
+export function launchNotepad(appData?: AppData): void {
   const $Window = window.$Window;
   const MenuBar = window.MenuBar;
 
@@ -77,9 +85,14 @@ export function launchNotepad(): void {
     return;
   }
 
+  // A seeded document is named after the file it came from, so the titlebar and
+  // the store speak about the same thing before the first keystroke.
+  const seedName = appData?.file?.name ?? UNTITLED;
+  const seedContent = appData?.file?.content ?? '';
+
   // ── Create the os-gui window ──
   const $win = $Window({
-    title: buildWindowTitle(UNTITLED, false),
+    title: buildWindowTitle(seedName, false),
     icons: {
       16: '/images/icons/notepad-16x16.png',
       32: '/images/icons/notepad-32x32.png',
@@ -95,13 +108,21 @@ export function launchNotepad(): void {
   $win.center();
   const cascadeOffset = getCascadeOffset();
   $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
-  const windowId = registerOsWindow($win, 'notepad', buildWindowTitle(UNTITLED, false), '/images/icons/notepad-32x32.png');
+  const windowId = registerOsWindow($win, 'notepad', buildWindowTitle(seedName, false), '/images/icons/notepad-32x32.png');
 
   // ── Per-window state ──
   /** Name of the document in the textarea ('Untitled' until saved under a name). */
-  let documentName = UNTITLED;
+  let documentName = seedName;
   /** True when the textarea holds changes that are not in the store. */
   let isDirty = false;
+  /** Write path to a remote destination; null means the store is the destination. */
+  let remoteSave: RemoteSaveHandle | null = appData?.remoteSave ?? null;
+  /**
+   * True while a remote write is in flight. A remote save is a network round
+   * trip, so the menu item stays clickable while it runs and a second trigger
+   * has to be dropped instead of racing the first write.
+   */
+  let isSavingRemote = false;
 
   // ── Build Notepad layout ──
   const container = document.createElement('div');
@@ -115,6 +136,7 @@ export function launchNotepad(): void {
         shortcutLabel: 'Ctrl+N',
         action: () => {
           if (!confirmDiscard()) return;
+          detachRemoteSave();
           textarea.value = '';
           documentName = UNTITLED;
           isDirty = false;
@@ -151,6 +173,7 @@ export function launchNotepad(): void {
             });
             return;
           }
+          detachRemoteSave();
           textarea.value = doc.content;
           documentName = doc.name;
           isDirty = false;
@@ -162,21 +185,7 @@ export function launchNotepad(): void {
       {
         label: '&Save',
         shortcutLabel: 'Ctrl+S',
-        action: () => {
-          let name = documentName;
-          if (name === UNTITLED) {
-            const answer = prompt('Save as (name without the .md extension):', UNTITLED);
-            // A cancelled or empty prompt means "do not save".
-            if (answer === null) return;
-            name = answer.trim();
-            if (!name) return;
-          }
-          documents.set(name, { name, content: textarea.value });
-          documentName = name;
-          isDirty = false;
-          applyWindowTitle();
-          showMessageBox({ title: 'Notepad', message: `Saved ${name}.md`, icon: 'info' });
-        },
+        action: saveDocument,
       },
       { separator: true },
       {
@@ -322,6 +331,9 @@ export function launchNotepad(): void {
 
   const textarea = document.createElement('textarea');
   textarea.className = 'notepad-textarea-os';
+  // Seeded before the listeners and the first `updateStatus()` so the window
+  // opens already holding the document, with Ln/Col matching its real content.
+  textarea.value = seedContent;
   textarea.style.cssText = [
     'width: 100%;',
     'height: 100%;',
@@ -373,6 +385,72 @@ export function launchNotepad(): void {
   function confirmDiscard(): boolean {
     if (!isDirty) return true;
     return confirm(`Save changes to ${documentName}.md?`);
+  }
+
+  // ── Save ──
+
+  /**
+   * Drop the remote destination, so the buffer belongs to this session again.
+   *
+   * A document that replaced the seeded one — `File > New` and `File > Open` —
+   * cannot keep writing to the file it replaced: the name in the titlebar would
+   * no longer be the file being written.
+   */
+  function detachRemoteSave(): void {
+    remoteSave = null;
+  }
+
+  /** `File > Save`: to the destination that launched this window, else to the store. */
+  function saveDocument(): void {
+    const handle = remoteSave;
+    if (handle === null) {
+      saveLocal();
+      return;
+    }
+    void saveToRemote(handle);
+  }
+
+  /** Save into the in-memory store, asking for a name only while untitled. */
+  function saveLocal(): void {
+    let name = documentName;
+    if (name === UNTITLED) {
+      const answer = prompt('Save as (name without the .md extension):', UNTITLED);
+      // A cancelled or empty prompt means "do not save".
+      if (answer === null) return;
+      name = answer.trim();
+      if (!name) return;
+    }
+    documents.set(name, { name, content: textarea.value });
+    documentName = name;
+    isDirty = false;
+    applyWindowTitle();
+    showMessageBox({ title: 'Notepad', message: `Saved ${name}.md`, icon: 'info' });
+  }
+
+  /**
+   * Hand the buffer to the destination that launched this window.
+   *
+   * The dirty marker survives until the write is acknowledged: a failed save
+   * leaves the buffer unsaved on purpose, so closing the window still warns.
+   * The outcome is displayed verbatim because the destination wrote it in the
+   * user's language, which this window cannot know.
+   */
+  async function saveToRemote(handle: RemoteSaveHandle): Promise<void> {
+    if (isSavingRemote) return;
+    isSavingRemote = true;
+    const result = await handle.save(textarea.value);
+    isSavingRemote = false;
+
+    if (result.ok) {
+      isDirty = false;
+      applyWindowTitle();
+    }
+
+    await showMessageBox({
+      title: 'Notepad',
+      message: result.message,
+      icon: result.ok ? 'info' : 'warning',
+    });
   }
 
   // ── Markdown insertion helpers ──

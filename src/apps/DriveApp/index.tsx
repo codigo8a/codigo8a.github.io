@@ -11,20 +11,28 @@ import {
   createToolbarButton,
   ensureDisabledFilter,
 } from '../../utils/explorerChrome';
-import {
-  buildConsentUrl,
-  clearPendingAuth,
-  consumePendingCode,
-  exchangeCodeForToken,
-  generatePkce,
-  generateState,
-  loadPendingAuth,
-  savePendingAuth,
-} from '../../services/googleDrive/auth';
-import { GoogleAuthError } from '../../services/googleDrive/auth';
 import { driveClient } from '../../services/googleDrive/client';
+import {
+  launchDriveConnect,
+  prepareDriveConnect,
+  readDriveConfig,
+} from '../../services/googleDrive/driveConnect';
+import type {
+  DriveConfig,
+  DriveConnectArming,
+  DriveConnectMessages,
+  DriveConnectProgress,
+} from '../../services/googleDrive/driveConnect';
+import {
+  clearDriveToken,
+  clearDriveWorkspaceFolderId,
+  getDriveToken,
+  getUsableDriveToken,
+  notifyDriveWorkspaceChanged,
+  setDriveWorkspaceFolderId,
+  subscribeDriveWorkspace,
+} from '../../services/googleDrive/driveSession';
 import { getDriveErrorMessage } from '../../services/googleDrive/errors';
-import { isDriveTokenExpired } from '../../services/googleDrive/types';
 import { DRIVE, LOCAL_STORAGE_KEYS } from '../../constants';
 import type { DriveError, DriveErrorCode, DriveFile, DriveFolder, DriveToken } from '../../services/googleDrive/types';
 import type {
@@ -33,7 +41,7 @@ import type {
   OsGuiMenuItem,
   OsGuiWindow,
 } from '../../types/os-gui';
-import type { AppData } from '../../types';
+import type { AppData, File, RemoteSaveHandle, RemoteSaveResult } from '../../types';
 
 // ─── Translations ─────────────────────────────────────────────────────────────
 
@@ -73,6 +81,13 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
     es: 'Este navegador no expone WebCrypto fuera de https. Abrí la app en https o en localhost.',
     en: 'This browser does not expose WebCrypto outside https. Open the app over https or on localhost.',
   },
+  // The Recycle Bin can start the same flow, and the two would race for one
+  // authorization code, so the message is not hypothetical: the flow is refused while
+  // another window holds it, and this says why instead of leaving a dead link.
+  connectInProgress: {
+    es: 'Ya hay una conexión en curso en otra ventana. Esperá a que termine.',
+    en: 'A connection is already in progress in another window. Wait for it to finish.',
+  },
   reconnectHeading: { es: 'La sesión con Google venció', en: 'Your Google session expired' },
   reconnectText: {
     es: 'Conectá de nuevo para seguir usando la carpeta "{folder}".',
@@ -83,6 +98,12 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   connectingText: {
     es: 'Aprobá el acceso en la pestaña nueva. Esta ventana espera el código de autorización.',
     en: 'Approve access in the new tab. This window is waiting for the authorization code.',
+  },
+  // ── Loading ──
+  loadingHeading: { es: 'Abriendo Mi unidad', en: 'Opening My Drive' },
+  loadingText: {
+    es: 'Buscando los archivos de tu carpeta "{folder}" en Google Drive.',
+    en: 'Looking for the files in your "{folder}" folder on Google Drive.',
   },
   newFile: { es: 'Nuevo', en: 'New' },
   newFileTitle: { es: 'Nuevo archivo', en: 'New file' },
@@ -99,7 +120,6 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   open: { es: 'Abrir', en: 'Open' },
   edit: { es: 'Editar', en: 'Edit' },
   trash: { es: 'Papelera', en: 'Trash' },
-  save: { es: 'Guardar', en: 'Save' },
   back: { es: 'Volver', en: 'Back' },
   forward: { es: 'Adelante', en: 'Forward' },
   up: { es: 'Subir', en: 'Up' },
@@ -114,10 +134,35 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
     es: '"{name}" cambió en Drive desde que lo abriste. Si guardás, se pisa la versión que está ahí ahora.',
     en: '"{name}" changed in Drive since you opened it. Saving overwrites the version that is there now.',
   },
+  // ── Remote save (the editor shows these verbatim, so they live here) ──
+  remoteSaveDone: {
+    es: '"{name}" se guardó en Google Drive.',
+    en: '"{name}" was saved to Google Drive.',
+  },
+  remoteSaveFailed: {
+    es: 'No se pudo guardar "{name}" en Google Drive.',
+    en: 'Could not save "{name}" to Google Drive.',
+  },
+  remoteSaveConflictAborted: {
+    es: 'No se guardó nada: el archivo cambió en Drive y elegiste no pisarlo.',
+    en: 'Nothing was saved: the file changed in Drive and you chose not to overwrite it.',
+  },
+  remoteSaveWindowClosed: {
+    es: 'La ventana de Mi unidad se cerró, así que no se pudo guardar. Abrila de nuevo y editá el archivo otra vez.',
+    en: 'The My Drive window was closed, so nothing could be saved. Open it again and edit the file once more.',
+  },
+  remoteSaveSignedOut: {
+    es: 'La sesión de Mi unidad no está activa, así que no se pudo guardar. Conectá de nuevo y guardá otra vez.',
+    en: 'The My Drive session is not active, so nothing could be saved. Connect again and save once more.',
+  },
   trashTitle: { es: 'Mover a la papelera', en: 'Move to trash' },
+  // Points at this desktop's own Recycle Bin, not at drive.google.com: the
+  // desktop now has a window that lists exactly these files and restores them
+  // back to the workspace folder, which is a better answer than "go to a
+  // website that cannot see the rest of the app".
   trashMessage: {
-    es: '"{name}" va a la papelera de Drive. Podés recuperarlo desde drive.google.com durante 30 días.',
-    en: '"{name}" goes to the Drive trash. You can restore it from drive.google.com for 30 days.',
+    es: '"{name}" va a la papelera. Lo podés restaurar desde la Papelera del escritorio (ícono del escritorio o Inicio > Programas).',
+    en: '"{name}" goes to the trash. You can restore it from the desktop Recycle Bin (desktop icon or Start > Programs).',
   },
   errorHeading: { es: 'No se pudo completar la operación', en: 'The operation could not be completed' },
   forbiddenHint: {
@@ -135,7 +180,6 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   fileCount: { es: '{count} archivo(s)', en: '{count} file(s)' },
   sizeUnknown: { es: '?', en: '?' },
   dateUnknown: { es: 'sin fecha', en: 'no date' },
-  editorLabel: { es: 'Contenido del archivo', en: 'File content' },
   accountLabel: { es: 'Cuenta', en: 'Account' },
   anonymousAccount: { es: 'Cuenta desconocida', en: 'Unknown account' },
   // ── Explorer chrome ──
@@ -163,7 +207,6 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   menuHelp: { es: 'A&yuda', en: '&Help' },
   menuNew: { es: '&Nuevo', en: '&New' },
   menuOpen: { es: '&Abrir', en: 'O&pen' },
-  menuSave: { es: '&Guardar', en: '&Save' },
   menuDelete: { es: '&Papelera', en: '&Delete' },
   menuRename: { es: 'Re&nombrar', en: 'Rena&me' },
   menuProperties: { es: 'P&ropiedades', en: 'P&roperties' },
@@ -174,7 +217,6 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
   menuCut: { es: 'Cor&tar', en: 'Cu&t' },
   menuCopy: { es: '&Copiar', en: '&Copy' },
   menuPaste: { es: '&Pegar', en: '&Paste' },
-  menuSelectAll: { es: 'Seleccionar &todo', en: 'Select &All' },
   menuToolbars: { es: '&Barras de herramientas', en: '&Toolbars' },
   menuStandardButtons: { es: 'Botones &estándar', en: '&Standard Buttons' },
   menuAddressBar: { es: 'Barra de &dirección', en: '&Address Bar' },
@@ -197,27 +239,47 @@ const TRANSLATIONS: Record<string, { es: string; en: string }> = {
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
-type DriveView = 'disconnected' | 'reconnect' | 'connecting' | 'list' | 'editor' | 'newFile' | 'error';
+/**
+ * The screens of this window.
+ *
+ * `loading` is not `connecting`: `connecting` waits on the *user* (they have to
+ * approve access in another tab) and `loading` waits on the *network* (a usable
+ * token already exists and the workspace is being fetched). They look alike on
+ * screen but they mean opposite things, and collapsing them would make the
+ * loading screen claim the user has to go approve something.
+ *
+ * The ordering mirrors Recycle Bin's `RecycleView`: the token check happens
+ * before the loading screen is ever shown, so `disconnected`/`reconnect` is only
+ * rendered when there is genuinely nothing to load with.
+ */
+type DriveView =
+  | 'disconnected'
+  | 'reconnect'
+  | 'connecting'
+  | 'loading'
+  | 'list'
+  | 'newFile'
+  | 'error';
 
 /** Explorer view mode, mirroring the four modes of My Computer. */
 type DriveViewMode = 'LARGE_ICONS' | 'SMALL_ICONS' | 'LIST' | 'DETAILS';
-
-interface DriveConfig {
-  readonly clientId: string;
-  readonly clientSecret: string;
-  readonly redirectUri: string;
-}
-
-interface ConsentAttempt {
-  readonly verifier: string;
-  readonly state: string;
-}
 
 /** One row of an os-gui radio group (`radioItems`, see MenuBar.js:930-950). */
 interface DriveRadioItem {
   label: string;
   value: DriveViewMode;
   enabled?: boolean | (() => boolean);
+}
+
+/**
+ * Per-handle save state.
+ *
+ * The revision the buffer was read at travels with the handle instead of with
+ * the window: a remote handle outlives any single render, and rebaselining here
+ * is what keeps the user's own second save from reading as somebody else's edit.
+ */
+interface RemoteSaveState {
+  baselineRevision: string | null;
 }
 
 /**
@@ -260,6 +322,7 @@ const MARKDOWN_EXTENSION_PATTERN = /\.md$/i;
 const ILLEGAL_FILENAME_PATTERN = /[\\/:*?"<>|]/;
 const MAX_FILENAME_LENGTH = 120;
 const OPEN_FILE_APP_ID = 'markdownViewer';
+const EDIT_FILE_APP_ID = 'notepad';
 const DRIVE_APP_ID = 'driveApp';
 const LOGO_LINE_SRC = '/images/icons/wvline.gif';
 
@@ -283,23 +346,6 @@ function fill(template: string, values: Record<string, string | number>): string
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     template,
   );
-}
-
-function describeAuthorizationFailure(error: unknown, fallback: string): string {
-  if (error instanceof GoogleAuthError) {
-    return `${fallback}\n\nGoogle: ${error.code} — ${error.description}`;
-  }
-  return `${fallback}\n\n${error instanceof Error ? error.message : String(error)}`;
-}
-
-function readDriveConfig(): DriveConfig | null {
-  const { VITE_GOOGLE_CLIENT_ID, VITE_GOOGLE_CLIENT_SECRET, VITE_GOOGLE_REDIRECT_URI } = import.meta.env;
-  if (!VITE_GOOGLE_CLIENT_ID || !VITE_GOOGLE_CLIENT_SECRET || !VITE_GOOGLE_REDIRECT_URI) return null;
-  return {
-    clientId: VITE_GOOGLE_CLIENT_ID,
-    clientSecret: VITE_GOOGLE_CLIENT_SECRET,
-    redirectUri: VITE_GOOGLE_REDIRECT_URI,
-  };
 }
 
 function formatSize(bytes: string | null): string {
@@ -349,11 +395,15 @@ function isTextEntry(target: EventTarget | null): boolean {
  * chrome shared by My Computer and My Documents.
  *
  * Two state machines run side by side: `view` picks the screen (connect →
- * workspace list → editor, with failures landing on the error view), while
+ * workspace list → new file, with failures landing on the error view), while
  * `selectedFileId` and `currentView` drive the selection model inside the list
  * screen. Because MenuBar re-reads a `function` `enabled` every time a menu
  * opens, the menus stay in sync with the selection without being rebuilt; only
  * the toolbar buttons need an explicit `syncEnabled()` pass.
+ *
+ * Editing is not a screen of this window: `Edit` hands the file to Notepad
+ * together with a {@link RemoteSaveHandle} that writes back through this
+ * closure. The window keeps no buffer, so nothing here can lose one.
  */
 export function launchDrive(): void {
   const $Window = window.$Window;
@@ -374,24 +424,39 @@ export function launchDrive(): void {
 
   ensureDisabledFilter();
 
-  // The token is scoped to this window on purpose: closing the Drive window
-  // ends the Google session, so the next launch always starts from the connect
-  // screen. It never reaches `localStorage` or `sessionStorage` either.
-  let token: DriveToken | null = null;
+  // The token is NOT window state: it lives in `driveSession`, because the
+  // Recycle Bin is a separate os-gui window that has to restore into the same
+  // workspace and `osWindowRegistry` cannot carry data between windows. Neither
+  // is the *session* window state any more: closing My Drive leaves it running,
+  // because the other window that reads it may be open right now and a close
+  // button is not a consent decision. Exactly three things end the session — the
+  // token expiring, a 401, and the Disconnect menu item — so the next launch has
+  // to pick a live session up instead of waiting on the connect screen. Storage
+  // is unchanged either way: nothing reaches localStorage or sessionStorage.
   let view: DriveView = 'disconnected';
   let errorCode: DriveErrorCode | null = null;
   let notice: string | null = null;
   let workspaceFolder: DriveFolder | null = null;
   let files: DriveFile[] = [];
   let accountEmail: string | null = null;
-  let editorFile: DriveFile | null = null;
-  let editorContent = '';
-  let editorBaselineRevision: string | null = null;
-  let editorTextareaEl: HTMLTextAreaElement | null = null;
   let newFileName = '';
-  let consentAttempt: ConsentAttempt | null = null;
+  /**
+   * The armed connect this window's link points at, or `null` while it is unarmed.
+   *
+   * Window state rather than module state on purpose: two windows can hold two armed
+   * link *targets* at the same time without harm, because an arming only becomes
+   * shared storage when it is clicked. Whichever of them is clicked is the one whose
+   * verifier the exchange has to use.
+   */
+  let consentArming: DriveConnectArming | null = null;
   let connectLinkEl: HTMLAnchorElement | null = null;
   let busy = false;
+  /**
+   * Flipped by `$win.onClosed` and never cleared: a remote save handle outlives
+   * the window it was handed out by, and after the window is gone every write it
+   * owns has to report a failure instead of touching detached DOM.
+   */
+  let windowClosed = false;
 
   // ── Selection / chrome state ──
   let selectedFileId: string | null = null;
@@ -424,10 +489,38 @@ export function launchDrive(): void {
   $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
   activeWindow = $win;
   registerOsWindow($win, DRIVE_APP_ID, title, DRIVE_ICON);
+
+  /**
+   * Repaints the listing when the workspace changes under this window.
+   *
+   * The Recycle Bin restores into the same folder from its own os-gui window, so
+   * without this the restored file stays invisible here until someone presses F5.
+   * Gated on `canRefresh()` — the same predicate F5 and the toolbar button use —
+   * because a notification that lands while a request is in flight, or on any
+   * screen other than the list, has nothing to repaint, and a second concurrent
+   * `loadWorkspace` would race the first one over `files` and the view state.
+   */
+  const unsubscribeWorkspace = subscribeDriveWorkspace(() => {
+    if (windowClosed) return;
+    if (!canRefresh()) return;
+    void loadWorkspace();
+  });
+
   $win.onClosed(() => {
     activeWindow = null;
-    token = null;
+    // The session outlives this window on purpose: `driveSession` owns it, the
+    // Recycle Bin is a reader of the same token and may still be open, and the
+    // window is not where the consent decision was made. So neither the token
+    // nor the workspace folder id is cleared here — only the session's own exit
+    // paths (expiry, a 401, Disconnect) end it. What does die here is window
+    // state, and the guard below is what keeps a listener that outlives this
+    // window from rebuilding the listing into a detached tree.
     accountEmail = null;
+    windowClosed = true;
+    // Unsubscribing is not optional, for the same reason the Recycle Bin does it:
+    // a listener that outlives its window would rebuild the listing into a
+    // detached tree on the next restore.
+    unsubscribeWorkspace();
     document.removeEventListener('keydown', handleKeyDown);
   });
 
@@ -492,7 +585,7 @@ export function launchDrive(): void {
   compoundInput.appendChild(addrIcon);
 
   // Decorative, like in My Documents: the input is never edited, it only names
-  // the folder (or the file, while the editor is open).
+  // the folder.
   const addrInput = document.createElement('input');
   addrInput.type = 'text';
   addrInput.id = 'address';
@@ -600,13 +693,6 @@ export function launchDrive(): void {
         action: openSelectedInViewer,
       },
       {
-        label: tr('menuSave'),
-        shortcutLabel: 'Ctrl+S',
-        enabled: () => view === 'editor',
-        action: () => void saveEditor(),
-      },
-      { separator: true },
-      {
         label: tr('menuDelete'),
         enabled: () => hasSelection(),
         action: trashSelected,
@@ -621,7 +707,7 @@ export function launchDrive(): void {
       },
       {
         label: tr('menuDisconnect'),
-        enabled: () => token !== null,
+        enabled: () => getDriveToken() !== null,
         action: disconnect,
       },
       { separator: true },
@@ -633,13 +719,6 @@ export function launchDrive(): void {
       { label: tr('menuCut'), shortcutLabel: 'Ctrl+X', enabled: false },
       { label: tr('menuCopy'), shortcutLabel: 'Ctrl+C', enabled: false },
       { label: tr('menuPaste'), shortcutLabel: 'Ctrl+V', enabled: false },
-      { separator: true },
-      {
-        label: tr('menuSelectAll'),
-        shortcutLabel: 'Ctrl+A',
-        enabled: () => view === 'editor',
-        action: selectEditorText,
-      },
     ],
     [tr('menuView')]: [
       {
@@ -716,17 +795,17 @@ export function launchDrive(): void {
   }
 
   function canRefresh(): boolean {
-    return !busy && (view === 'list' || view === 'editor');
+    return !busy && view === 'list';
   }
 
   /** Screens with browsable content keep the descriptive left panel. */
   function hasLeftPanel(): boolean {
-    return view === 'list' || view === 'editor' || view === 'newFile';
+    return view === 'list' || view === 'newFile';
   }
 
   /** Screens with actions to trigger show the standard buttons row. */
   function hasStandardToolbar(): boolean {
-    return view === 'list' || view === 'editor' || view === 'error';
+    return view === 'list' || view === 'error';
   }
 
   function selectedFile(): DriveFile | null {
@@ -751,10 +830,9 @@ export function launchDrive(): void {
     statusBarEl.style.display = statusBarVisible ? '' : 'none';
   }
 
-  /** The address names the workspace folder, or the open file in the editor. */
+  /** The address always names the workspace folder: editing happens elsewhere. */
   function syncAddressBar(): void {
-    const folderName = workspaceFolder?.name ?? DRIVE.WORKSPACE_FOLDER_NAME;
-    addrInput.value = view === 'editor' && editorFile !== null ? editorFile.name : folderName;
+    addrInput.value = workspaceFolder?.name ?? DRIVE.WORKSPACE_FOLDER_NAME;
   }
 
   function syncStatusBar(): void {
@@ -771,13 +849,6 @@ export function launchDrive(): void {
   /** The left panel always describes the selection, or prompts for one. */
   function syncPanel(): void {
     if (!hasLeftPanel()) return;
-
-    if (view === 'editor' && editorFile !== null) {
-      panelFolderIcon.src = FILE_ICON_LARGE;
-      panelTitle.textContent = stripMarkdownExtension(editorFile.name);
-      renderPanelInfo(describeFile(editorFile));
-      return;
-    }
 
     panelFolderIcon.src = DRIVE_ICON;
     if (view === 'newFile') {
@@ -830,7 +901,6 @@ export function launchDrive(): void {
   let newBtn: HTMLButtonElement | null = null;
   let openBtn: HTMLButtonElement | null = null;
   let editBtn: HTMLButtonElement | null = null;
-  let saveBtn: HTMLButtonElement | null = null;
   let deleteBtn: HTMLButtonElement | null = null;
   let refreshBtn: HTMLButtonElement | null = null;
   let viewsBtn: HTMLDivElement | null = null;
@@ -840,7 +910,7 @@ export function launchDrive(): void {
    * Rebuilds the standard buttons for the current screen.
    *
    * The row is rebuilt rather than hidden because the error screen offers a
-   * different pair of actions (Retry) than the list and editor screens.
+   * different action (Retry) than the list screen.
    */
   function renderStandardButtons(): void {
     clearChildren(stdButtons);
@@ -850,7 +920,6 @@ export function launchDrive(): void {
     newBtn = null;
     openBtn = null;
     editBtn = null;
-    saveBtn = null;
     deleteBtn = null;
     refreshBtn = null;
     viewsBtn = null;
@@ -867,7 +936,7 @@ export function launchDrive(): void {
 
     // Navigation buttons stay disabled for visual parity with My Computer: Drive
     // has a single folder, so there is nowhere to go back, forward or up to.
-    backBtn = createCompoundButton(tr('back'), SPRITE.back, leaveEditor, () => {}, true);
+    backBtn = createCompoundButton(tr('back'), SPRITE.back, () => {}, () => {}, true);
     forwardBtn = createCompoundButton(tr('forward'), SPRITE.forward, () => {}, () => {}, true);
     stdButtons.append(backBtn, forwardBtn);
 
@@ -884,13 +953,10 @@ export function launchDrive(): void {
     editBtn = createToolbarButton(tr('edit'), SPRITE.edit);
     editBtn.addEventListener('click', openSelectedInEditor);
 
-    saveBtn = createToolbarButton(tr('save'), SPRITE.save);
-    saveBtn.addEventListener('click', () => void saveEditor());
-
     deleteBtn = createToolbarButton(tr('trash'), SPRITE.delete);
     deleteBtn.addEventListener('click', trashSelected);
 
-    stdButtons.append(newBtn, openBtn, editBtn, saveBtn, deleteBtn);
+    stdButtons.append(newBtn, openBtn, editBtn, deleteBtn);
     stdButtons.appendChild(createSeparator());
 
     refreshBtn = createToolbarButton(tr('refresh'), SPRITE.refresh);
@@ -921,13 +987,12 @@ export function launchDrive(): void {
    */
   function syncEnabled(): void {
     const selectable = hasSelection();
-    setCompoundDisabled(backBtn, view !== 'editor');
+    setCompoundDisabled(backBtn, true);
     setCompoundDisabled(forwardBtn, true);
     setDisabled(upBtn, true);
     setDisabled(newBtn, view !== 'list');
     setDisabled(openBtn, busy || !selectable);
     setDisabled(editBtn, busy || !selectable);
-    setDisabled(saveBtn, busy || view !== 'editor');
     setDisabled(deleteBtn, busy || !selectable);
     setDisabled(refreshBtn, busy || !canRefresh());
     setCompoundDisabled(viewsBtn, busy || view !== 'list');
@@ -1019,28 +1084,11 @@ export function launchDrive(): void {
     const active = document.activeElement;
     if (active !== null && active.closest('.menu-popup') !== null) return;
 
-    // Backspace leaves the editor, but only from an empty buffer so it can never
-    // eat content. Checked before the text-entry guard: in that screen the
-    // textarea holds the focus.
-    if (event.key === 'Backspace' && view === 'editor') {
-      if (editorContent === '') {
-        event.preventDefault();
-        leaveEditor();
-      }
-      return;
-    }
-
     if (event.ctrlKey || event.metaKey) {
       const key = event.key.toLowerCase();
       if (key === 'o') {
         event.preventDefault();
         if (hasSelection()) openSelectedInViewer();
-      } else if (key === 's') {
-        event.preventDefault();
-        if (view === 'editor') void saveEditor();
-      } else if (key === 'a' && !isTextEntry(event.target)) {
-        event.preventDefault();
-        if (view === 'editor') selectEditorText();
       }
       return;
     }
@@ -1079,7 +1127,6 @@ export function launchDrive(): void {
   function renderView(): void {
     statusKind = 'ready';
     connectLinkEl = null;
-    editorTextareaEl = null;
 
     renderStandardButtons();
     clearChildren(contentEl);
@@ -1091,11 +1138,11 @@ export function launchDrive(): void {
       case 'connecting':
         buildConnectingView();
         break;
+      case 'loading':
+        buildLoadingView();
+        break;
       case 'list':
         buildListView();
-        break;
-      case 'editor':
-        buildEditorView();
         break;
       case 'newFile':
         buildNewFileView();
@@ -1119,8 +1166,7 @@ export function launchDrive(): void {
     // A view-mode change replaces every row, so the selected one has to take
     // focus back: without it the row is highlighted but inert, and keyboard
     // actions (Delete, Enter) would no longer reach the selection. Scoped to the
-    // list view so it cannot steal focus from the editor textarea or the
-    // new-file input.
+    // list view so it cannot steal focus from the new-file input.
     if (view === 'list' && selectedRowEl !== null) selectedRowEl.focus();
   }
 
@@ -1129,8 +1175,8 @@ export function launchDrive(): void {
   /**
    * Render the connect (or reconnect) panel.
    *
-   * The panel only *asks*: the actual link target is produced by
-   * `prepareConsent`, so the flow cannot start before a verifier exists.
+   * The panel only *asks*: the actual link target is produced by `armConnectLink`,
+   * so the flow cannot start before a verifier exists.
    */
   function buildConnectView(isReconnect: boolean): void {
     const panel = document.createElement('div');
@@ -1173,13 +1219,19 @@ export function launchDrive(): void {
     link.textContent = tr(isReconnect ? 'reconnectButton' : 'connectButton');
     link.setAttribute('aria-disabled', 'true');
     link.addEventListener('click', (event) => {
-      const attempt = consentAttempt;
-      if (attempt === null) {
+      const arming = consentArming;
+      if (arming === null) {
         event.preventDefault();
         return;
       }
-      savePendingAuth(attempt);
-      void awaitAuthorization(attempt);
+      const launch = launchDriveConnect(arming, connectMessages(), connectProgress());
+      if (launch.started) return;
+      // Another window owns the flow. Refusing the navigation is the whole point of
+      // the claim: a second Google tab would publish a second code for one
+      // single-use exchange, and the window that is waiting would lose the race for it.
+      event.preventDefault();
+      notice = tr('connectInProgress');
+      renderView();
     });
     panel.appendChild(link);
 
@@ -1196,7 +1248,7 @@ export function launchDrive(): void {
     contentEl.appendChild(panel);
     connectLinkEl = link;
 
-    void prepareConsent(link, config);
+    void armConnectLink(link, config);
   }
 
   /** `File > Connect` reuses the real link so the PKCE flow stays in one place. */
@@ -1205,33 +1257,68 @@ export function launchDrive(): void {
   }
 
   /**
+   * Failure copy for the shared flow, read from this window's own table.
+   *
+   * Built per launch rather than frozen at module scope: `tr` resolves the language
+   * when it is called, so a table built at import time would answer in whatever
+   * language was active while the bundle loaded.
+   */
+  function connectMessages(): DriveConnectMessages {
+    return {
+      configMissing: tr('configMissing'),
+      timeout: tr('connectTimeout'),
+      stateMismatch: tr('connectStateMismatch'),
+      exchangeFailed: tr('connectExchangeFailed'),
+    };
+  }
+
+  /**
+   * How the shared flow paints itself in this window: the same states, the same
+   * screens and the same order it built itself before the flow moved out of the
+   * closure. Only the ownership moved.
+   */
+  function connectProgress(): DriveConnectProgress {
+    return {
+      onConnecting: () => {
+        notice = null;
+        view = 'connecting';
+        renderView();
+      },
+      onFailed: (message) => {
+        notice = message;
+        view = 'disconnected';
+        renderView();
+      },
+      onConnected: () => {
+        // Dropped before the load: `loadWorkspace` never rebuilds the connect panel,
+        // so an arming left behind would still be clickable behind the listing.
+        consentArming = null;
+        errorCode = null;
+        void loadWorkspace();
+      },
+    };
+  }
+
+  /**
    * Generate the PKCE pair and point the connect link at Google's consent URL.
    *
    * The verifier and state have to reach `sessionStorage` before the browser
    * leaves this page, so they are generated here and persisted later, inside
-   * the click handler. The link is a real `<a target="_blank">`, never
-   * `window.open`: the flow navigates away, which a popup cannot survive
-   * reliably, and this avoids depending on popup permissions.
+   * the click handler — `launchDriveConnect` does that persist. The link is a
+   * real `<a target="_blank">`, never `window.open`: the flow navigates away,
+   * which a popup cannot survive reliably, and this avoids depending on popup
+   * permissions.
    */
-  async function prepareConsent(link: HTMLAnchorElement, config: DriveConfig): Promise<void> {
-    consentAttempt = null;
-    let pkce: { verifier: string; challenge: string };
-    try {
-      pkce = await generatePkce();
-    } catch (error) {
-      console.error('Drive PKCE generation failed.', error);
+  async function armConnectLink(link: HTMLAnchorElement, config: DriveConfig): Promise<void> {
+    consentArming = null;
+    const arming = await prepareDriveConnect(config);
+    if (arming === null) {
       renderNotice(tr('secureContextMissing'));
       return;
     }
 
-    const state = generateState();
-    consentAttempt = { verifier: pkce.verifier, state };
-    link.href = buildConsentUrl({
-      clientId: config.clientId,
-      redirectUri: config.redirectUri,
-      state,
-      codeChallenge: pkce.challenge,
-    });
+    consentArming = arming;
+    link.href = arming.consentUrl;
     link.removeAttribute('aria-disabled');
   }
 
@@ -1260,74 +1347,14 @@ export function launchDrive(): void {
     statusKind = 'error';
   }
 
-  /** Wait for the callback tab to publish the code, then validate and use it. */
-  async function awaitAuthorization(attempt: ConsentAttempt): Promise<void> {
-    notice = null;
-    view = 'connecting';
-    renderView();
-
-    const pending = await consumePendingCode();
-    if (pending === null) {
-      notice = tr('connectTimeout');
-      view = 'disconnected';
-      renderView();
-      return;
-    }
-
-    if (pending.state !== attempt.state) {
-      clearPendingAuth();
-      notice = tr('connectStateMismatch');
-      view = 'disconnected';
-      renderView();
-      return;
-    }
-
-    await completeAuthorization(attempt, pending.code);
-  }
-
-  async function completeAuthorization(attempt: ConsentAttempt, code: string): Promise<void> {
-    const config = readDriveConfig();
-    if (config === null) {
-      notice = tr('configMissing');
-      view = 'disconnected';
-      renderView();
-      return;
-    }
-
-    const session = loadPendingAuth() ?? attempt;
-    try {
-      token = await exchangeCodeForToken({
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-        code,
-        codeVerifier: session.verifier,
-        redirectUri: config.redirectUri,
-      });
-    } catch (error) {
-      clearPendingAuth();
-      consentAttempt = null;
-      notice = describeAuthorizationFailure(error, tr('connectExchangeFailed'));
-      view = 'disconnected';
-      renderView();
-      return;
-    }
-
-    clearPendingAuth();
-    consentAttempt = null;
-    errorCode = null;
-    await loadWorkspace();
-  }
-
   // ── Workspace ──
 
   function disconnect(): void {
-    token = null;
+    clearDriveToken();
+    clearDriveWorkspaceFolderId();
     workspaceFolder = null;
     files = [];
     accountEmail = null;
-    editorFile = null;
-    editorContent = '';
-    editorBaselineRevision = null;
     newFileName = '';
     errorCode = null;
     notice = null;
@@ -1337,21 +1364,22 @@ export function launchDrive(): void {
     renderView();
   }
 
-  /** Return the live token, or drop to the reconnect screen when it is gone. */
+/** Return the live token, or drop to the reconnect screen when it is gone. */
   function requireToken(): DriveToken | null {
-    if (token === null || isDriveTokenExpired(token)) {
-      token = null;
+    const activeToken = getUsableDriveToken();
+    if (activeToken === null) {
+      clearDriveToken();
       view = 'reconnect';
       renderView();
       return null;
     }
-    return token;
+    return activeToken;
   }
 
   function handleDriveError(error: DriveError): void {
     console.error(`Drive request failed (${error.code}): ${error.detail}`);
     if (error.code === 'auth-expired') {
-      token = null;
+      clearDriveToken();
       view = 'reconnect';
       renderView();
       return;
@@ -1365,7 +1393,19 @@ export function launchDrive(): void {
     const activeToken = requireToken();
     if (activeToken === null) return;
 
+    // A usable token is the whole difference between the connect screen and a load
+    // in progress, so the loading screen goes up HERE, synchronously, before the
+    // first `await`. Reopening the window with a live session used to leave the
+    // connect screen on the DOM until the listing came back, which read as a
+    // broken app. This is the same ordering Recycle Bin's `loadTrash` uses.
+    //
+    // `setBusy` first so the very first painted frame already says "Working…":
+    // it only syncs the status bar and the buttons, not the content area, so the
+    // `renderView` below is still what paints the spinner.
+    view = 'loading';
     setBusy(true);
+    renderView();
+
     const folder = await driveClient.ensureWorkspaceFolder(activeToken);
     if (!folder.ok) {
       setBusy(false);
@@ -1373,6 +1413,10 @@ export function launchDrive(): void {
       return;
     }
     workspaceFolder = folder.data;
+    // Published so the Recycle Bin can restore into the same folder without
+    // having to rediscover it: My Drive is the window that guarantees the
+    // folder exists, and it cannot pass the id through `osWindowRegistry`.
+    setDriveWorkspaceFolderId(folder.data.id);
 
     const listed = await driveClient.listFiles(activeToken, folder.data.id);
     if (!listed.ok) {
@@ -1390,7 +1434,6 @@ export function launchDrive(): void {
       return;
     }
 
-    editorFile = null;
     errorCode = null;
     // A refresh can drop the file that was selected; keep the selection only
     // when the refreshed listing still contains it.
@@ -1408,7 +1451,7 @@ export function launchDrive(): void {
       return true;
     }
     if (account.error.code === 'auth-expired') {
-      token = null;
+      clearDriveToken();
       return false;
     }
     accountEmail = null;
@@ -1622,6 +1665,23 @@ export function launchDrive(): void {
     syncEnabled();
   }
 
+  /**
+   * The `File` payload both destinations receive.
+   *
+   * One builder for both: if the viewer's copy and the editor's copy drifted
+   * apart, the same Drive file would show two different names depending on how
+   * it was opened.
+   */
+  function toFilePayload(file: DriveFile, content: string): File {
+    return {
+      name: stripMarkdownExtension(file.name),
+      content,
+      rawContent: content,
+      folder: DRIVE.WORKSPACE_FOLDER_NAME,
+      date: formatDate(file.modifiedTime),
+    };
+  }
+
   /** Hand the file to the markdown viewer through the desktop open event. */
   async function openInViewer(file: DriveFile): Promise<void> {
     const activeToken = requireToken();
@@ -1638,13 +1698,7 @@ export function launchDrive(): void {
     const detail: { appId: string; appData: AppData } = {
       appId: OPEN_FILE_APP_ID,
       appData: {
-        file: {
-          name: stripMarkdownExtension(file.name),
-          content: content.data,
-          rawContent: content.data,
-          folder: DRIVE.WORKSPACE_FOLDER_NAME,
-          date: formatDate(file.modifiedTime),
-        },
+        file: toFilePayload(file, content.data),
         windowKey: `drive/${file.id}`,
         title: file.name,
       },
@@ -1652,7 +1706,16 @@ export function launchDrive(): void {
     window.dispatchEvent(new CustomEvent('desktop-open-app', { detail }));
   }
 
-  async function openEditor(file: DriveFile): Promise<void> {
+  /**
+   * Hand the file to Notepad for editing, with the write path back to Drive.
+   *
+   * The buffer and the conflict logic live in the editor now, so this window
+   * holds nothing that could be lost. `remoteSave` closes over the token and
+   * over this window's state, which is why the payload is a live function rather
+   * than a value: `openApp` hands the detail over by reference inside this same
+   * realm, so the closure survives the `CustomEvent`.
+   */
+  async function openInNotepad(file: DriveFile): Promise<void> {
     const activeToken = requireToken();
     if (activeToken === null) return;
 
@@ -1664,11 +1727,14 @@ export function launchDrive(): void {
       return;
     }
 
-    editorFile = file;
-    editorContent = content.data;
-    editorBaselineRevision = file.headRevisionId;
-    view = 'editor';
-    renderView();
+    const detail: { appId: string; appData: AppData } = {
+      appId: EDIT_FILE_APP_ID,
+      appData: {
+        file: toFilePayload(file, content.data),
+        remoteSave: createRemoteSaveHandle(file),
+      },
+    };
+    window.dispatchEvent(new CustomEvent('desktop-open-app', { detail }));
   }
 
   function openSelectedInViewer(): void {
@@ -1678,7 +1744,7 @@ export function launchDrive(): void {
 
   function openSelectedInEditor(): void {
     const file = selectedFile();
-    if (file !== null) void openEditor(file);
+    if (file !== null) void openInNotepad(file);
   }
 
   function trashSelected(): void {
@@ -1686,30 +1752,11 @@ export function launchDrive(): void {
     if (file !== null) void moveFileToTrash(file);
   }
 
-  // ── Editor ──
-
-  function leaveEditor(): void {
-    if (view !== 'editor') return;
-    editorFile = null;
-    editorBaselineRevision = null;
-    editorContent = '';
-    view = 'list';
-    renderView();
-  }
-
-  function selectEditorText(): void {
-    editorTextareaEl?.select();
-  }
-
   /**
-   * `File > Close` (and the toolbar Back) step out of whatever is open before it
-   * closes the window, which is what Win98 does from a folder view.
+   * `File > Close` steps out of whatever is open before it closes the window,
+   * which is what Win98 does from a folder view.
    */
   function closeCurrentView(): void {
-    if (view === 'editor') {
-      leaveEditor();
-      return;
-    }
     if (view === 'newFile') {
       cancelNewFile();
       return;
@@ -1717,30 +1764,25 @@ export function launchDrive(): void {
     $win.close();
   }
 
-  function buildEditorView(): void {
-    const file = editorFile;
-    if (file === null) {
-      view = 'list';
-      renderView();
-      return;
-    }
+  // ── Remote save ──
 
-    const editor = document.createElement('div');
-    editor.className = 'drive-editor';
-
-    const textarea = document.createElement('textarea');
-    textarea.className = 'drive-textarea';
-    textarea.value = editorContent;
-    textarea.spellcheck = false;
-    textarea.setAttribute('aria-label', tr('editorLabel'));
-    textarea.addEventListener('input', () => {
-      editorContent = textarea.value;
-    });
-
-    editor.appendChild(textarea);
-    contentEl.appendChild(editor);
-    editorTextareaEl = textarea;
-    textarea.focus();
+  /**
+   * Build the write path handed to the editor alongside the file.
+   *
+   * Everything a save needs is captured here: the file is the one that was
+   * opened, and the baseline revision travels with the handle so a save compares
+   * against the revision its buffer was read at — not against whatever the window
+   * happens to be showing when Save is pressed. The token is deliberately NOT
+   * captured: a save re-reads whatever session is live when it runs and fails as
+   * "signed out" when there is none, rather than writing with a token frozen at
+   * open time. Rejecting a save after this window closed is the `windowClosed`
+   * guard's job, not the token's.
+   */
+  function createRemoteSaveHandle(file: DriveFile): RemoteSaveHandle {
+    const state: RemoteSaveState = { baselineRevision: file.headRevisionId };
+    return {
+      save: (content: string): Promise<RemoteSaveResult> => saveRemoteFile(file, content, state),
+    };
   }
 
   /**
@@ -1752,23 +1794,27 @@ export function launchDrive(): void {
    * the comparison and the write still overwrites. The warning therefore talks
    * about "changed since you opened it", never about a safe write.
    */
-  async function saveEditor(): Promise<void> {
-    const file = editorFile;
-    if (file === null) return;
+  async function saveRemoteFile(
+    file: DriveFile,
+    content: string,
+    state: RemoteSaveState,
+  ): Promise<RemoteSaveResult> {
+    // Checked before anything else: every path below repaints this window, and
+    // the editor may still hold this handle long after the window is gone.
+    if (windowClosed) return { ok: false, message: tr('remoteSaveWindowClosed') };
+
     const activeToken = requireToken();
-    if (activeToken === null) return;
+    if (activeToken === null) return { ok: false, message: tr('remoteSaveSignedOut') };
 
     setBusy(true);
     const head = await driveClient.getHeadRevisionId(activeToken, file.id);
     if (!head.ok) {
-      setBusy(false);
-      handleDriveError(head.error);
-      return;
+      return failRemoteSave(head.error, file);
     }
 
     const remoteRevision = head.data;
     const changedElsewhere =
-      editorBaselineRevision !== null && remoteRevision !== null && remoteRevision !== editorBaselineRevision;
+      state.baselineRevision !== null && remoteRevision !== null && remoteRevision !== state.baselineRevision;
 
     if (changedElsewhere) {
       setBusy(false);
@@ -1778,16 +1824,18 @@ export function launchDrive(): void {
         icon: 'warning',
         buttons: 'YesNo',
       });
-      if (answer !== 'yes') return;
+      if (answer !== 'yes') return { ok: false, message: tr('remoteSaveConflictAborted') };
       setBusy(true);
     }
 
-    const written = await driveClient.updateTextFile(activeToken, file.id, editorContent);
-    setBusy(false);
+    const written = await driveClient.updateTextFile(activeToken, file.id, content);
     if (!written.ok) {
-      handleDriveError(written.error);
-      return;
+      return failRemoteSave(written.error, file);
     }
+
+    // Rebaseline first: the next save must compare against the revision this
+    // write produced, or the user's own edit reads as somebody else's.
+    state.baselineRevision = written.data.headRevisionId;
 
     const updated: DriveFile = {
       ...file,
@@ -1796,10 +1844,47 @@ export function launchDrive(): void {
       size: written.data.size,
     };
     files = files.map((entry) => (entry.id === file.id ? updated : entry));
-    editorFile = updated;
-    editorBaselineRevision = written.data.headRevisionId;
-    view = 'list';
-    renderView();
+
+    const saved: RemoteSaveResult = {
+      ok: true,
+      message: fill(tr('remoteSaveDone'), { name: file.name }),
+    };
+
+    // The window can close while the write is in flight. The write already
+    // landed, so the result is a success either way; what is lost is the
+    // listing refresh of a window nobody is looking at. A `renderView()` here
+    // would also yank the caret out of the editor that just saved.
+    if (windowClosed) return saved;
+
+    setBusy(false);
+    repaintListing();
+    syncPanel();
+    return saved;
+  }
+
+  /**
+   * Rebuild the rows in place after a file changed underneath this window.
+   *
+   * Deliberately not `renderView()`: that ends by giving focus back to the
+   * selected row, which would pull the caret out of the editor window that just
+   * performed the save. `bindItem` re-applies the selection highlight on the new
+   * nodes, so the highlight survives the swap.
+   */
+  function repaintListing(): void {
+    clearChildren(contentEl);
+    buildListView();
+  }
+
+  /**
+   * Report a failed write to both audiences: the Drive window shows the error
+   * screen it always showed, and the editor gets a message it can display
+   * verbatim. A window that is already gone gets neither repainted nor blamed.
+   */
+  function failRemoteSave(error: DriveError, file: DriveFile): RemoteSaveResult {
+    if (windowClosed) return { ok: false, message: tr('remoteSaveWindowClosed') };
+    setBusy(false);
+    handleDriveError(error);
+    return { ok: false, message: fill(tr('remoteSaveFailed'), { name: file.name }) };
   }
 
   // ── New file ──
@@ -1909,13 +1994,11 @@ export function launchDrive(): void {
       selectedFileId = null;
       selectedRowEl = null;
     }
-    if (editorFile !== null && editorFile.id === file.id) {
-      editorFile = null;
-      editorBaselineRevision = null;
-      editorContent = '';
-      view = 'list';
-    }
     renderView();
+
+    // The Recycle Bin lists the same trash this write just changed, so it has to
+    // hear about it. Without this the file only shows up there after F5.
+    notifyDriveWorkspaceChanged();
   }
 
   // ── Connecting / error ──
@@ -1936,6 +2019,36 @@ export function launchDrive(): void {
     spinner.className = 'drive-spinner';
     spinner.setAttribute('role', 'status');
     spinner.setAttribute('aria-label', tr('connectingHeading'));
+
+    panel.append(heading, text, spinner);
+    contentEl.appendChild(panel);
+  }
+
+  /**
+   * The wait between "a usable token exists" and "here are the files".
+   *
+   * Reuses `.drive-spinner` instead of a second class: it is already this
+   * stylesheet's own spinner, already carries the `prefers-reduced-motion`
+   * block, and a byte-identical twin would only be a second place to keep in
+   * sync. Distinct copy from `buildConnectingView` on purpose — that screen is
+   * waiting on the reader, this one is waiting on Drive.
+   */
+  function buildLoadingView(): void {
+    const panel = document.createElement('div');
+    panel.className = 'drive-panel';
+
+    const heading = document.createElement('p');
+    heading.className = 'drive-panel-heading';
+    heading.textContent = tr('loadingHeading');
+
+    const text = document.createElement('p');
+    text.className = 'drive-panel-text';
+    text.textContent = fill(tr('loadingText'), { folder: DRIVE.WORKSPACE_FOLDER_NAME });
+
+    const spinner = document.createElement('div');
+    spinner.className = 'drive-spinner';
+    spinner.setAttribute('role', 'status');
+    spinner.setAttribute('aria-label', tr('loadingHeading'));
 
     panel.append(heading, text, spinner);
     contentEl.appendChild(panel);
@@ -1967,6 +2080,12 @@ export function launchDrive(): void {
   }
 
   renderView();
+  // Reopened into a session that is still live: pick it up instead of sitting on
+  // the connect screen until something changes, which is the only difference
+  // between a first launch and a relaunch. `getUsableDriveToken` folds the expiry
+  // check in, so a token that died while this window was closed still lands on
+  // the connect screen rather than failing half way through the load.
+  if (getUsableDriveToken() !== null) void loadWorkspace();
 }
 
 /**

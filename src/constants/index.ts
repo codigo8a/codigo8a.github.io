@@ -48,7 +48,7 @@ export const LOCAL_STORAGE_KEYS = {
  */
 export const DRIVE = {
   /** Stable name of the app-managed workspace folder. Changing it orphans the old folder. */
-  WORKSPACE_FOLDER_NAME: 'juandavid desktop',
+  WORKSPACE_FOLDER_NAME: 'desktop-web',
   /** Google-native folder mime type (also used to discover the workspace in files.list). */
   FOLDER_MIME_TYPE: 'application/vnd.google-apps.folder',
   /** Mime type for the markdown/text files the app uploads and edits. */

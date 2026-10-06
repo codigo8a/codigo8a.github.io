@@ -4,7 +4,7 @@
  * The Explorer chrome itself (menu bar, toolbars, address bar, panel, content
  * area, status bar) is styled globally, so this file only covers what the shared
  * stylesheet does not: the centered status panels, the Drive-specific form
- * fields, the editor, and the selection highlight inside the four view modes.
+ * fields, and the selection highlight inside the four view modes.
  *
  * `.os-explorer .content-with-panel #content` is absolutely positioned next to
  * the left panel, so the screens without a panel need to reclaim that space.
@@ -274,33 +274,6 @@
 .drive-field-input:focus {
   outline: 1px dotted #000;
   outline-offset: -4px;
-}
-
-/* ── Editor ── */
-
-.drive-editor {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
-.drive-textarea {
-  flex: 1;
-  width: 100%;
-  min-height: 200px;
-  padding: 4px;
-  border: none;
-  outline: none;
-  resize: none;
-  color: var(--WindowText, #000);
-  background: transparent;
-  font-family: 'Lucida Console', 'Courier New', monospace;
-  font-size: 12px;
-}
-
-.drive-textarea::selection {
-  background: var(--Highlight, #000080);
-  color: var(--HighlightText, #ffffff);
 }
 
 @media (prefers-reduced-motion: reduce) {
