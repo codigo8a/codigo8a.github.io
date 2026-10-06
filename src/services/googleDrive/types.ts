@@ -16,6 +16,11 @@
  * HARD CONSTRAINT: this value must never be written to localStorage,
  * sessionStorage, cookies or the URL. There is no refresh token, so a session is
  * short (~1 h) and ends by asking the user to reconnect.
+ *
+ * WHO HOLDS IT: `driveSession.ts`, not a window closure. Two windows (My Drive
+ * and the Recycle Bin) need the same account session and `osWindowRegistry`
+ * cannot carry data between them, so the token moved to a module scope. This
+ * changes *ownership*, not *storage* — see that module's header for why.
  */
 export interface DriveToken {
   /** Bearer token for the `Authorization` header. */
@@ -76,6 +81,18 @@ export interface DriveFile {
   /** Revision marker; changes on every content edit. See {@link DriveWriteResult}. */
   readonly headRevisionId: string | null;
   readonly webViewLink: string | null;
+  /**
+   * When the file was moved to the trash. Only requested by the trash listing,
+   * so it is `null` for every other call — the reason {@link DriveFile} keeps a
+   * stable shape across differing `fields` masks.
+   */
+  readonly trashedTime: string | null;
+  /**
+   * Whether Drive will let this file be restored, from the output-only
+   * `capabilities.canUntrash`. `null` means the listing did not ask for it;
+   * only an explicit `false` is a refusal.
+   */
+  readonly canUntrash: boolean | null;
 }
 
 /**
@@ -124,4 +141,19 @@ export interface DriveTrashResult {
   readonly id: string;
   readonly name: string;
   readonly trashed: boolean;
+}
+
+/**
+ * Result of `restoreFile`.
+ *
+ * Its own type rather than a reuse of {@link DriveTrashResult}: the two
+ * operations are opposites, and a caller reading `restoreFile`'s signature
+ * should not have to know they happen to share a payload. `parents` is echoed
+ * back so the UI can report where the file actually landed instead of assuming.
+ */
+export interface DriveRestoreResult {
+  readonly id: string;
+  readonly name: string;
+  readonly trashed: boolean;
+  readonly parents: readonly string[];
 }

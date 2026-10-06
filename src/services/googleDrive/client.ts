@@ -3,9 +3,13 @@
  *
  * Contract, enforced by construction:
  *
- *   - The access token is a *parameter of every call*. There is no module-level
- *     mutable state and no token cache, so this module cannot leak a session
- *     into an unrelated caller or another tab.
+ *   - The access token is a *parameter of every call*, so this module holds no
+ *     session of its own and cannot decide who is allowed to use one. It is not
+ *     the token's owner, though: `driveSession.ts` holds the single account
+ *     session and hands it to whoever asks, because My Drive and the Recycle Bin
+ *     are separate os-gui windows that cannot pass a token to each other. That
+ *     module is still memory-only — nothing here or there reaches storage, so no
+ *     session can leak into an unrelated caller or another tab.
  *   - Nothing throws for network or API failures. Every method returns a
  *     {@link DriveResult}; transport problems and HTTP errors both arrive as
  *     `{ ok: false, error }`.
@@ -14,7 +18,8 @@
  *     answers with an explicit reconnect — there is no refresh token without a
  *     backend.
  *   - Deletion is always `trashed: true`. The Drive API's permanent delete is
- *     never called from this module.
+ *     never called from this module, and neither is emptying the trash: the
+ *     recycle bin restores, it does not destroy.
  *   - `files.update` has no conditional-update primitive, so write conflicts are
  *     detected by *comparing* `headRevisionId` before writing. See
  *     {@link DriveWriteResult} for the race window this leaves open.
@@ -26,6 +31,7 @@ import type {
   DriveAccount,
   DriveFile,
   DriveFolder,
+  DriveRestoreResult,
   DriveResult,
   DriveToken,
   DriveTrashResult,
@@ -46,6 +52,18 @@ const DRIVE_PAGE_SIZE = 100;
 const DRIVE_MAX_PAGES = 20;
 
 const DRIVE_FILE_FIELDS = 'id,name,mimeType,size,trashed,modifiedTime,headRevisionId,webViewLink';
+
+/**
+ * Fields the trash listing adds on top of {@link DRIVE_FILE_FIELDS}.
+ *
+ * Kept as a separate mask instead of widening the shared one: `listFiles` walks
+ * a folder, and that folder can contain Drive folders as well as files. Asking
+ * for `capabilities` in a mask that may resolve against a folder risks a
+ * rejected field selection on the window that already works today, and the two
+ * extra fields buy the *trash* listing nothing else.
+ */
+const DRIVE_TRASHED_FILE_FIELDS = `${DRIVE_FILE_FIELDS},trashedTime,capabilities(canUntrash)`;
+
 const DRIVE_FOLDER_FIELDS = 'id,name,mimeType,createdTime,webViewLink';
 
 /** Drive ids are opaque base64url-ish tokens; reject anything else before interpolating. */
@@ -65,6 +83,7 @@ export interface DriveClient {
   findWorkspaceFolder(token: DriveToken): Promise<DriveResult<DriveFolder | null>>;
   ensureWorkspaceFolder(token: DriveToken): Promise<DriveResult<DriveFolder>>;
   listFiles(token: DriveToken, folderId: string): Promise<DriveResult<DriveFile[]>>;
+  listTrashedFiles(token: DriveToken): Promise<DriveResult<DriveFile[]>>;
   readFileContent(token: DriveToken, fileId: string): Promise<DriveResult<string>>;
   createTextFile(
     token: DriveToken,
@@ -79,6 +98,11 @@ export interface DriveClient {
     content: string
   ): Promise<DriveResult<DriveWriteResult>>;
   trashFile(token: DriveToken, fileId: string): Promise<DriveResult<DriveTrashResult>>;
+  restoreFile(
+    token: DriveToken,
+    fileId: string,
+    folderId: string
+  ): Promise<DriveResult<DriveRestoreResult>>;
   getAccountEmail(token: DriveToken): Promise<DriveResult<DriveAccount>>;
 }
 
@@ -185,6 +209,20 @@ const driveJson = async <T>(
   return { ok: true, data: parsed };
 };
 
+/**
+ * Pull `canUntrash` out of the `capabilities` sub-resource.
+ *
+ * `capabilities` is a nested object, so the field mask reads
+ * `capabilities(canUntrash)` and the value arrives one level down. An absent
+ * object is reported as `null` — "the listing did not ask" — which is not the
+ * same claim as an explicit `false`.
+ */
+const readCanUntrash = (raw: unknown): boolean | null => {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const capabilities = (raw as Record<string, unknown>).canUntrash;
+  return typeof capabilities === 'boolean' ? capabilities : null;
+};
+
 /** Normalize a `files.list` entry into {@link DriveFile}, or reject it. */
 const toDriveFile = (raw: unknown): DriveFile | null => {
   if (typeof raw !== 'object' || raw === null) return null;
@@ -198,7 +236,9 @@ const toDriveFile = (raw: unknown): DriveFile | null => {
     trashed: item.trashed === true,
     modifiedTime: typeof item.modifiedTime === 'string' ? item.modifiedTime : null,
     headRevisionId: typeof item.headRevisionId === 'string' ? item.headRevisionId : null,
-    webViewLink: typeof item.webViewLink === 'string' ? item.webViewLink : null
+    webViewLink: typeof item.webViewLink === 'string' ? item.webViewLink : null,
+    trashedTime: typeof item.trashedTime === 'string' ? item.trashedTime : null,
+    canUntrash: readCanUntrash(item.capabilities)
   };
 };
 
@@ -277,8 +317,18 @@ const listAllItems = async <T>(
   return { ok: true, data: collected };
 };
 
-const listAllFiles = (token: DriveToken, query: string): Promise<DriveResult<DriveFile[]>> =>
-  listAllItems(token, query, DRIVE_FILE_FIELDS, toDriveFile);
+/**
+ * List files for one query, defaulting to {@link DRIVE_FILE_FIELDS}.
+ *
+ * The `fields` mask is a parameter because the trash listing needs two fields
+ * the folder listing does not, and widening the shared mask would put those on
+ * every call that can also return folders. See {@link DRIVE_TRASHED_FILE_FIELDS}.
+ */
+const listAllFiles = (
+  token: DriveToken,
+  query: string,
+  fields: string = DRIVE_FILE_FIELDS
+): Promise<DriveResult<DriveFile[]>> => listAllItems(token, query, fields, toDriveFile);
 
 const listAllFolders = (token: DriveToken, query: string): Promise<DriveResult<DriveFolder[]>> =>
   listAllItems(token, query, DRIVE_FOLDER_FIELDS, toDriveFolder);
@@ -293,6 +343,28 @@ const requireDriveId = (id: string, field: string): DriveResult<string> => {
   }
   return { ok: true, data: id };
 };
+
+/**
+ * Read the folders a file currently belongs to.
+ *
+ * `restoreFile` needs this before it can move anything: `files.update` takes
+ * `addParents` / `removeParents` as query parameters, and `removeParents` with an
+ * id the file does not have makes Google reject the whole request.
+ */
+const getFileParents = async (token: DriveToken, fileId: string): Promise<DriveResult<string[]>> =>
+  driveJson<string[]>(
+    token,
+    {
+      method: 'GET',
+      path: `/files/${encodeURIComponent(fileId)}?fields=parents`
+    },
+    (payload) => {
+      if (typeof payload !== 'object' || payload === null) return null;
+      const raw = (payload as Record<string, unknown>).parents;
+      if (!Array.isArray(raw)) return [];
+      return raw.filter((entry): entry is string => typeof entry === 'string' && entry !== '');
+    }
+  );
 
 /** Create a folder in the account root and return it. */
 const createFolder = async (token: DriveToken, name: string): Promise<DriveResult<DriveFolder>> => {
@@ -373,6 +445,18 @@ export const driveClient: DriveClient = {
     if (!validId.ok) return { ok: false, error: validId.error };
     return listAllFiles(token, `'${validId.data}' in parents and trashed = false`);
   },
+
+  /**
+   * List everything in the account's trash.
+   *
+   * NO `in parents` FILTER, deliberately: a trashed file is no longer a child of
+   * the folder it lived in, so a parent filter would return an empty list for
+   * exactly the files this window exists to show. The trash is account-wide, and
+   * under the `drive.file` scope the only files in it are the ones this app
+   * created and trashed.
+   */
+  listTrashedFiles: async (token) =>
+    listAllFiles(token, 'trashed = true', DRIVE_TRASHED_FILE_FIELDS),
 
   readFileContent: async (token, fileId) => {
     const validId = requireDriveId(fileId, 'fileId');
@@ -504,6 +588,62 @@ export const driveClient: DriveClient = {
     );
     if (!result.ok) return { ok: false, error: result.error };
     return result;
+  },
+
+  /**
+   * Move a file out of the trash and back into `folderId`.
+   *
+   * TWO THINGS THIS HAS TO GET RIGHT, both learned from the API's shape rather
+   * than from taste:
+   *
+   *  1. The previous parents are read first ({@link getFileParents}). A trashed
+   *     file can legitimately have none, and `removeParents` naming an id the
+   *     file does not belong to makes Google reject the entire request — a
+   *     restore that fails for a reason the user cannot see or act on.
+   *  2. The destination folder is filtered OUT of `removeParents`. A trashed
+   *     file keeps the folder it was trashed from, so passing that same id to
+   *     `removeParents` while also adding it would leave the restored file with
+   *     no parent at all — back at the Drive root, which is worse than not
+   *     restoring it. Only parents that are *not* the destination get removed.
+   *
+   * `trashed: false` in the body is what actually untrashes the file; the parent
+   * parameters decide where it lands.
+   */
+  restoreFile: async (token, fileId, folderId) => {
+    const validFile = requireDriveId(fileId, 'fileId');
+    if (!validFile.ok) return { ok: false, error: validFile.error };
+    const validFolder = requireDriveId(folderId, 'folderId');
+    if (!validFolder.ok) return { ok: false, error: validFolder.error };
+
+    const currentParents = await getFileParents(token, validFile.data);
+    if (!currentParents.ok) return { ok: false, error: currentParents.error };
+
+    const staleParents = currentParents.data.filter((parent) => parent !== validFolder.data);
+    const params = new URLSearchParams({ fields: 'id,name,trashed,parents' });
+    params.set('addParents', validFolder.data);
+    if (staleParents.length > 0) params.set('removeParents', staleParents.join(','));
+
+    return driveJson<DriveRestoreResult>(
+      token,
+      {
+        method: 'PATCH',
+        path: `/files/${encodeURIComponent(validFile.data)}?${params.toString()}`,
+        body: JSON.stringify({ trashed: false }),
+        contentType: 'application/json; charset=UTF-8'
+      },
+      (payload) => {
+        if (typeof payload !== 'object' || payload === null) return null;
+        const body = payload as Record<string, unknown>;
+        if (typeof body.id !== 'string') return null;
+        const rawParents = Array.isArray(body.parents) ? body.parents : [];
+        return {
+          id: body.id,
+          name: typeof body.name === 'string' ? body.name : '',
+          trashed: body.trashed === true,
+          parents: rawParents.filter((entry): entry is string => typeof entry === 'string' && entry !== '')
+        };
+      }
+    );
   },
 
   /**
