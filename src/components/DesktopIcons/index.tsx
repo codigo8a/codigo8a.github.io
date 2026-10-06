@@ -169,7 +169,7 @@ const APP_ICONS: Record<string, React.ReactNode> = {
  *   Search         | Internet Exp.
  *   Portfolio      | Radio Código2
  *   Notepad        | TankStrike
- *   YouTube        |
+ *   YouTube        | Recycle Bin
  */
 const ICON_GRID: Record<string, [number, number]> = {
   myComputer:    [0, 0],
@@ -183,6 +183,7 @@ const ICON_GRID: Record<string, [number, number]> = {
   browser:       [1, 2],
   radio:         [1, 3],
   tankstrike:    [1, 4],
+  recycleBin:    [1, 5],
 };
 
 const DESKTOP_ICONS: DesktopIcon[] = [
@@ -199,6 +200,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'browser', icon: 'iexplorer', label: 'Internet Explorer' },
   { id: 'radio', icon: 'radio', label: 'Radio Código 2', labelKey: 'radioCodigo2' },
   { id: 'tankstrike', icon: 'tankstrike', label: 'TankStrike', labelKey: 'tankStrike' },
+  { id: 'recycleBin', icon: 'recycleBin', label: 'Recycle Bin' },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -312,6 +314,10 @@ export const DesktopIcons: React.FC = () => {
       openApp('notepad');
     } else if (iconId === 'drive') {
       openApp('driveApp');
+    } else if (iconId === 'recycleBin') {
+      // Registered in apps.ts but previously unreachable: nothing called
+      // `openApp('recycleBin')`, so the window could not be opened at all.
+      openApp('recycleBin');
     }
   }, [openApp, launchWinamp]);
 

@@ -1,1 +1,263 @@
-/* RecycleBin styles */
+/**
+ * RecycleBin styles for the os-gui native window.
+ *
+ * The Explorer chrome itself (menu bar, toolbars, address bar, content area,
+ * status bar) is styled globally, so this file only covers what the shared
+ * stylesheet does not: the centered state panels, the trashed-file table and its
+ * selection highlight.
+ *
+ * Everything is prefixed `rb-` instead of reusing DriveApp's `drive-` classes.
+ * Those rules happen to be global today only because DriveApp's stylesheet is
+ * loaded into the same bundle — depending on another app's file staying imported
+ * would break this window the day DriveApp is code-split.
+ */
+
+.os-explorer.rb-explorer {
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  font-size: 11px;
+}
+
+/* ── State panels (disconnected, loading, empty, error) ── */
+
+.rb-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  /* `margin: auto` is what centers the panel inside `#content`: the global rule
+     makes that element a column flex container, and auto margins are the only
+     centering that survives a panel taller than the viewport. */
+  margin: auto;
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.rb-panel-heading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.rb-panel-text {
+  max-width: 44ch;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.rb-panel-hint {
+  max-width: 46ch;
+  margin: 0;
+  color: #404040;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.rb-panel-error {
+  max-width: 46ch;
+  margin: 0;
+  color: #800000;
+  font-weight: bold;
+  line-height: 1.5;
+}
+
+/* ── Connect ── */
+
+/* The notice box a failed connect leaves on the panel. Same visual contract as
+   DriveApp's `.drive-panel-notice`, restated here for the reason in the file
+   header: `rb-` classes cannot depend on DriveApp's stylesheet staying loaded. */
+.rb-panel-notice {
+  max-width: 46ch;
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--ButtonShadow, #808080);
+  background: var(--ButtonFace, #c0c0c0);
+  line-height: 1.5;
+}
+
+/*
+ * The connect link is the one action the auth flow needs as a real anchor target.
+ * It deliberately does not restyle itself as a toolbar button: the chrome comes from
+ * the panel, and only the unarmed state is expressed here.
+ */
+.rb-connect-link {
+  display: inline-block;
+  text-decoration: underline;
+}
+
+.rb-connect-link[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Spinner ── */
+
+.rb-spinner {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ButtonShadow, #808080);
+  border-top-color: var(--Highlight, #000080);
+  border-radius: 50%;
+  animation: rb-spin 0.9s linear infinite;
+}
+
+@keyframes rb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Icon views (large icons, small icons) ── */
+
+.rb-view {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
+  padding: 8px;
+}
+
+.rb-view-small {
+  gap: 2px;
+  padding: 4px;
+}
+
+.rb-item-large {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 72px;
+  padding: 4px;
+  /* The transparent border on both icon items is what keeps a selected item from
+     shifting sideways: without it the 1px highlight would grow the box. */
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.rb-item-small {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 160px;
+  padding: 2px 4px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.rb-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.rb-item-large .rb-item-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 2px;
+}
+
+.rb-item-small .rb-item-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.rb-item-label {
+  font-size: 11px;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.rb-item-large .rb-item-label {
+  max-width: 68px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.rb-item-small .rb-item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── File table ── */
+
+.rb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  table-layout: fixed;
+}
+
+.rb-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 3px 6px;
+  font-weight: normal;
+  text-align: left;
+  background: var(--ButtonFace, #c0c0c0);
+  border-bottom: 1px solid var(--ButtonShadow, #808080);
+}
+
+.rb-cell {
+  padding: 2px 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rb-cell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+.rb-file-icon img {
+  /* The glyphs are pixel art at their native size; scaling them up only blurs
+     them. */
+  image-rendering: pixelated;
+}
+
+.rb-cell-text {
+  vertical-align: middle;
+}
+
+/* ── Selection ── */
+
+.rb-item {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* The icon views have no cells to tint, so the highlight lands on the item box;
+   the table keeps the per-cell rule below. */
+.rb-item:hover {
+  background: #c0e0ff;
+}
+
+.rb-row:hover > .rb-cell {
+  background: #c0e0ff;
+}
+
+.rb-item-selected,
+.rb-item-selected:hover,
+.rb-row.rb-item-selected:hover > .rb-cell {
+  background: #000080;
+  color: #fff;
+}
+
+.rb-item:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb-spinner {
+    animation: none;
+  }
+}

@@ -160,6 +160,10 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
             {renderAppIcon(APPS.msdos.icon, APPS.msdos.title)}
             {APPS.msdos.title}
           </button>
+          <button onClick={() => handleItemClick("recycleBin")}>
+            {renderAppIcon(APPS.recycleBin.icon, APPS.recycleBin.title)}
+            {APPS.recycleBin.title}
+          </button>
           <button onClick={() => { launchWinamp(); onClose(); }}>
             <span className="icon">
               <img src="/images/icons/winamp2-16x16.png" alt="Winamp" />
