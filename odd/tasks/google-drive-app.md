@@ -105,11 +105,15 @@ Cuenta de prueba: `juandavid8a@gmail.com`. Carpeta del spike: `1JYlxu4XhzM03XpqC
 
 **Implementado (work units 1 y 2):** capa de servicios (`src/services/googleDrive/`), ventana os-gui (`src/apps/DriveApp/`), registro en `apps.ts`, ícono de escritorio en `DesktopIcons` (posición `[1,7]`, sin colisiones), i18n ES/EN, `README.md`, y `.env.example`.
 
-**Pendiente antes de publicar:**
-1. **Verificación en runtime**: abrir la ventana en un browser real y recorrer el flujo completo (conectar → crear carpeta → crear archivo → abrir en el visor → editar → papelera). Nada de esto se ejecutó todavía; `lint`/`typecheck`/`build` prueban tipos y forma, no comportamiento.
-2. Agregar `https://juandavid.site/` a los *Authorized redirect URIs* del client de Google.
-3. Publicar la consent screen a *Production* (los visitantes anónimos no pueden estar en el allowlist de test users).
-4. Rotar el `client_secret` si se considera expuesto.
-5. Borrar `public/spike/callback.html`.
+**Estado de publicación (actualizado 2026-10-06):**
+1. ✅ **Verificación en runtime** — el flujo completo (conectar → crear carpeta → crear archivo → abrir en el visor → editar → papelera) fue recorrido contra producción con una cuenta real.
+2. ✅ `https://juandavid.site/` registrado en los *Authorized redirect URIs* (el flujo funciona en producción).
+3. ✅ Consent screen publicada a *Production*.
+4. 🔲 Rotar el `client_secret` si se considera expuesto.
+5. ✅ `public/spike/callback.html` — ya no existe; se borró antes de este repaso.
 
-Commits: pendientes de confirmación explícita del usuario (regla de AGENTS.md). Estamos en `main`.
+**La verificación de marca de Google NO es necesaria.** `drive.file` es un scope no sensible, así que la app publicada sirve a cualquier cuenta de Google sin revisión, sin advertencia de "app no verificada" y sin el tope de 100 usuarios. Los rechazos de branding recibidos ("home page behind a login", "does not explain the purpose", "AI NCII") son cosméticos: sólo afectan si se quiere mostrar nombre y logo en la consent screen.
+
+**Docs legales:** `public/privacy/` y `public/terms/` (bilingües, servidos como HTML estático). Se llegan desde la ventana Welcome.
+
+Commits: al día en `main`.

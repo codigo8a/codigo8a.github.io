@@ -1,7 +1,7 @@
 import { useLanguage } from '../context/LanguageContext';
 
 export type TranslationKeys =
-  | 'welcome' | 'welcomeTip' | 'nextTip' | 'whatsNew' | 'onlineRegistration'
+  | 'welcome' | 'welcomeTip' | 'nextTip' | 'whatsNew'
   | 'close' | 'showWelcomeScreen' | 'settings' | 'language' | 'selectLanguage'
   | 'spanish' | 'english' | 'apply' | 'cancel' | 'search' | 'searchPlaceholder'
   | 'typeToSearch' | 'noFilesFound' | 'name' | 'location' | 'date' | 'type'
@@ -47,10 +47,6 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   whatsNew: {
     es: "Qué hay de nuevo",
     en: "What's New"
-  },
-  onlineRegistration: {
-    es: "Registro en línea",
-    en: "Online Registration"
   },
   close: {
     es: "Cerrar",
