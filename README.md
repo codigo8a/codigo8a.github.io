@@ -165,6 +165,7 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 - **Vista Iconos (My Documents)**: Cuadrícula de iconos estilo Windows 98
   - Iconos con nombres de archivos
   - Doble clic para abrir archivos
+- **Barra de direcciones**: Doble clic selecciona la dirección completa; el gesto lo comparten todas las ventanas que tienen barra de direcciones
 
 ### Iconos de Escritorio
 - Iconos arrastrables con posición persistente en localStorage
