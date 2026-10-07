@@ -47,7 +47,7 @@ Pedido del usuario (validación primero, autorización de fix después): "valida
 - [x] **T2 — `src/components/Desktop.tsx`:** instalarlo una vez con `useEffect` (`document.addEventListener('dblclick', …)`) y limpiarlo en el cleanup.
 - [x] **T3 — `README.md`:** una línea en `### Explorador de Archivos` (línea 164) con el gesto.
 - [x] **T4 — Verificación:** `npm run typecheck`, `npm run lint`, `npm run build` + re-medición con el rig CDP (Chromium cacheado de Playwright) en las ocho ventanas: doble click real → `selectionStart === 0 && selectionEnd === value.length`.
-- [ ] **T5 — Commit** de unidad de trabajo en `feat/address-bar-select-all` con el mensaje convencional, y la identidad del commit registrada acá.
+- [x] **T5 — Commit** de unidad de trabajo en `feat/address-bar-select-all`: **`51516e3`** — `feat(explorer): select the whole address on double click`, 4 archivos (los 3 del fix + este doc). **Sin push**: `main` sigue intacta en `8e1c352`.
 
 ## Mediciones
 
