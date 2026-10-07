@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Window } from './organisms/Window';
 import { TaskBar } from './organisms/TaskBar';
 import { StartMenu } from './organisms/StartMenu';
@@ -8,6 +8,7 @@ import { useDesktop, WALLPAPERS } from '../context/DesktopContext';
 import { useStartMenu } from '../hooks/useWindow';
 import { useUrlRouting } from '../hooks/useUrlRouting';
 import { WindowConfig } from '../types';
+import { selectAllOnDoubleClick } from '../utils/explorerChrome';
 
 export const Desktop: React.FC = () => {
   const {
@@ -33,6 +34,13 @@ export const Desktop: React.FC = () => {
 
   // Use the new URL routing hook
   useUrlRouting(windows, openApp);
+
+  // A single delegated listener covers every window, because all of them live
+  // in this document.
+  useEffect(() => {
+    document.addEventListener('dblclick', selectAllOnDoubleClick);
+    return () => document.removeEventListener('dblclick', selectAllOnDoubleClick);
+  }, []);
 
   const handleStartClick = (e: React.MouseEvent) => {
     e.stopPropagation();

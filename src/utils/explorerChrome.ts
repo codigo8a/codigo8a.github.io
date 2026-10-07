@@ -250,3 +250,32 @@ export function ensureDisabledFilter(): void {
   `;
   document.body.appendChild(svg);
 }
+
+/**
+ * The address-bar input that every Explorer-like window builds by hand:
+ * `#address` inside `#address-compound-input`. Several windows live in the same
+ * document with that same id, so the element must be identified from the event
+ * target — `document.getElementById('address')` would always resolve the first
+ * window and leave every other one behind.
+ */
+export function isAddressBarInput(target: EventTarget | null): target is HTMLInputElement {
+  return (
+    target instanceof HTMLInputElement &&
+    target.id === 'address' &&
+    target.closest('#address-compound-input') !== null
+  );
+}
+
+/**
+ * Selects the whole address when it is double-clicked: the browser's native
+ * gesture selects only the word under the pointer. The `dblclick` default
+ * action (the native word selection) has already run when this fires, so the
+ * call wins without needing `preventDefault`.
+ *
+ * Installed once on `document` by the desktop shell, which is what gives the
+ * gesture to every window — present and future — with no per-app wiring.
+ */
+export function selectAllOnDoubleClick(event: MouseEvent): void {
+  if (!isAddressBarInput(event.target)) return;
+  event.target.select();
+}
