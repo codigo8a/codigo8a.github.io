@@ -398,11 +398,19 @@ input[type="radio"]:disabled + label::before {
 .os-explorer .toolbar-dropdown-button {
   padding: 0;
   width: 16px;
+  /* Never shrink or collapse: a constrained toolbar must not eat the click area. */
+  flex: 0 0 auto;
+  align-self: stretch;
   line-height: 30px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: default;
+}
+/* The glyph must never be the hit target; the button owns the whole strip. */
+.os-explorer .toolbar-dropdown-button svg {
+  pointer-events: none;
 }
 .os-explorer .toolbar-compound-button-wrapper:hover:not(:active) button.lightweight:enabled {
   border-style: solid;
