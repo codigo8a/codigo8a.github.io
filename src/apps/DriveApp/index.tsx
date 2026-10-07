@@ -464,7 +464,9 @@ export function launchDrive(): void {
   // ── Selection / chrome state ──
   let selectedFileId: string | null = null;
   let selectedRowEl: HTMLElement | null = null;
-  let currentView: DriveViewMode = 'SMALL_ICONS';
+  // Large icons on purpose: the window opens on a folder of documents, and the
+  // grid is the view that says "here is your stuff" before anyone picks a mode.
+  let currentView: DriveViewMode = 'LARGE_ICONS';
   let statusBarVisible = true;
   let stdToolbarVisible = true;
   let addrBarVisible = true;
