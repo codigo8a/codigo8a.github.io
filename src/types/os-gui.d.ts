@@ -90,6 +90,15 @@ export interface OsGuiMenuDefinition {
 /** An os-gui menu bar instance (os-gui exposes only its DOM element). */
 export interface OsGuiMenuBar {
   element: HTMLElement;
+  /**
+   * Closes every popup this bar opened (`MenuBar.js` sets `this.closeMenus`).
+   *
+   * Needed because MenuBar does not close its own popup when a checkbox or
+   * radio item is picked — it runs the item's `toggle()` and stops there — so
+   * the caller that opened a popup programmatically is the one that has to
+   * close it. Optional so a caller never depends on a build that lacks it.
+   */
+  closeMenus?: () => void;
 }
 
 declare global {

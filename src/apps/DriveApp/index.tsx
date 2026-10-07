@@ -10,7 +10,9 @@ import {
   createSeparator,
   createToolbarButton,
   ensureDisabledFilter,
+  openViewsDropdown,
 } from '../../utils/explorerChrome';
+import type { ViewsRadioGroup } from '../../utils/explorerChrome';
 import { driveClient } from '../../services/googleDrive/client';
 import {
   launchDriveConnect,
@@ -274,13 +276,6 @@ type DriveView =
 /** Explorer view mode, mirroring the four modes of My Computer. */
 type DriveViewMode = 'LARGE_ICONS' | 'SMALL_ICONS' | 'LIST' | 'DETAILS';
 
-/** One row of an os-gui radio group (`radioItems`, see MenuBar.js:930-950). */
-interface DriveRadioItem {
-  label: string;
-  value: DriveViewMode;
-  enabled?: boolean | (() => boolean);
-}
-
 /**
  * Per-handle save state.
  *
@@ -290,20 +285,6 @@ interface DriveRadioItem {
  */
 interface RemoteSaveState {
   baselineRevision: string | null;
-}
-
-/**
- * A radio group as os-gui models it: the group owns the value, MenuBar derives
- * each row's `checkbox.check` / `checkbox.toggle` from `getValue` / `setValue`.
- * A group has to be used instead of four independent `action` items because an
- * item carrying `checkbox` never runs `action` — MenuBar only calls
- * `checkbox.toggle` for those (MenuBar.js:879-889).
- */
-interface DriveRadioGroup {
-  ariaLabel: string;
-  radioItems: DriveRadioItem[];
-  getValue: () => DriveViewMode;
-  setValue: (value: DriveViewMode) => void;
 }
 
 /**
@@ -323,7 +304,7 @@ type DriveMenuItem =
       checkbox?: { type?: 'radio' | 'checkbox'; check?: () => boolean; toggle?: () => void };
       submenu?: DriveMenuItem[];
     })
-  | DriveRadioGroup;
+  | ViewsRadioGroup<DriveViewMode>;
 
 const DRIVE_ICON = '/images/icons/drive-32x32.svg';
 const FILE_ICON = '/images/icons/notepad-file-16x16.png';
@@ -990,7 +971,7 @@ export function launchDrive(): void {
     refreshBtn = createToolbarButton(tr('refresh'), SPRITE.refresh);
     refreshBtn.addEventListener('click', () => void loadWorkspace());
 
-    viewsBtn = createCompoundButton(tr('views'), SPRITE.viewLargeIcons, cycleViewMode, openViewsDropdown);
+    viewsBtn = createCompoundButton(tr('views'), SPRITE.viewLargeIcons, cycleViewMode, openViewsMenu);
 
     stdButtons.append(refreshBtn, viewsBtn);
   }
@@ -1048,7 +1029,7 @@ export function launchDrive(): void {
   }
 
   /** The four view modes as an os-gui radio group, shared by both entry points. */
-  function viewModeGroup(): DriveRadioGroup {
+  function viewModeGroup(): ViewsRadioGroup<DriveViewMode> {
     return {
       ariaLabel: tr('menuViewModeGroup'),
       getValue: () => currentView,
@@ -1063,42 +1044,18 @@ export function launchDrive(): void {
   }
 
   /**
-   * Opens the Views dropdown with a temporary off-screen MenuBar parked at the
-   * button's position, then programmatically pressing it (the 98.js approach).
+   * Opens the Views dropdown through the shared helper, reusing the same radio
+   * group the View menu uses so both entry points cannot disagree.
    */
-  function openViewsDropdown(event: Event): void {
-    const dropBtn = event.currentTarget as HTMLElement | null;
-    const wrapper = dropBtn?.closest('.toolbar-compound-button-wrapper') as HTMLElement | null;
-    if (wrapper === null) return;
-    const rect = wrapper.getBoundingClientRect();
-
-    const dummyMenuBar = createMenuBar({ [tr('views')]: [viewModeGroup()] });
-    const dummyEl = document.createElement('div');
-    dummyEl.style.cssText = `
-      position: absolute;
-      left: ${rect.left}px;
-      top: ${rect.top}px;
-      visibility: hidden;
-      pointer-events: none;
-    `;
-    dummyEl.appendChild(dummyMenuBar.element);
-    document.body.appendChild(dummyEl);
-
-    const cleanup = (): void => {
-      if (document.body.contains(dummyEl)) document.body.removeChild(dummyEl);
-    };
-
-    const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement | null;
-    if (menuButton === null) {
-      cleanup();
-      return;
-    }
-
-    menuButton.dispatchEvent(new PointerEvent('pointerdown'));
-    menuButton.addEventListener('release', cleanup);
-    // MenuBar closes a popup it opened without signalling the opener, so a
-    // pick (or a click elsewhere) can leave the parked bar behind.
-    window.addEventListener('pointerup', cleanup, { once: true });
+  function openViewsMenu(event: Event): void {
+    const group = viewModeGroup();
+    openViewsDropdown({
+      event,
+      ariaLabel: group.ariaLabel,
+      rows: group.radioItems,
+      getValue: group.getValue,
+      setValue: group.setValue,
+    });
   }
 
   // ══════════════════════════════════════════════════════════════════
