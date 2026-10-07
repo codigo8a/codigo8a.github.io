@@ -6,6 +6,7 @@ import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
 import { getCascadeOffset } from '../../utils/cascadePosition';
+import { openViewsDropdown } from '../../utils/explorerChrome';
 import type { AppData } from '../../types';
 
 /**
@@ -525,61 +526,21 @@ export function launchFileViewer(appData?: AppData): void {
   }
 
   /**
-   * Opens the View dropdown menu using a temporary MenuBar.
+   * Opens the View dropdown through the shared helper.
+   *
+   * This window has no leading row: unlike the Explorer windows, it has no
+   * "as Web Page" toggle to show.
    */
   function openViewDropdown(event: Event): void {
-    const dropBtn = event.currentTarget as HTMLElement;
-    const wrapper = dropBtn.closest('.toolbar-compound-button-wrapper') as HTMLElement;
-    const rect = wrapper.getBoundingClientRect();
-
-    const dummyMenuBar = new MenuBar({
-      "View": [
-        {
-          label: tr('preview'),
-          type: 'radio',
-          checked: currentView === 'preview',
-          action: () => {
-            switchToView('preview');
-            cleanup();
-          },
-        },
-        {
-          label: tr('source'),
-          type: 'radio',
-          checked: currentView === 'source',
-          action: () => {
-            switchToView('source');
-            cleanup();
-          },
-        },
+    openViewsDropdown({
+      event,
+      ariaLabel: tr('view'),
+      rows: [
+        { label: tr('preview'), value: 'preview' },
+        { label: tr('source'), value: 'source' },
       ],
+      getValue: () => currentView,
+      setValue: (mode) => switchToView(mode),
     });
-
-    const dummyEl = document.createElement('div');
-    dummyEl.style.cssText = `
-      position: absolute;
-      left: ${rect.left}px;
-      top: ${rect.top}px;
-      visibility: hidden;
-      pointer-events: none;
-    `;
-    dummyEl.appendChild(dummyMenuBar.element);
-    document.body.appendChild(dummyEl);
-
-    const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement;
-    if (menuButton) {
-      menuButton.dispatchEvent(new PointerEvent('pointerdown'));
-      menuButton.addEventListener('release', () => {
-        if (document.body.contains(dummyEl)) {
-          document.body.removeChild(dummyEl);
-        }
-      });
-    }
-
-    function cleanup(): void {
-      if (document.body.contains(dummyEl)) {
-        document.body.removeChild(dummyEl);
-      }
-    }
   }
 }

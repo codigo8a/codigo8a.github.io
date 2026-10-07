@@ -5,11 +5,9 @@
  * (`src/index.css`: `.os-explorer`, `.toolbars`, `.toolbar`, `#standard-buttons`,
  * `#address-bar`, `.toolbar-button`, `.toolbar-compound-button-wrapper`), so
  * the helpers here only build DOM: no inline geometry, no per-app CSS.
- *
- * `MyComputer` and `FileExplorerApp` still keep private copies of this logic.
- * Pointing them at this module is a separate follow-up; until then they must not
- * be edited, because their copies are the only definition their windows have.
  */
+
+import type { OsGuiMenuDefinition } from '../types/os-gui';
 
 /**
  * Sprite indices into `/images/icons/browse-ui-icons.png`.
@@ -99,6 +97,121 @@ export function createSeparator(): HTMLHRElement {
   const hr = document.createElement('hr');
   hr.setAttribute('aria-orientation', 'vertical');
   return hr;
+}
+
+/** One selectable row of a view-mode menu. */
+export interface ViewModeRow<T extends string> {
+  label: string;
+  value: T;
+  /**
+   * Optional live enablement. MenuBar re-reads it every time the menu opens, so
+   * a row can grey out with the state instead of being frozen when it was built.
+   */
+  enabled?: boolean | (() => boolean);
+}
+
+/**
+ * A view-mode radio group as os-gui models it.
+ *
+ * The group owns the value and MenuBar derives each row's `checkbox.check` /
+ * `checkbox.toggle` from `getValue` / `setValue` (MenuBar.js:929-950). That
+ * derivation is what draws the radio dot and reports `aria-checked`; an
+ * item-level `type: 'radio'` + `checked` pair is never read by MenuBar, which is
+ * why the windows that declared it showed no active mode at all.
+ */
+export interface ViewsRadioGroup<T extends string> {
+  ariaLabel: string;
+  radioItems: ViewModeRow<T>[];
+  getValue: () => T;
+  setValue: (value: T) => void;
+}
+
+/** Input for {@link openViewsDropdown}; every window supplies its own state. */
+export interface ViewsDropdownOptions<T extends string> {
+  /** The click event from the compound button's dropdown half. */
+  event: Event;
+  /** aria-label for the os-gui radio group. */
+  ariaLabel: string;
+  /** The selectable rows, in menu order. */
+  rows: ViewModeRow<T>[];
+  getValue: () => T;
+  setValue: (value: T) => void;
+  /** Optional disabled first row (the Explorer windows show "as Web Page" there). */
+  leadingRow?: { label: string };
+}
+
+/**
+ * Opens a Views dropdown for the compound button that was clicked.
+ *
+ * MenuBar only opens a popup in response to a pointer press on its own button,
+ * so the real bar is parked over the compound button (invisible, non-interactive)
+ * and pressed programmatically; the popup then lands under the button while the
+ * parked bar stays out of the way. This is the only supported way to reuse the
+ * os-gui menu with its radio behaviour, and it is shared so the four windows that
+ * hand-rolled a different, unread item shape cannot drift again.
+ */
+export function openViewsDropdown<T extends string>(options: ViewsDropdownOptions<T>): void {
+  const MenuBarCtor = window.MenuBar;
+  if (!MenuBarCtor) {
+    console.error('os-gui MenuBar is not loaded; the Views dropdown cannot open.');
+    return;
+  }
+
+  const dropBtn = options.event.currentTarget as HTMLElement | null;
+  const wrapper = dropBtn ? (dropBtn.closest('.toolbar-compound-button-wrapper') as HTMLElement | null) : null;
+  if (!wrapper) return;
+  const rect = wrapper.getBoundingClientRect();
+
+  // MenuBar runs only `toggle()` for a checkbox/radio item and never closes the
+  // popup for it (MenuBar.js:879-892), so a pick would leave the menu sitting
+  // over the window. Closing it here restores what the old action-based rows
+  // did: choose a mode, menu gone. The instance is created a few lines below,
+  // hence the indirection.
+  let closePopup = (): void => {};
+  const group: ViewsRadioGroup<T> = {
+    ariaLabel: options.ariaLabel,
+    getValue: options.getValue,
+    setValue: (value) => {
+      options.setValue(value);
+      closePopup();
+    },
+    radioItems: options.rows,
+  };
+  // The title only labels the popup: the parked bar is hidden, so it never shows.
+  const menus = {
+    [options.ariaLabel]: options.leadingRow
+      ? [{ label: options.leadingRow.label, enabled: false }, { separator: true }, group]
+      : [group],
+  };
+
+  const menuBar = new MenuBarCtor(menus as unknown as OsGuiMenuDefinition);
+  closePopup = (): void => menuBar.closeMenus?.();
+  const dummyEl = document.createElement('div');
+  dummyEl.style.cssText = `
+    position: absolute;
+    left: ${rect.left}px;
+    top: ${rect.top}px;
+    visibility: hidden;
+    pointer-events: none;
+  `;
+  dummyEl.appendChild(menuBar.element);
+  document.body.appendChild(dummyEl);
+
+  const cleanup = (): void => {
+    if (document.body.contains(dummyEl)) document.body.removeChild(dummyEl);
+  };
+
+  const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement | null;
+  if (menuButton === null) {
+    cleanup();
+    return;
+  }
+
+  menuButton.dispatchEvent(new PointerEvent('pointerdown'));
+  menuButton.addEventListener('release', cleanup);
+  // MenuBar closes a popup it opened without signalling the opener, so a pick
+  // (or a click elsewhere) can leave the parked bar behind.
+  window.addEventListener('pointerup', cleanup, { once: true });
 }
 
 /**

@@ -7,6 +7,7 @@ import {
   extractRawContent,
 } from '../../utils/fileUtils';
 import { getCascadeOffset } from '../../utils/cascadePosition';
+import { openViewsDropdown } from '../../utils/explorerChrome';
 
 // Eagerly load all markdown files (relative to src/apps/Portfolio/)
 const allFiles: Record<string, string> = import.meta.glob('../../data/files/**/*.md', {
@@ -394,95 +395,33 @@ export function launchPortfolio(appData?: { folder?: string }): void {
     renderContent();
   }
 
-  function openViewsDropdown(event: Event): void {
-    const dropBtn = event.currentTarget as HTMLElement;
-    const wrapper = dropBtn.closest('.toolbar-compound-button-wrapper') as HTMLElement;
-    const rect = wrapper.getBoundingClientRect();
-
-    const dummyMenuBar = new MenuBar({
-      "Views": [
-        {
-          label: "as &Web Page",
-          enabled: false,
-          type: 'checkbox',
-          checked: false,
-          action: () => {},
-        },
-        { separator: true },
-        {
-          label: 'Lar&ge Icons',
-          type: 'radio',
-          checked: currentView === 'LARGE_ICONS',
-          action: () => {
-            currentView = 'LARGE_ICONS';
-            renderContent();
-            cleanup();
-          },
-        },
-        {
-          label: 'S&mall Icons',
-          type: 'radio',
-          checked: currentView === 'SMALL_ICONS',
-          action: () => {
-            currentView = 'SMALL_ICONS';
-            renderContent();
-            cleanup();
-          },
-        },
-        {
-          label: '&List',
-          type: 'radio',
-          checked: currentView === 'LIST',
-          action: () => {
-            currentView = 'LIST';
-            renderContent();
-            cleanup();
-          },
-        },
-        {
-          label: '&Details',
-          type: 'radio',
-          checked: currentView === 'DETAILS',
-          enabled: false,
-          action: () => {
-            currentView = 'DETAILS';
-            renderContent();
-            cleanup();
-          },
-        },
+  /**
+   * Opens the Views dropdown through the shared helper.
+   *
+   * `Details` stays greyed out here, as it was before this migration: unlike My
+   * Documents, this window never offered it as a reachable mode.
+   */
+  function openViewsMenu(event: Event): void {
+    openViewsDropdown({
+      event,
+      ariaLabel: 'View mode',
+      leadingRow: { label: 'as &Web Page' },
+      rows: [
+        { label: 'Lar&ge Icons', value: 'LARGE_ICONS' },
+        { label: 'S&mall Icons', value: 'SMALL_ICONS' },
+        { label: '&List', value: 'LIST' },
+        { label: '&Details', value: 'DETAILS', enabled: false },
       ],
+      getValue: () => currentView,
+      setValue: (mode) => {
+        currentView = mode;
+        renderContent();
+      },
     });
-
-    const dummyEl = document.createElement('div');
-    dummyEl.style.cssText = `
-      position: absolute;
-      left: ${rect.left}px;
-      top: ${rect.top}px;
-      visibility: hidden;
-      pointer-events: none;
-    `;
-    dummyEl.appendChild(dummyMenuBar.element);
-    document.body.appendChild(dummyEl);
-
-    const menuButton = dummyEl.querySelector('.menu-button') as HTMLElement;
-    if (menuButton) {
-      menuButton.dispatchEvent(new PointerEvent('pointerdown'));
-      menuButton.addEventListener('release', () => {
-        if (document.body.contains(dummyEl)) {
-          document.body.removeChild(dummyEl);
-        }
-      });
-    }
-
-    function cleanup(): void {
-      if (document.body.contains(dummyEl)) {
-        document.body.removeChild(dummyEl);
-      }
-    }
   }
 
   stdButtons.appendChild(
-    createCompoundButton('Views', SPRITE_VIEWS, cycleViewMode, openViewsDropdown),
+    createCompoundButton('Views', SPRITE_VIEWS, cycleViewMode, openViewsMenu),
   );
 
   stdButtons.appendChild(createSeparator());
