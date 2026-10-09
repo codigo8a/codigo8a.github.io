@@ -11,6 +11,8 @@
  *   const result = await showMessageBox({ title: 'Confirm', message: 'Continue?', buttons: 'YesNo' });
  */
 
+import { getActiveWindow, restoreWindowFocus } from './activeWindowFocus';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type MessageBoxIcon = 'error' | 'warning' | 'info' | 'question';
@@ -177,6 +179,11 @@ export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxRe
   const icon = options.icon ?? 'info';
   const buttons = options.buttons ?? 'OK';
   const buttonDefs = BUTTON_SETS[buttons];
+
+  // The dialog is its own top-level os-gui window, so it takes the focus while
+  // it is open. Remember which window had it, to hand it back on close —
+  // otherwise the app underneath is left with a gray title bar.
+  const previousWindow = getActiveWindow();
 
   // Play the classic Windows system sound
   playSystemSound();
@@ -351,6 +358,7 @@ export function showMessageBox(options: MessageBoxOptions): Promise<MessageBoxRe
     // Clean up on close
     $win.onClosed(() => {
       winElement.removeEventListener('keydown', handleKeyDown);
+      restoreWindowFocus(previousWindow);
     });
   });
 }

@@ -1,5 +1,6 @@
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { applyCascadeAndFit } from '../../utils/cascadePosition';
+import { restoreWindowFocus } from '../../utils/activeWindowFocus';
 
 /* ==========================================================================
    Mi Primera Encarta — faithful port of the Encarta 2009 replica.
@@ -667,7 +668,12 @@ function initCanvas(container: HTMLElement): void {
 
 function closeModal(container: HTMLElement): void {
   playSound('click');
+  const ownerWindow = container.closest<HTMLElement>('.os-window');
   container.querySelector<HTMLElement>('#modalOverlay')?.classList.remove('active');
+  // The overlay owns the focused control; hiding it drops focus to <body>,
+  // which would leave the Encarta window's title bar gray even though the user
+  // never left the app. Hand focus back to the window it belongs to.
+  restoreWindowFocus(ownerWindow);
 }
 
 function triggerMenu(container: HTMLElement, name: string): void {
