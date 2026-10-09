@@ -17,10 +17,9 @@
  *   const y = centerY + offset;
  *
  * Usage in os-gui native windows:
- *   import { getCascadeOffset } from '../../utils/cascadePosition';
+ *   import { getCascadeOffset, applyCascadeAndFit } from '../../utils/cascadePosition';
  *   $win.center();
- *   const offset = getCascadeOffset();
- *   $win.css({ left: parseInt($win.css('left')) + offset, top: parseInt($win.css('top')) + offset });
+ *   applyCascadeAndFit($win);
  */
 
 const CASCADE_STEP = 25;
@@ -79,4 +78,36 @@ export function resetCascadeCounter(): void {
   if (typeof window !== 'undefined') {
     window.__window_cascade_offset = 0;
   }
+}
+
+/**
+ * Applies cascade offset to an os-gui window and ensures it fits within the viewport.
+ * Call this after $win.center() and setting the window size.
+ *
+ * @param $win - The os-gui window object (jQuery-wrapped element)
+ * @param windowWidth - Optional: the window's outer width (defaults to current)
+ * @param windowHeight - Optional: the window's outer height (defaults to current)
+ */
+export function applyCascadeAndFit(
+  $win: { css: (prop: string) => string; outerWidth: () => number; outerHeight: () => number },
+  windowWidth?: number,
+  windowHeight?: number
+): void {
+  if (isMobileViewport()) return;
+
+  const offset = getCascadeOffset();
+  if (offset === 0) return;
+
+  const currentLeft = parseInt($win.css('left'), 10);
+  const currentTop = parseInt($win.css('top'), 10);
+  const w = windowWidth || $win.outerWidth();
+  const h = windowHeight || $win.outerHeight();
+
+  const maxLeft = Math.max(0, window.innerWidth - w);
+  const maxTop = Math.max(0, window.innerHeight - h);
+
+  const newLeft = Math.min(Math.max(0, currentLeft + offset), maxLeft);
+  const newTop = Math.min(Math.max(0, currentTop + offset), maxTop);
+
+  $win.css({ left: `${newLeft}px`, top: `${newTop}px` });
 }

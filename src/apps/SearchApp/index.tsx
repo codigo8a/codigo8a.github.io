@@ -6,7 +6,7 @@ import {
 } from '../../utils/fileUtils';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 
 /**
  * All markdown files loaded eagerly via Vite's import.meta.glob.
@@ -155,8 +155,7 @@ export function launchSearch(): void {
 
   $win.css({ width: '640px', height: '460px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 640, 460);
   registerOsWindow($win, 'search', 'Search: Files', '/images/icons/search.svg');
 
   // ── Root explorer container ──

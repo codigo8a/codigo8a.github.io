@@ -5,7 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 import { openViewsDropdown } from '../../utils/explorerChrome';
 import type { AppData } from '../../types';
 
@@ -193,8 +193,7 @@ export function launchFileViewer(appData?: AppData): void {
     height: '500px',
   });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 700, 500);
   registerOsWindow($win, 'markdownViewer', title, '/images/icons/file-viewer.svg');
 
   // ── Build the explorer-style layout ──

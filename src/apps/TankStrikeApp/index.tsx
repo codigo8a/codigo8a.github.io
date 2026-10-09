@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 
 export const TankStrikeApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
@@ -21,8 +21,7 @@ export function launchTankStrike(): void {
   });
   $win.css({ width: '880px', height: '685px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 880, 685);
   registerOsWindow($win, 'tankstrike', 'TankStrike', '/images/icons/tankstrike-32x32.png');
 
   // Iframe directly in window content (no wrapper) so os-gui focus tracking detects it

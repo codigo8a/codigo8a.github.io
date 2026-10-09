@@ -2,7 +2,7 @@ import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 
 /** Default page shown when the browser is opened without a target URL */
 const HOME_URL = 'https://masinfo.online/';
@@ -298,8 +298,7 @@ export function launchIExplorer(initialUrl?: string): void {
   });
   $win.css({ width: '900px', height: '650px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 900, 650);
   registerOsWindow($win, 'iexplorer', 'Internet Explorer', '/images/icons/iexplorer-32x32.png');
 
   // ── Root container ──

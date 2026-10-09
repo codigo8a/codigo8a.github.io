@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 import { showMessageBox } from '../../utils/messageBox';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import {
@@ -490,8 +490,7 @@ export function launchDrive(): void {
 
   $win.css({ width: '820px', height: '580px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 820, 580);
   activeWindow = $win;
   registerOsWindow($win, DRIVE_APP_ID, title, DRIVE_ICON);
 

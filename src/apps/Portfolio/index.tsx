@@ -6,7 +6,7 @@ import {
   extractContentWithoutDate,
   extractRawContent,
 } from '../../utils/fileUtils';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 import { openViewsDropdown } from '../../utils/explorerChrome';
 
 // Eagerly load all markdown files (relative to src/apps/Portfolio/)
@@ -248,12 +248,7 @@ export function launchPortfolio(appData?: { folder?: string }): void {
     height: '480px',
   });
   $win.center();
-  // Apply cascade offset so this window doesn't stack exactly on previous ones
-  const cascadeOffset = getCascadeOffset();
-  $win.css({
-    left: parseInt($win.css('left')) + cascadeOffset,
-    top: parseInt($win.css('top')) + cascadeOffset,
-  });
+  applyCascadeAndFit($win, 700, 480);
   registerOsWindow($win, 'portfolio', 'Portfolio', '/images/icons/paint-32x32.png');
 
   // ── Build Explorer layout ──

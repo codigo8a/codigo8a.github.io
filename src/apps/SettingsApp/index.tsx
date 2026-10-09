@@ -2,7 +2,7 @@ import React from 'react';
 import './index.css';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 import { LOCAL_STORAGE_KEYS } from '../../constants';
 import {
   MAX_BACKGROUND_IMAGE_BYTES,
@@ -163,8 +163,7 @@ export function launchSettings(): void {
     height: '600px',
   });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 450, 600);
   registerOsWindow($win, 'settings', t('settings'), '/images/icons/settings-icon.png');
 
   // ── Build Settings layout ──

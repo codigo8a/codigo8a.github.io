@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 
 export const NetworkApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
@@ -20,8 +20,7 @@ export function launchNetwork(): void {
   });
   $win.css({ width: '500px', height: '350px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 500, 350);
 
   const el = document.createElement('div');
   el.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:var(--Window);gap:12px;padding:40px';

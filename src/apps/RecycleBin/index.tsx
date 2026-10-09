@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 import { showMessageBox } from '../../utils/messageBox';
 import { registerOsWindow } from '../../utils/osWindowRegistry';
 import {
@@ -396,8 +396,7 @@ export function launchRecycleBin(): void {
 
   $win.css({ width: '620px', height: '420px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 620, 420);
   activeWindow = $win;
   registerOsWindow($win, RECYCLE_BIN_APP_ID, title, BIN_ICON);
 

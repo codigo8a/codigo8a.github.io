@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 
 export const MSDOSApp: React.FC = () => {
   return <div data-os-gui-placeholder />;
@@ -20,8 +20,7 @@ export function launchMSDOS(): void {
   });
   $win.css({ width: '640px', height: '400px' });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 640, 400);
 
   const el = document.createElement('div');
   el.style.cssText = 'display:flex;flex-direction:column;height:100%;background:#000;padding:8px;font-family:"Courier New",monospace;font-size:14px;color:#c0c0c0;overflow:auto';

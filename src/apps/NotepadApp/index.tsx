@@ -2,7 +2,7 @@ import React from 'react';
 import './index.css';
 import { registerOsWindow, setOsWindowTitle } from '../../utils/osWindowRegistry';
 import { showMessageBox } from '../../utils/messageBox';
-import { getCascadeOffset } from '../../utils/cascadePosition';
+import { applyCascadeAndFit } from '../../utils/cascadePosition';
 import type { AppData, RemoteSaveHandle } from '../../types';
 
 /**
@@ -106,8 +106,7 @@ export function launchNotepad(appData?: AppData): void {
     height: '400px',
   });
   $win.center();
-  const cascadeOffset = getCascadeOffset();
-  $win.css({ left: parseInt($win.css('left')) + cascadeOffset, top: parseInt($win.css('top')) + cascadeOffset });
+  applyCascadeAndFit($win, 450, 400);
   const windowId = registerOsWindow($win, 'notepad', buildWindowTitle(seedName, false), '/images/icons/notepad-32x32.png');
 
   // ── Per-window state ──
