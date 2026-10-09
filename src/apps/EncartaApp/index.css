@@ -1,0 +1,505 @@
+/* Encarta 2009 main screen ("Mi Primera Encarta") — faithful port of the
+   user-supplied replica, scoped to the app root so the Win98 desktop and every
+   other app stay untouched.
+
+   Notes on the port:
+   - The replica's `body { }` rule (dark backdrop + page centering) is
+     deliberately NOT ported: `body` is global and would break the whole desktop.
+     `.app-window` instead fills 100% x 100% of the os-gui window content area.
+   - The replica's global `* { }` reset is scoped under `.app-window` inside
+     `:where()`, which keeps it at zero specificity so the Tailwind utility
+     classes in the markup still win no matter which stylesheet loads last.
+   - `.modal-overlay` is `position: absolute` (not `fixed`) so the modal stays
+     inside the app window instead of covering the whole desktop.
+   - Every rule name matches the replica's markup verbatim.
+*/
+
+/* ── Scoped reset (replaces the replica's global `*` rule) ─────────────── */
+
+:where(.app-window),
+:where(.app-window *) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Main Window Container */
+.app-window {
+  width: 100%;
+  height: 100%;
+  background-color: #ff7f00;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: #000;
+  /* Anchor for the container queries below: the os-gui window is narrower
+     than the viewport, so `@media` alone cannot see its width. */
+  container-type: inline-size;
+  container-name: encarta-window;
+}
+
+/* Encarta Header Toolbar */
+.encarta-header {
+  height: 64px;
+  background: linear-gradient(to bottom, #93e600 0%, #70cd00 50%, #51b800 100%);
+  border-bottom: 2px solid #388000;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  position: relative;
+  z-index: 40;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.header-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Round Navigation Buttons */
+.btn-home {
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle at 35% 35%, #8bf500, #429a00);
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 3px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  z-index: 5;
+}
+.btn-home:hover {
+  transform: scale(1.08);
+  filter: brightness(1.1);
+}
+.btn-home:active {
+  transform: scale(0.95);
+}
+
+.btn-home-inner {
+  width: 36px;
+  height: 36px;
+  background: #ffee22;
+  border-radius: 50%;
+  border: 1.5px solid #276200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.9);
+}
+
+.nav-circle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #82e800, #3e9800);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.nav-circle-btn:hover {
+  filter: brightness(1.15);
+  transform: scale(1.06);
+}
+.nav-circle-btn:active {
+  transform: scale(0.92);
+}
+
+.header-center {
+  margin-left: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-menu-links {
+  font-size: 11px;
+  color: #123800;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 3px;
+  font-weight: bold;
+}
+.top-menu-links span {
+  cursor: pointer;
+}
+.top-menu-links span:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+.search-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-label {
+  font-size: 18px;
+  font-weight: 900;
+  color: #123800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.search-pill {
+  background: white;
+  border: 1.5px solid #388000;
+  border-radius: 14px;
+  height: 26px;
+  width: 230px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 10px;
+  box-shadow: inset 1px 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.search-pill input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 13px;
+  color: #222;
+  background: transparent;
+}
+
+.btn-search-go {
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle at 30% 30%, #76ff03, #00c853);
+  border-radius: 50%;
+  border: 1px solid #005a0f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-search-go:hover {
+  filter: brightness(1.2);
+  transform: scale(1.1);
+}
+
+/* Main Viewport Area */
+.main-viewport {
+  flex: 1;
+  position: relative;
+  background-color: #ff7f00;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  min-height: 0;
+}
+
+/* Background Wave SVG */
+.bg-curves-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 3D Column Container */
+.column-3d {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  perspective: 900px;
+  width: 230px;
+  flex-shrink: 0;
+}
+
+/* Encarta 3D Category Button Wrapper */
+.btn-category-container {
+  position: relative;
+  width: 220px;
+  height: 70px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.col-left .btn-category-container {
+  transform: rotateY(12deg);
+  transform-origin: left center;
+}
+
+.col-right .btn-category-container {
+  transform: rotateY(-12deg);
+  transform-origin: right center;
+}
+
+/* Hover & Active Transformations */
+.col-left .btn-category-container:hover,
+.col-left .btn-category-container.is-active {
+  width: 265px;
+  margin-right: -45px;
+  transform: rotateY(6deg) translateZ(12px);
+  z-index: 60;
+}
+
+.col-right .btn-category-container:hover,
+.col-right .btn-category-container.is-active {
+  width: 265px;
+  margin-left: -45px;
+  transform: rotateY(-6deg) translateZ(12px);
+  z-index: 60;
+}
+
+/* SVG Layer inside Button */
+.btn-svg-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0px 5px 8px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+/* Content Layout over SVG (Icon + Label) */
+.btn-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  z-index: 2;
+}
+
+.col-left .btn-content {
+  flex-direction: row;
+  padding-right: 45px;
+}
+
+.col-right .btn-content {
+  flex-direction: row-reverse;
+  padding-left: 45px;
+}
+
+/* NO WHITE BOX BEHIND ICONS - TRANSPARENT OVERLAY */
+.btn-icon-no-bg {
+  width: 58px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent !important; /* Strictly transparent */
+  border: none !important;
+  flex-shrink: 0;
+  font-size: 36px;
+  filter: drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+.btn-text-label {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+  color: #000000;
+  line-height: 1.15;
+  padding: 0 4px;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+
+/* Active / Hover Text Color */
+.btn-category-container:hover .btn-text-label,
+.btn-category-container.is-active .btn-text-label {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 180, 255, 0.6);
+}
+
+/* Badge for "Juega y aprende" */
+.az-badge-text {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffe600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  letter-spacing: -1px;
+  margin-left: 6px;
+}
+
+/* Central Blue Sub-menu Panel */
+.center-panel-wrapper {
+  position: relative;
+  z-index: 20;
+  width: 475px;
+  height: 525px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-blue-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0099ff 0%, #0052cc 60%, #0033a0 100%);
+  border: 4px solid #ffffff;
+  border-radius: 28px;
+  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.45), 0 15px 35px rgba(0, 0, 0, 0.5);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Sub-category list item */
+.blue-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15.5px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+.blue-list-item:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateX(5px) scale(1.02);
+  color: #fffb00;
+}
+
+.item-highlight {
+  color: #ffd700 !important;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+}
+
+/* Interactive Modal */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  z-index: 100;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.active {
+  display: flex;
+}
+
+.retro-modal-card {
+  width: 580px;
+  max-width: 92vw;
+  background: #fffde6;
+  border: 5px solid #56a000;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+  animation: modalPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPop {
+  0% {
+    transform: scale(0.82);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.retro-modal-header {
+  background: linear-gradient(to right, #76ce00, #429a00);
+  padding: 10px 18px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #326e00;
+}
+
+.retro-modal-body {
+  padding: 20px;
+  color: #222;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Custom Scrollbar for central blue screen */
+.center-blue-screen::-webkit-scrollbar {
+  width: 8px;
+}
+.center-blue-screen::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.center-blue-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 4px;
+}
+.center-blue-screen::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Responsive block ───────────────────────────────────────────────────────
+   The replica's three-column layout wants 230 + 475 + 230 = 935px. Inside a
+   narrow os-gui window the side columns give ground first and the center
+   panel shrinks last. Container queries (not @media) because the window width
+   is what matters, not the viewport width. */
+
+@container encarta-window (max-width: 1000px) {
+  .center-panel-wrapper {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+@container encarta-window (max-width: 880px) {
+  .main-viewport {
+    padding: 8px 10px;
+  }
+  .column-3d {
+    width: 200px;
+  }
+  .btn-category-container {
+    width: 195px;
+    height: 64px;
+  }
+  .col-left .btn-category-container:hover,
+  .col-left .btn-category-container.is-active {
+    width: 225px;
+    margin-right: -32px;
+  }
+  .col-right .btn-category-container:hover,
+  .col-right .btn-category-container.is-active {
+    width: 225px;
+    margin-left: -32px;
+  }
+  .center-panel-wrapper {
+    height: 100%;
+  }
+  .center-blue-screen {
+    border-radius: 20px;
+    padding: 14px 16px;
+  }
+  .btn-text-label {
+    font-size: 14px;
+  }
+}

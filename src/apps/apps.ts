@@ -14,6 +14,8 @@ import { NetworkApp, launchNetwork } from './Network';
 import { MyComputerApp, launchMyComputer } from './MyComputer';
 import { DriveApp, launchDrive } from './DriveApp';
 import { TankStrikeApp, launchTankStrike } from './TankStrikeApp';
+import { EncartaApp } from './EncartaApp';
+import { launchEncarta } from './EncartaApp/launchEncarta';
 
 export const APPS: Record<string, AppDefinition> = {
   welcome: {
@@ -152,6 +154,15 @@ export const APPS: Record<string, AppDefinition> = {
     defaultSize: { width: 880, height: 685 },
     centered: true,
     customLaunch: launchTankStrike,
+  },
+  encarta: {
+    id: 'encarta',
+    title: 'Mi Primera Encarta',
+    icon: '/images/icons/encarta-32x32.svg',
+    component: EncartaApp,
+    defaultSize: { width: 800, height: 600 },
+    centered: true,
+    customLaunch: launchEncarta,
   },
 };
 

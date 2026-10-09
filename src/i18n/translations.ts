@@ -9,7 +9,7 @@ export type TranslationKeys =
   | 'desktop' | 'wallpaper' | 'clippy' | 'showClippy' | 'general' | 'enable' | 'disable'
   | 'programs' | 'documents' | 'help' | 'run' | 'shutDown' | 'openWindows'
   | 'iconView' | 'listView' | 'detailsView' | 'radioCodigo2' | 'tankStrike' | 'youtubeJuanDavidOchoa'
-  | 'googleDrive' | 'driveAppTitle';
+  | 'googleDrive' | 'driveAppTitle' | 'encarta' | 'encartaWelcome';
 
 const translations: Record<string, Record<'es' | 'en', string>> = {
   welcome: {
@@ -228,6 +228,14 @@ const translations: Record<string, Record<'es' | 'en', string>> = {
   driveAppTitle: {
     es: "Mi unidad",
     en: "My Drive"
+  },
+  encarta: {
+    es: "Mi Primera Encarta",
+    en: "My First Encarta"
+  },
+  encartaWelcome: {
+    es: "Bienvenido a Mi Primera Encarta",
+    en: "Welcome to My First Encarta"
   }
 };
 
