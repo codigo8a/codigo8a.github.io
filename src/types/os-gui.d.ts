@@ -38,6 +38,17 @@ export interface OsGuiWindow {
   css(property: string): string;
   css(properties: Record<string, string | number>): this;
   center(): void;
+  /** Outer width in px (jQuery passthrough on the window root). */
+  outerWidth(): number;
+  /** Outer height in px (jQuery passthrough on the window root). */
+  outerHeight(): number;
+  /**
+   * Raise this window above its siblings in the z-order.
+   *
+   * Window.js assigns it directly (`$w.bringToFront = () => { ... }`), so it
+   * exists at runtime even though it is not part of the base jQuery surface.
+   */
+  bringToFront(): this;
   /** Set the titlebar text (and the os-gui task, if any) to `text`. */
   title(text: string): OsGuiWindow;
   /** Read the current titlebar text back. */

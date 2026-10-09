@@ -22,6 +22,8 @@
  *   applyCascadeAndFit($win);
  */
 
+import type { OsGuiWindow } from '../types/os-gui';
+
 const CASCADE_STEP = 25;
 const CASCADE_MAX = 225; // 9 steps × 25px = 225px max offset
 const MOBILE_BREAKPOINT = 768;
@@ -89,7 +91,7 @@ export function resetCascadeCounter(): void {
  * @param windowHeight - Optional: the window's outer height (defaults to current)
  */
 export function applyCascadeAndFit(
-  $win: { css: (prop: string) => string; outerWidth: () => number; outerHeight: () => number },
+  $win: OsGuiWindow,
   windowWidth?: number,
   windowHeight?: number
 ): void {
