@@ -63,14 +63,20 @@
     }
 }
 
-/* ── The bot-count picker: BOTH copies (winner modal and start gate) ────
+/* ── The bot-count picker: ALL THREE copies (winner modal, start gate,
+ *    game over) ──────────────────────────────────────────────────────────
  * Two fixes, and both were measured at 390x844, the tightest viewport the demo
  * ships to, rather than assumed from the CSS text.
  *
- * The selectors carry `.bot-count-picker`, the class BOTH copies ship, not
- * `#bot-count-picker`: the start gate is now a second copy of the same control
- * set, and keying on one id would have styled the winner modal's row only,
- * leaving the gate's row overflowing and its chosen count invisible. */
+ * The selectors carry `.bot-count-picker`, the class ALL THREE copies ship, not
+ * `#bot-count-picker`: the start gate is a second copy of the same control set
+ * and GAME OVER is a third, so keying on one id would have styled the winner
+ * modal's row only, leaving the other rows overflowing and their chosen count
+ * invisible. The game-over modal needed no rule of its own here for a measured
+ * reason: it orders its controls exactly like the winner modal (Play again,
+ * picker, multiplayer link), and the `.multiplayer-link` margin below already
+ * separates the picker from the next control, so the winner modal's layout is
+ * the evidence that this one fits. */
 
 /* Four labelled controls still do NOT fit on one row of `.modal-actions` on a
  * phone: at 390x844 the row has 304px of usable content width (`.modal-content`
@@ -105,23 +111,24 @@
 }
 
 /* ── The gate's picker needs air BELOW it, because PLAY comes after ─────
- * `#winner-modal` puts the picker LAST, so `.modal-actions`' own `margin-top`
- * (20px, shared and read-only) is all that row ever needs. The gate mounts the
- * same row with `#start-btn` after it, and neither `.modal-actions` nor
- * `.play-button` carries a margin on that side — measured, not assumed: the
- * two boxes were flush, `play.y - picker.bottom == 0` at both 390x844 and
- * 1280x900, which is the "pegado al botón de jugar" the human reported.
+ * `#winner-modal` and `#gameover-modal` put the picker LAST-ish: `.modal-actions`'
+ * own `margin-top` (20px, shared and read-only) plus the `.multiplayer-link`
+ * margin below are all that row ever needs. The gate mounts the same row with
+ * `#start-btn` after it, and neither `.modal-actions` nor `.play-button` carries
+ * a margin on that side — measured, not assumed: the two boxes were flush,
+ * `play.y - picker.bottom == 0` at both 390x844 and 1280x900, which is the
+ * "pegado al botón de jugar" the human reported.
  *
  * 12px is `.modal-actions`' own `gap`, so the gate keeps one rhythm instead of
  * inventing a second value, and it reads as the same breathing room the row
  * already has above it without the 20px that would push PLAY toward the fold.
- * The rule keys on the gate's id on purpose: the winner modal's copy is
- * untouched. */
+ * The rule keys on the gate's id on purpose: the two ending modals' copies are
+ * untouched, and GAME OVER inherited them without a rule of its own. */
 #start-bot-count-picker {
     margin-bottom: 12px;
 }
 
-/* ── Multiplayer link button (both modals) ─────────────────────────────
+/* ── Multiplayer link button (all three modals) ─────────────────────────
  * A secondary button below the main action. Uses the same `.play-button`
  * base but with a distinct cyan-to-gold gradient to signal "external link". */
 .multiplayer-link {

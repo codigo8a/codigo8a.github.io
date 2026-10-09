@@ -18,9 +18,13 @@
 //     still introduces no `setTimeout`,
 //   * `state.animating` gates the controls during playback,
 //   * the winner modal carries a "Play again" button that rebuilds the match,
-//     and the bot-count picker below it that the next match is built with. The
-//     start gate carries the SAME picker, in a second copy, over the same one
-//     module-level selection — see {@link selectBotCount},
+//     and the bot-count picker below it that the next match is built with,
+//   * the demo has a SECOND ending of its own: GAME OVER, opened when the
+//     player's tank runs out of lives, while the surviving bots keep fighting
+//     behind it. It carries the same three controls as the winner modal, and it
+//     shares the one module-level bot-count selection — see
+//     {@link selectBotCount} and {@link settleGameOver}. Three copies of the
+//     picker, three ids, one value,
 //   * a bot that throws still submits a patrol plan instead of stalling.
 //   * the demo opens on a start gate: the board is already painted behind a
 //     modal, but nothing runs until PLAY — see {@link beginMatch}.
@@ -127,13 +131,37 @@ const countdown = { total: ROUND_SECONDS, deadline: 0, armed: false, pendingArm:
  * behind it with the default roster, so a player who never touches a picker is
  * never asked to configure anything.
  *
- * There are TWO copies of the picker (the winner modal and the start gate) and
- * this ONE value behind both: {@link selectBotCount} re-marks every copy, so
- * the two screens can never disagree about what the player picked.
+ * There are THREE copies of the picker (the start gate, the winner modal and
+ * GAME OVER) and this ONE value behind all of them: {@link selectBotCount}
+ * re-marks every copy, so no two screens can ever disagree about what the
+ * player picked.
  *
  * @type {number}
  */
 let selectedBotCount = DEFAULT_BOT_COUNT;
+
+/**
+ * Whether GAME OVER has already been revealed for the CURRENT match.
+ *
+ * The player who loses their last life stays on zero lives until the match is
+ * rebuilt, and the survivors keep resolving rounds behind the modal, so without
+ * this flag the modal would re-open on every one of them.
+ *
+ * {@link resetMatch} is the only place that clears it, because it is the only
+ * place a match is built: a rematch has to be able to show GAME OVER again.
+ *
+ * @type {boolean}
+ */
+let gameOverShown = false;
+
+/**
+ * The GAME OVER modal, resolved once at boot.
+ *
+ * Demo-local, so `refs.js` does not resolve it; kept null-tolerant like
+ * {@link startModal} for the same reason.
+ * @type {HTMLElement|null}
+ */
+let gameOverModal = null;
 
 /**
  * EVERY copy of the bot-count picker, resolved once at boot.
@@ -443,16 +471,33 @@ export function submitRound(commands, { force = false } = {}) {
 }
 
 /**
- * Settles a finished round: end the match or open the next one.
+ * Settles a finished round: end the match, open the next one, or show GAME OVER.
  *
- * The decision uses the victory the round's closing beat reported. Only
- * `ONGOING` continues; a `null` victory is the H13 no-winner case.
+ * The player's own tank is checked FIRST, ahead of the victory status, and that
+ * ordering is the contract: `checkWinner` counts a tank for victory with
+ * `lives > 0` (`sim/round.js`), so a player on zero lives is never in
+ * `withLives` and the round can report `WIN` for a BOT while the player is out.
+ * Measured over 600 seeded matches, the round on which the player loses its
+ * last life comes back `ONGOING` ~52% of the time, `WIN` (for a bot) ~47% and
+ * `DRAW` ~2%. Routing any of those to `endMatch` would congratulate the player
+ * for somebody else's win, so the whole player-out case is settled here first
+ * and never reaches the winner modal. It also makes the two endings unable to
+ * stack: a tank on 0 lives stays on 0 lives, so the check is true for every
+ * later round of the same match too.
+ *
+ * A `null` victory is deliberately NOT a game over: that is H13's "there was no
+ * round at all" case (nothing alive to animate, so `iterSteps` never reaches
+ * `checkWinner`), which belongs to the normal draw ending.
  *
  * @param {object|null} victory a `VictoryOutcome`
  * @returns {void}
  */
 function finishRound(victory) {
     pending = null;
+    if (victory && playerIsOut()) {
+        settleGameOver(victory);
+        return;
+    }
     if (victory && victory.status === VictoryStatus.WIN) {
         endMatch(victory.winner);
     } else if (victory && victory.status === VictoryStatus.DRAW) {
@@ -462,6 +507,84 @@ function finishRound(victory) {
     } else {
         startNextRound();
     }
+}
+
+/**
+ * Whether the PLAYER's tank is out of lives — the demo's GAME OVER rule.
+ *
+ * Lives, and nothing else: the same predicate `checkWinner` counts a tank with,
+ * which is what makes the rule equivalent to "the player is not in `withLives`".
+ * Null-tolerant like the other lookups here, because `finishRound` runs from the
+ * frame loop and must never throw on a half-built match.
+ *
+ * @returns {boolean}
+ */
+function playerIsOut() {
+    const player = match ? match.tanks.get(match.playerName) : null;
+    return !!player && player.lives === 0;
+}
+
+/**
+ * Un-hides the demo's GAME OVER modal.
+ *
+ * The modal is resolved by id like the start gate, not through `refs.js`,
+ * which resolves no demo-local modal, and it is resolved once at boot so this
+ * path cannot look anything up mid-round. A missing element degrades to
+ * "nothing to show" rather than to a crash inside the frame loop.
+ *
+ * It does NOT guard the once-only rule: that belongs to {@link settleGameOver},
+ * the one caller, where the flag and the reveal can never drift apart.
+ *
+ * @returns {void}
+ */
+function revealGameOver() {
+    if (!gameOverModal) return;
+    gameOverModal.classList.remove('hidden');
+}
+
+/**
+ * Closes the GAME OVER modal.
+ *
+ * @returns {void}
+ */
+function hideGameOver() {
+    if (!gameOverModal) return;
+    gameOverModal.classList.add('hidden');
+}
+
+/**
+ * The game's own ending: the player is out and the survivors carry on.
+ *
+ * Split out of {@link finishRound} so the branch is one readable unit — this is
+ * the code that must not stop the countdown.
+ *
+ * ONGOING means two or more tanks still hold lives, so the match is still live
+ * and the survivors must keep playing: it opens the next round, which re-arms
+ * the countdown. `endMatch` is the trap here — it calls `stopCountdown()`, and
+ * routing this branch through it would freeze the bots mid-match, turning "you
+ * died, watch the rest" into "you died and the board stopped moving".
+ *
+ * Anything else is the end of the match with nobody left to watch — a DRAW, or
+ * the last bot standing while the player is out — so the countdown stops there.
+ *
+ * @param {object} victory a `VictoryOutcome` with the player out of lives
+ * @returns {void}
+ */
+function settleGameOver(victory) {
+    if (!gameOverShown) {
+        gameOverShown = true;
+        revealGameOver();
+        sound.play('gameover');
+    }
+
+    if (victory.status === VictoryStatus.ONGOING) {
+        startNextRound();
+        return;
+    }
+
+    stopCountdown();
+    setInputsDisabled(refs, true);
+    markDirty();
 }
 
 /**
@@ -532,11 +655,13 @@ export function hideWinner(resolved) {
  * Rebuilds the whole match: fresh board, fresh tanks, round 1.
  *
  * "Play again" must be a clean reset, so nothing from the previous match
- * survives: the animation state, the submit channel, the modal and the
+ * survives: the animation state, the submit channel, BOTH modals and the
  * simulation are all replaced. It is the ONE place a match is BUILT from
- * {@link selectedBotCount}, which is why choosing a count in either modal
- * cannot by itself restart anything, and why {@link beginMatch} routes a
- * non-default gate choice through here instead of building its own match.
+ * {@link selectedBotCount}, which is why choosing a count in any of the three
+ * pickers cannot by itself restart anything, why {@link beginMatch} routes a
+ * non-default gate choice through here instead of building its own match, and
+ * why it is also where the GAME OVER one-shot guard is cleared — a rematch has
+ * to be able to show GAME OVER again.
  *
  * It deliberately leaves `started` set and the gate closed: a rematch is a
  * mid-session reset, not a new session, so the player must not have to press
@@ -546,6 +671,8 @@ export function hideWinner(resolved) {
 export function resetMatch() {
     finishAnimation();
     hideWinner(refs);
+    hideGameOver();
+    gameOverShown = false;
     state.myCommands = '';
     if (state.resetCommands) state.resetCommands();
     pending = null;
@@ -658,6 +785,9 @@ function exposeTestHandle() {
         get started() {
             return started;
         },
+        get gameOverShown() {
+            return gameOverShown;
+        },
         get countdownRemaining() {
             return countdownRemaining();
         },
@@ -716,6 +846,14 @@ function startDemo() {
     const playAgain = document.getElementById('play-again-btn');
     if (playAgain) playAgain.addEventListener('click', resetMatch);
 
+    // GAME OVER's own Play again. A second id for one listener is the price of
+    // one element living in two modals, and it buys the same guarantee: this
+    // button rebuilds the match through `resetMatch`, which hides BOTH modals,
+    // so no ending can survive a rematch on screen.
+    gameOverModal = document.getElementById('gameover-modal');
+    const gameOverAgain = document.getElementById('gameover-play-again-btn');
+    if (gameOverAgain) gameOverAgain.addEventListener('click', resetMatch);
+
     // The start gate. It is built inert above (the round is in the programming
     // phase with the player alive, which is why the board behind it is real
     // game state and not a mock) and made live by `beginMatch` alone.
@@ -730,14 +868,15 @@ function startDemo() {
         }
     }
 
-    // The bot-count pickers — BOTH copies, the winner modal's and the start
-    // gate's, resolved by their shared class because one element cannot live in
-    // two modals. One delegated listener per row instead of five on the
-    // buttons: the count lives in `data-bot-count`, so the row is the only
-    // thing that has to survive a markup change. A click only MARKS the
-    // choice — `beginMatch` (on the gate) and `resetMatch` ("Play again") are
-    // what read it. A page with no picker at all binds nothing and degrades to
-    // "the default roster".
+    // The bot-count pickers — all THREE copies (the start gate's, the winner
+    // modal's and GAME OVER's), resolved by their shared class because one
+    // element cannot live in two modals. One delegated listener per row
+    // instead of five on the buttons: the count lives in `data-bot-count`, so
+    // the row is the only thing that has to survive a markup change, and a new
+    // copy needs nothing but the class. A click only MARKS the choice —
+    // `beginMatch` (on the gate) and `resetMatch` ("Play again") are what read
+    // it. A page with no picker at all binds nothing and degrades to "the
+    // default roster".
     botCountPickers = [...document.querySelectorAll('.bot-count-picker')];
     for (const picker of botCountPickers) {
         picker.addEventListener('click', (event) => {

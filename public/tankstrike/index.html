@@ -43,8 +43,10 @@
                  refs.js and driven by main.js through
                  components.js::startTopTimerFluid (requestAnimationFrame; the
                  demo's loop uses no setTimeout). The canonical game runs
-                 PROGRAMMING_TIME = 15 s plus a 5 s grace; the demo's round is
-                 25 s (15 s the human added on top of the original 10 s). -->
+                 PROGRAMMING_TIME = 15 s plus a 5 s grace, and the demo's round
+                 is the same 15 s (e9997b3). This countdown does NOT stop when
+                 the player is eliminated: GAME OVER opens over a live board and
+                 the survivors keep spending these seconds. -->
             <div id="timer-bar"><div id="timer-fill"></div></div>
             <span id="timer-text">15s</span>
         </div>
@@ -151,16 +153,18 @@
         <div class="modal-content">
             <h2>🪖 TANKSTRIKE</h2>
             <p>Six moves a round. Last tank standing wins.</p>
-            <!-- The SAME bot-count picker the winner modal carries, between the
+            <!-- The SAME bot-count picker the ending modals carry, between the
                  tagline and PLAY: both screens mean one thing to the player —
                  "this match is about to begin, how many opponents?" — and a
                  player who lands on the itch.io page should not have to finish
                  a 2-bot duel before being allowed to ask for a brawl. It is a
-                 second COPY, because one element cannot live in two modals:
+                 COPY, because one element cannot live in two modals:
                  `#start-bot-count-picker` is its own id (ids are unique in a
                  document and the winner modal owns `#bot-count-picker`) and
                  `.bot-count-picker` is the class main.js resolves every copy
-                 through, so the two rows are indistinguishable to it.
+                 through, so the rows are indistinguishable to it. There are now
+                 THREE of them — start gate, winner modal, game-over modal — all
+                 marked from the one module-level selection in main.js.
 
                  The count is NOT decided here. The gate still paints a real
                  match behind itself — boot builds one at the default count —
@@ -203,6 +207,58 @@
                  rebuilds the match. `role="group"` plus the label name the
                  row as one "how many bots next" control set. -->
             <div id="bot-count-picker" class="modal-actions bot-count-picker" role="group" aria-label="Bots for the next match">
+                <button type="button" class="btn btn-cancel" data-bot-count="1" aria-pressed="false">1 Bot</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="2" aria-pressed="true">2 Bots</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="3" aria-pressed="false">3 Bots</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="4" aria-pressed="false">4 Bots</button>
+            </div>
+            <a href="https://tankstrike.onrender.com/" target="_blank" rel="noopener noreferrer" class="play-button multiplayer-link">PLAY MULTIPLAYER</a>
+        </div>
+    </div>
+
+    <!-- GAME OVER: the demo's SECOND ending, and the one that was missing.
+         `showWinnerModal` is a shared component and hardcodes its heading to
+         'WINNER!' (components.js::showWinnerModal), so routing every end of
+         the match through it congratulated the player even when the player had
+         just lost their last life — a demo on a stranger's itch.io page that
+         can only ever say "you won" teaches the wrong thing about the game.
+
+         It is a demo-local modal on purpose: `web/static/` is read-only and the
+         component is shared with the live page, so the demo gets this second
+         ending by owning its own screen rather than by editing the component
+         (which would change the real game too).
+
+         The rule it encodes is one line: GAME OVER ⟺ the player's tank has
+         `lives === 0`. `round.js::checkWinner` counts a tank for victory with
+         `lives > 0`, so a player on zero lives is never in `withLives` — the
+         bots are still fighting and the player is out, which is exactly the
+         moment this screen exists for.
+
+         Structurally it is the winner modal with different ids: same `modal` /
+         `modal-content` / `play-button` classes (so it inherits the look and
+         needs no new CSS), same `modal hidden` rest state, and the SAME three
+         controls in the SAME order — Play again, the bot-count picker for the
+         next match, and the multiplayer link. Its ids are its own
+         (`#gameover-play-again-btn`, `#gameover-bot-count-picker`) because ids
+         are unique in a document and the winner modal owns the other ones;
+         `.bot-count-picker` is the shared class main.js resolves every copy
+         through, so this third picker is marked from the same selection as the
+         other two and demo.css's picker rules apply to it untouched. -->
+    <div id="gameover-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>💀 GAME OVER</h2>
+            <!-- Your tank is out. The survivors keep fighting behind this modal,
+                 which is why it carries its own Play again: the demo has no next
+                 match to wait for, so the replay control rides on the modal
+                 itself, exactly as it does on the winner modal. main.js rebuilds
+                 the match on click. -->
+            <button id="gameover-play-again-btn" class="play-button">Play again</button>
+            <!-- The bot count for the NEXT match, in the same place and for the
+                 same reason as the winner modal's copy: this is a screen that
+                 means "you are done, decide what next". Each control only MARKS
+                 a count in `data-`; Play again is the control that builds the
+                 match. -->
+            <div id="gameover-bot-count-picker" class="modal-actions bot-count-picker" role="group" aria-label="Bots for the next match">
                 <button type="button" class="btn btn-cancel" data-bot-count="1" aria-pressed="false">1 Bot</button>
                 <button type="button" class="btn btn-cancel" data-bot-count="2" aria-pressed="true">2 Bots</button>
                 <button type="button" class="btn btn-cancel" data-bot-count="3" aria-pressed="false">3 Bots</button>
