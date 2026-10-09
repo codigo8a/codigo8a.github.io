@@ -15,6 +15,7 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
   const submenuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const programsRef = useRef<HTMLDivElement>(null);
+  const gamesRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const { launchWinamp } = useDesktop();
 
@@ -35,9 +36,18 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
   const openPrograms = useCallback(() => {
     clearTimer();
     setOpenSubmenu("programs");
-    // Calculate submenu position relative to .start-menu
     if (programsRef.current && menuRef.current) {
       const triggerRect = programsRef.current.getBoundingClientRect();
+      const menuRect = menuRef.current.getBoundingClientRect();
+      setSubmenuTop(triggerRect.top - menuRect.top);
+    }
+  }, [clearTimer]);
+
+  const openGames = useCallback(() => {
+    clearTimer();
+    setOpenSubmenu("games");
+    if (gamesRef.current && menuRef.current) {
+      const triggerRect = gamesRef.current.getBoundingClientRect();
       const menuRect = menuRef.current.getBoundingClientRect();
       setSubmenuTop(triggerRect.top - menuRect.top);
     }
@@ -98,6 +108,25 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
           </button>
         </div>
 
+        {/* Games submenu trigger */}
+        <div
+          className="menu-item-with-submenu"
+          ref={gamesRef}
+          onMouseEnter={openGames}
+          onMouseLeave={handleSubmenuLeave}
+        >
+          <button
+            className={openSubmenu === "games" ? "active" : ""}
+            onClick={() => setOpenSubmenu(openSubmenu === "games" ? null : "games")}
+          >
+            <span className="icon">
+              <img src="/images/icons/folder-16x16.png" alt="Games" />
+            </span>
+            Games
+            <span className="submenu-arrow">▶</span>
+          </button>
+        </div>
+
         {/* Search */}
         <button onClick={() => handleItemClick("search")}>
           {renderAppIcon(APPS.search.icon, APPS.search.title)}
@@ -136,7 +165,22 @@ export const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
         <button disabled>{t("shutDown")}...</button>
       </div>
 
-      {/* Submenu rendered OUTSIDE .start-menu-items to avoid overflow clipping */}
+      {/* Games submenu */}
+      {openSubmenu === "games" && (
+        <div
+          className="submenu"
+          style={{ top: submenuTop }}
+          onMouseEnter={handleSubPanelEnter}
+          onMouseLeave={handleSubPanelLeave}
+        >
+          <button onClick={() => handleItemClick("tankstrike")}>
+            {renderAppIcon(APPS.tankstrike.icon, APPS.tankstrike.title)}
+            {APPS.tankstrike.title}
+          </button>
+        </div>
+      )}
+
+      {/* Programs submenu rendered OUTSIDE .start-menu-items to avoid overflow clipping */}
       {openSubmenu === "programs" && (
         <div
           className="submenu"

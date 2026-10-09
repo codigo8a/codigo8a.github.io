@@ -1,0 +1,135 @@
+/* ─── TankStrike itch.io demo — demo-local overrides ───────────────────
+ *
+ * `web/static/` is read-only, so every change the demo needs that the shared
+ * client stylesheets get wrong lives here. This file is linked from
+ * `index.html` AFTER `components.css` and `viewer-layout.css`, so its rules
+ * win on equal specificity.
+ *
+ * It deliberately ships no general theme: only the four fixes this demo
+ * needs, each with the reason it exists.
+ */
+
+/* ── No scoreboard: hide the Standings panel, keep its empty list ─────
+ * The demo has no persistence and no scoreboard, so the panel must not
+ * appear. It is HIDDEN, not deleted: refs.js resolves `#score-list` and
+ * renderer.js::renderScoreboardList writes into it, and the DOM contract
+ * test asserts both elements exist. */
+#scores-panel {
+    display: none !important;
+}
+
+/* ── No bomb and no shield: keep the two dead controls, switched off ──
+ * `#cmd-x` (💣) and `#cmd-c` (🛡️) exist in the game's command keyboard, but
+ * the simulation has neither action. They stay in the keyboard, visibly
+ * unavailable, instead of being removed from the controls: the player must
+ * still find them where the keyboard is. viewer-layout.css already dims every
+ * disabled command button to `opacity: 0.35`, which still reads as pressable
+ * beside the live keys, so these two are desaturated and dimmed harder. The
+ * selector carries three ids (`#commands-section #command-buttons #cmd-x`)
+ * against the shared rule's two ids plus `:disabled`, so it wins on
+ * specificity without `!important`. They stay in the DOM because refs.js
+ * resolves `cmdX`/`cmdC` and the DOM contract test asserts they exist. */
+#commands-section #command-buttons #cmd-x,
+#commands-section #command-buttons #cmd-c {
+    filter: grayscale(1);
+    opacity: 0.25;
+    cursor: not-allowed;
+}
+
+/* ── Execute and Undo in one row, below the command buttons ───────────
+ * On mobile, viewer-layout.css turns `#commands-section` into a flex column
+ * and orders `#command-display` 1 and `#command-buttons` 2. `#send-btn` was
+ * left with no order, so it defaulted to 0 and floated ABOVE everything,
+ * while `#clear-btn` sat alone below the grid. Wrapping the pair keeps the
+ * ids (refs.js resolves them) and gives them a single order slot. */
+#commands-actions {
+    display: flex;
+    gap: 6px;
+}
+/* The shared rule sizes every `#commands-section button` to 100% width with a
+ * bottom margin; inside a flex row the buttons must share the row instead. */
+#commands-actions > button {
+    flex: 1 1 0;
+    width: auto;
+    margin-bottom: 0;
+}
+
+/* Mobile order: 3 puts the pair below the command buttons (order 2). The
+ * shared mobile block already set `#clear-btn { order: 3 }`; nesting the
+ * buttons means the wrapper carries the order now. */
+@media (max-width: 720px), (orientation: portrait) {
+    #commands-actions {
+        order: 3;
+    }
+}
+
+/* ── The bot-count picker: BOTH copies (winner modal and start gate) ────
+ * Two fixes, and both were measured at 390x844, the tightest viewport the demo
+ * ships to, rather than assumed from the CSS text.
+ *
+ * The selectors carry `.bot-count-picker`, the class BOTH copies ship, not
+ * `#bot-count-picker`: the start gate is now a second copy of the same control
+ * set, and keying on one id would have styled the winner modal's row only,
+ * leaving the gate's row overflowing and its chosen count invisible. */
+
+/* Four labelled controls still do NOT fit on one row of `.modal-actions` on a
+ * phone: at 390x844 the row has 304px of usable content width (`.modal-content`
+ * is 358px wide with 24px of padding per side), while the four controls plus
+ * their row gaps total about 373px. So the fourth control wraps: the row
+ * renders as 3 + 1 (1 Bot / 2 Bots / 3 Bots on the first line, 4 Bots on the
+ * second), measuring 0px of horizontal overflow and spanning x=57.2 -> 332.8
+ * inside the 390px viewport, with PLAY fully on screen below it. Wrapping is
+ * the whole fix — the buttons keep their size and the modal neither scrolls nor
+ * clips. The desktop row stays on one line (474px wide, 0px overflow) and is
+ * untouched. Four controls wrap here just as five did, so `flex-wrap` is
+ * load-bearing at the tightest viewport the demo ships to rather than protection
+ * for some narrower screen. It was measured again on the taller gate, both
+ * sizes. */
+.bot-count-picker {
+    flex-wrap: wrap;
+}
+
+/* The chosen count has to be visible. The shared stylesheet marks `.selected`
+ * on a `.vote-box` and paints `.btn-accept`, but nothing styles a marked
+ * `.btn`, so the `selected` class main.js sets (and `aria-pressed` states)
+ * changed nothing a player could see. The marked control takes the shared
+ * `.btn-accept` look — the same cyan the Play again button already uses on
+ * this modal — so "which count is chosen" reads at a glance, on either screen.
+ * The selector carries the row class and both button classes (0,3,0) because it
+ * must beat `.btn-cancel` (0,1,0), which this same markup puts on every
+ * control; no rule in the shared stylesheets scopes a `.btn` by an id. */
+.bot-count-picker .btn.selected {
+    background: #00d4ff;
+    color: #0a0a0a;
+    font-weight: bold;
+}
+
+/* ── The gate's picker needs air BELOW it, because PLAY comes after ─────
+ * `#winner-modal` puts the picker LAST, so `.modal-actions`' own `margin-top`
+ * (20px, shared and read-only) is all that row ever needs. The gate mounts the
+ * same row with `#start-btn` after it, and neither `.modal-actions` nor
+ * `.play-button` carries a margin on that side — measured, not assumed: the
+ * two boxes were flush, `play.y - picker.bottom == 0` at both 390x844 and
+ * 1280x900, which is the "pegado al botón de jugar" the human reported.
+ *
+ * 12px is `.modal-actions`' own `gap`, so the gate keeps one rhythm instead of
+ * inventing a second value, and it reads as the same breathing room the row
+ * already has above it without the 20px that would push PLAY toward the fold.
+ * The rule keys on the gate's id on purpose: the winner modal's copy is
+ * untouched. */
+#start-bot-count-picker {
+    margin-bottom: 12px;
+}
+
+/* ── Multiplayer link button (both modals) ─────────────────────────────
+ * A secondary button below the main action. Uses the same `.play-button`
+ * base but with a distinct cyan-to-gold gradient to signal "external link". */
+.multiplayer-link {
+    margin-top: 16px;
+    background: linear-gradient(135deg, #00d4ff, #ffd700) !important;
+    color: #0a0a0a !important;
+}
+.multiplayer-link:hover {
+    background: linear-gradient(135deg, #00ff88, #fff200) !important;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5) !important;
+}

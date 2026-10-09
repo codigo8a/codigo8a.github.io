@@ -72,6 +72,7 @@ export default defineConfig([
             'launchSettings',
             'launchSoundRecorder',
             'launchWelcome',
+            'launchTankStrike',
             // Context convenience hooks (mirrors DesktopContext's disable comment)
             'useLanguage',
             'useWindow',

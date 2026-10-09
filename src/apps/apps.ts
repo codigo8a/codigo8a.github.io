@@ -13,6 +13,7 @@ import { RecycleBinApp, launchRecycleBin } from './RecycleBin';
 import { NetworkApp, launchNetwork } from './Network';
 import { MyComputerApp, launchMyComputer } from './MyComputer';
 import { DriveApp, launchDrive } from './DriveApp';
+import { TankStrikeApp, launchTankStrike } from './TankStrikeApp';
 
 export const APPS: Record<string, AppDefinition> = {
   welcome: {
@@ -142,6 +143,15 @@ export const APPS: Record<string, AppDefinition> = {
     defaultSize: { width: 820, height: 580 },
     centered: true,
     customLaunch: launchDrive,
+  },
+  tankstrike: {
+    id: 'tankstrike',
+    title: 'TankStrike',
+    icon: '/images/icons/tankstrike-32x32.svg',
+    component: TankStrikeApp,
+    defaultSize: { width: 880, height: 685 },
+    centered: true,
+    customLaunch: launchTankStrike,
   },
 };
 

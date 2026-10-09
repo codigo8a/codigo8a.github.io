@@ -1,0 +1,508 @@
+/* ═══════════════════════════════════════════════════════════
+   COMPONENTES COMPARTIDOS — única fuente de verdad del UI.
+   Usado por la única página, en sus dos estados (espectador y jugador). NO duplicar
+   estas reglas en estilos de página.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Modal de ganador ────────────────────────────────────── */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 3px solid #ffd700;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+    animation: modalPulse 1.5s ease-in-out infinite;
+    max-width: min(92vw, 560px);
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    font-size: 2.5em;
+    color: #ffd700;
+    margin-bottom: 4px;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.modal-content p,
+.modal-content .winner-name {
+    font-size: 1.5em;
+    color: #00d4ff;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.winner-sub {
+    font-size: 0.92em !important;
+    color: #888 !important;
+    margin-bottom: 0 !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    animation: blink 1s ease-in-out infinite;
+}
+
+@media (max-width: 400px) {
+    .winner-sub {
+        font-size: 0.82em !important;
+    }
+}
+
+.winner-kills {
+    font-size: 0.85em !important;
+    color: #ccc !important;
+    margin-bottom: 4px !important;
+    line-height: 1.2;
+}
+
+@keyframes modalPulse {
+    0%,
+    100% {
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 60px rgba(255, 215, 0, 0.7);
+    }
+}
+
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ── Tabla de posiciones ─────────────────────────────────── */
+.score-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid #0f3460;
+    font-size: 0.85em;
+    min-width: 0;
+}
+
+.score-pos {
+    min-width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.score-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.score-stats {
+    font-size: 0.85em;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.score-empty {
+    color: #666;
+    font-size: 0.8em;
+}
+
+/* ── Filas de jugador (roster + waiting) ─────────────────── */
+#players-list,
+#score-list {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.player-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 0;
+    border-bottom: 1px solid #0f3460;
+    min-width: 0;
+}
+
+.player-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.85em;
+}
+
+.player-hp {
+    font-size: 0.75em;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.player-kills {
+    font-size: 0.75em;
+    color: #ffd166;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.player-dead {
+    opacity: 0.4;
+}
+
+.player-dead .player-name {
+    text-decoration: line-through;
+}
+
+.player-eliminated {
+    opacity: 0.35;
+}
+
+.player-eliminated .player-name {
+    text-decoration: line-through;
+    color: #666;
+}
+
+.player-waiting {
+    opacity: 0.6;
+}
+
+/* ── Voting boxes (POSTWIN modal) ────────────────────────── */
+.vote-fieldset {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0 4px;
+    padding: 12px 14px 10px;
+    box-sizing: border-box;
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    min-inline-size: 0;
+}
+
+.vote-fieldset .vote-legend {
+    font-size: 0.95em;
+    font-weight: 700;
+    color: #ffd700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 8px;
+}
+
+.vote-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 8px 0 4px;
+}
+
+#vote-boxes {
+    margin-top: 8px;
+    gap: 8px;
+}
+
+#winner-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+}
+
+.vote-box {
+    flex: 1 1 auto;
+    min-width: 120px;
+    max-width: 100%;
+    padding: 10px 12px;
+    background: #1a1a3a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.vote-box:hover {
+    border-color: #00d4ff;
+}
+
+.vote-box.selected {
+    border-color: #00d4ff;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+    background: #003344;
+}
+
+.vote-label {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+    font-weight: bold;
+    color: #00d4ff;
+    letter-spacing: 0.5px;
+    font-size: 0.85em;
+}
+
+.vote-badge {
+    display: inline-block;
+    min-width: 24px;
+    padding: 2px 8px;
+    background: #00d4ff;
+    color: #0a0a0a;
+    border-radius: 10px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ── Utilidades ──────────────────────────────────────────── */
+.hidden {
+    display: none !important;
+}
+
+/* ── Loading screen ─────────────────────────────────── */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.loading-screen.hidden {
+    display: none !important;
+}
+.loading-content {
+    text-align: center;
+    color: #00d4ff;
+}
+.loading-bar {
+    width: 260px;
+    height: 10px;
+    background: #222;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 12px auto;
+}
+#loading-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00d4ff, #ffd700);
+    transition: width 0.15s;
+}
+#loading-text {
+    font-size: 0.9em;
+    color: #888;
+}
+
+/* ── Modal de tanque ocupado ────────────────────────────────── */
+.modal-content--alert {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 40px rgba(255, 107, 107, 0.4);
+    animation: modalPulseAlert 1.5s ease-in-out infinite;
+}
+
+.modal-content--alert h2 {
+    color: #ff6b6b;
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+.modal-content--alert p {
+    color: #ffd4d4;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition:
+        transform 0.15s,
+        opacity 0.15s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn-cancel {
+    background: #666;
+    color: #fff;
+}
+
+.btn-accept {
+    background: #00d4ff;
+    color: #000;
+    font-weight: bold;
+}
+
+@keyframes modalPulseAlert {
+    0%,
+    100% {
+        box-shadow: 0 0 40px rgba(255, 107, 107, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 60px rgba(255, 107, 107, 0.7);
+    }
+}
+
+/* ── Editable tank name (Tu Tanque) — single line, compact ── */
+#player-name-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+    margin: 0;
+    padding: 0 0 6px 0;
+    line-height: 1.1;
+    position: relative;
+    border-bottom: 1px solid #222;
+}
+#player-name-header #my-tank-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #00d4ff;
+    font-weight: bold;
+    text-transform: none;
+    letter-spacing: 0;
+}
+#player-name-header #edit-name-btn,
+#player-name-header #cancel-name-btn {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 3px 6px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    color: #e0e0e0;
+    transition: all 0.15s;
+    width: auto !important;
+    margin: 0 !important;
+}
+#player-name-header #edit-name-btn {
+    background: transparent;
+    border-color: transparent;
+    opacity: 0.7;
+    padding: 2px 4px;
+}
+#player-name-header #edit-name-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    background: #1a1a1a;
+    border-color: #333;
+}
+#player-name-header #cancel-name-btn {
+    background: #2a0a0a;
+    border-color: #553;
+    color: #ff8a80;
+    font-weight: bold;
+}
+#player-name-header #cancel-name-btn:hover {
+    background: #3a0f0f;
+    border-color: #ff6b6b;
+    color: #fff;
+}
+#player-name-header #edit-name-prefix {
+    color: #00d4ff;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+    line-height: 1.2;
+    user-select: none;
+    padding-right: 2px;
+}
+#player-name-header #edit-name-input {
+    flex: 1;
+    min-width: 0;
+    max-width: 160px;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 4px 8px;
+    font-size: 13px;
+    background: #0f0f0f;
+    border: 1px solid #00d4ff;
+    border-radius: 6px;
+    color: #fff;
+    line-height: 1.2;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+#player-name-header #edit-name-input:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow:
+        0 0 8px rgba(0, 212, 255, 0.5),
+        inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+#player-name-header #edit-name-input::placeholder {
+    color: #666;
+    font-style: italic;
+}
+#player-name-header #name-error {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    font-size: 0.65em;
+    color: #ff6b6b;
+    margin-top: 4px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: rgba(40, 10, 10, 0.9);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}

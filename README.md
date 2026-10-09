@@ -171,8 +171,9 @@ npm run deploy  # Despliegue a GitHub Pages (gh-pages -d dist)
 - Iconos arrastrables con posición persistente en localStorage
 - **Radio Código 2**: abre Internet Explorer en `https://kick.com/radio-codigo2`
   - Si ya hay una ventana del navegador abierta, la reutiliza (la enfoca y navega en ella)
-- **TankStrike**: icono situado justo debajo de Radio Código 2, abre Internet Explorer en `https://tankstrike-live.onrender.com`
-  - Mismo comportamiento que el icono de radio (reutiliza la ventana del navegador si ya está abierta)
+- **TankStrike**: icono situado justo debajo de Radio Código 2, abre la app interna `tankstrike` (juego offline sin dependencias externas)
+  - Juego por turnos: 6 movimientos por ronda, último tanque en pie gana
+  - Incluye selección de bots (1-4), modal de inicio y rejugar
 - **YouTube Juan David Ochoa**: icono situado justo debajo de TankStrike, abre Internet Explorer en `https://www.youtube.com/@JuanDavidOchoa`
   - Mismo comportamiento que los iconos anteriores (reutiliza la ventana del navegador si ya está abierta)
 - **Google Drive**: icono situado justo debajo de YouTube, abre la app `driveApp` (Mi unidad)
@@ -620,7 +621,7 @@ La configuración de Vite está en `vite.config.js` (`base: "/"` para dominio pe
 - ✅ Buscador de archivos
 - ✅ Barra de tareas con reloj
 - ✅ Menú Start funcional con submenú
-- ✅ Iconos de escritorio (incluyendo Winamp con Webamp, Radio Código 2 → navegador con la radio, TankStrike → navegador con `https://tankstrike-live.onrender.com` y YouTube Juan David Ochoa → navegador con `https://www.youtube.com/@JuanDavidOchoa`)
+- ✅ Iconos de escritorio (incluyendo Winamp con Webamp, Radio Código 2 → navegador con la radio, TankStrike → app interna juego offline, YouTube Juan David Ochoa → navegador con `https://www.youtube.com/@JuanDavidOchoa`)
 - ✅ Wallpapers cambiables (6 opciones)
 - ✅ Fondo de escritorio personalizado: subir una imagen desde Settings → Desktop, guardada solo en localStorage (`desktop.backgroundImage`)
 - ✅ Animaciones de ventanas (abrir, cerrar, minimizar, restaurar)

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TankStrike — Browser Demo</title>
+    <meta name="description" content="A turn-based tank duel you can play in your browser: command one tank against two bots, six moves a round, last tank standing wins.">
+    <!-- Existing stylesheets, linked read-only by relative path.
+         Absolute paths and cache-busting query strings are deliberately
+         absent: itch.io serves this folder from an iframe subpath. The
+         packager rewrites these to root-relative paths for the zip. -->
+    <link rel="icon" type="image/png" href="./static/favicon.png">
+    <link rel="stylesheet" href="./static/components.css">
+    <link rel="stylesheet" href="./static/viewer-layout.css">
+    <!-- Demo-local overrides, linked last so they win: the shared stylesheets
+         are read-only. The packager rewrites this to ./demo/demo.css. -->
+    <link rel="stylesheet" href="./demo/demo.css">
+</head>
+<body>
+    <!-- DOM contract note: this page mirrors web/templates/index.html so that
+         every id web/static/js/refs.js resolves exists. The reused modules
+         query by id and several of them dereference the result without a
+         null check (refs.js calls getContext() on #game-canvas, and
+         components.js::setTopTimer writes to #timer-fill), so an absent id
+         is a crash, not a cosmetic gap.
+
+         Two panels are contract-only and stay hidden in the demo:
+         #account-panel (accounts need a database — out of scope) and
+         #play-panel (the demo has no claim gate: the player owns tank #1
+         from boot). Both keep their ids so the contract holds.
+
+         No loading screen. T8 loads the sprites through the demo's own
+         relative-base loader (sprite-loader.js), so there is nothing to
+         wait for: the board paints immediately and the tanks upgrade from
+         the renderer's vector fallback to sprite art when the images
+         settle. In the source tree the loader's base points at a directory
+         only the package provides, so the source tree keeps the fallback. -->
+    <header>
+        <h1>TANKSTRIKE</h1>
+        <div id="round-info">
+            <span id="round-label">ROUND 0</span>
+            <!-- The round countdown. #timer-fill and #timer-text are read by
+                 refs.js and driven by main.js through
+                 components.js::startTopTimerFluid (requestAnimationFrame; the
+                 demo's loop uses no setTimeout). The canonical game runs
+                 PROGRAMMING_TIME = 15 s plus a 5 s grace; the demo's round is
+                 25 s (15 s the human added on top of the original 10 s). -->
+            <div id="timer-bar"><div id="timer-fill"></div></div>
+            <span id="timer-text">15s</span>
+        </div>
+    </header>
+
+    <main>
+        <section id="game-area">
+            <canvas id="game-canvas" width="600" height="600" aria-label="Game board"></canvas>
+        </section>
+
+        <aside id="sidebar">
+            <!-- No claim gate in the demo; #play-btn is kept only because
+                 refs.js resolves it. The demo's own gate is #start-btn in
+                 #start-modal, at the foot of the page. -->
+            <div id="play-panel" class="panel hidden">
+                <button id="play-btn" class="play-button">PLAY</button>
+            </div>
+
+            <!-- Player-only panels: shown from boot, because the player owns
+                 tank #1 without claiming anything. -->
+            <div id="player-section" class="panel hidden">
+                <h3 id="player-name-header"><span id="my-tank-name">🪖 Your Tank</span><button id="edit-name-btn" class="hidden" title="Rename">✏️</button><span id="edit-name-prefix" class="hidden">@</span><input id="edit-name-input" class="hidden" maxlength="19" autocomplete="off" placeholder="New name"><button id="cancel-name-btn" class="hidden" title="Cancel">✕</button><span id="name-error" class="error hidden"></span></h3>
+                <div id="player-info"></div>
+            </div>
+
+            <div id="commands-section" class="panel hidden">
+                <h3>📝 Commands</h3>
+                <div id="command-display">
+                    <div class="cmd-cell" data-index="0"></div>
+                    <div class="cmd-cell" data-index="1"></div>
+                    <div class="cmd-cell" data-index="2"></div>
+                    <div class="cmd-cell" data-index="3"></div>
+                    <div class="cmd-cell" data-index="4"></div>
+                    <div class="cmd-cell" data-index="5"></div>
+                </div>
+                <div id="command-buttons">
+                    <button id="cmd-q" data-cmd="Q">🔫</button>
+                    <button id="cmd-w" data-cmd="W">↑</button>
+                    <button id="cmd-e" data-cmd="E">⚡</button>
+                    <button id="cmd-a" data-cmd="A">←</button>
+                    <button id="cmd-z" data-cmd="Z">🚀</button>
+                    <button id="cmd-d" data-cmd="D">→</button>
+                    <button id="cmd-x" data-cmd="X" disabled>💣</button>
+                    <button id="cmd-s" data-cmd="S">↓</button>
+                    <button id="cmd-c" data-cmd="C" disabled>🛡️</button>
+                </div>
+                <!-- #commands-actions keeps the two round controls in one
+                     row after the nine command buttons. The wrapper is the
+                     demo's own; the ids survive because refs.js resolves
+                     #send-btn and #clear-btn. -->
+                <div id="commands-actions">
+                    <!-- #send-btn executes the round early. The demo also
+                         executes at the end of the 25-second countdown. -->
+                    <button id="send-btn">Execute</button>
+                    <!-- #clear-btn pops one command: it is an undo. -->
+                    <button id="clear-btn">Undo</button>
+                </div>
+            </div>
+
+            <div class="panel" id="players-panel">
+                <h3>Players (<span id="player-count">0</span>)</h3>
+                <div id="players-list" aria-live="polite"></div>
+            </div>
+
+            <!-- Contract-only: the demo has no lobby and no waiting room.
+                 renderer.js keeps this panel hidden while waiting_room is
+                 empty, which it always is here. -->
+            <div id="lobby-panel" class="panel hidden">
+                <h3>⏳ Lobby (<span id="lobby-count">0</span>)</h3>
+                <div id="lobby-list" aria-live="polite"></div>
+            </div>
+
+            <div class="panel" id="scores-panel">
+                <h3>🏆 Standings</h3>
+                <div id="score-list" aria-live="polite"></div>
+            </div>
+
+            <!-- Contract-only: accounts need a database, which itch.io does
+                 not have. Nothing ever writes to these elements. -->
+            <div class="panel hidden" id="account-panel">
+                <h3>👤 Account</h3>
+                <div id="account-anon"></div>
+                <div id="account-me" class="hidden">
+                    <div id="account-name"></div>
+                    <div id="account-identifier"></div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- The start gate: the demo's first screen. Nothing in the match runs
+         until PLAY is pressed — no countdown, no enabled controls, no
+         `submitRound` — so a player who lands on the itch.io page reads the
+         rules before the board starts moving. It reuses the shared `modal` /
+         `modal-content` / `play-button` classes from `components.css` and
+         `viewer-layout.css`, which is what makes it look exactly like the
+         winner modal below; the only demo-local rule (if any) lives in
+         demo.css. It ships with the same `modal hidden` shape as
+         `#winner-modal`, so a static test can read the "starts hidden"
+         contract and main.js is what reveals it at boot. `#start-btn` is its
+         own id because `#play-btn` (in `#play-panel`) is contract-only dead
+         DOM that refs.js resolves. -->
+    <div id="start-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🪖 TANKSTRIKE</h2>
+            <p>Six moves a round. Last tank standing wins.</p>
+            <!-- The SAME bot-count picker the winner modal carries, between the
+                 tagline and PLAY: both screens mean one thing to the player —
+                 "this match is about to begin, how many opponents?" — and a
+                 player who lands on the itch.io page should not have to finish
+                 a 2-bot duel before being allowed to ask for a brawl. It is a
+                 second COPY, because one element cannot live in two modals:
+                 `#start-bot-count-picker` is its own id (ids are unique in a
+                 document and the winner modal owns `#bot-count-picker`) and
+                 `.bot-count-picker` is the class main.js resolves every copy
+                 through, so the two rows are indistinguishable to it.
+
+                 The count is NOT decided here. The gate still paints a real
+                 match behind itself — boot builds one at the default count —
+                 and `beginMatch` rebuilds it when this row marks anything else,
+                 so the board behind the gate can never decide the roster.
+                 Pressing a control only MARKS it, exactly like in the winner
+                 modal; PLAY is the control that starts the match. -->
+            <div id="start-bot-count-picker" class="modal-actions bot-count-picker" role="group" aria-label="Bots for this match">
+                <button type="button" class="btn btn-cancel" data-bot-count="1" aria-pressed="false">1 Bot</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="2" aria-pressed="true">2 Bots</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="3" aria-pressed="false">3 Bots</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="4" aria-pressed="false">4 Bots</button>
+            </div>
+            <button id="start-btn" class="play-button">PLAY</button>
+            <a href="https://tankstrike.onrender.com/" target="_blank" rel="noopener noreferrer" class="play-button multiplayer-link">PLAY MULTIPLAYER</a>
+        </div>
+    </div>
+
+    <div id="winner-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🏆 WINNER!</h2>
+            <div class="winner-name" id="winner-name"></div>
+            <div class="winner-sub" id="winner-sub"></div>
+            <!-- The demo has no next match to wait for, so the modal carries
+                 the replay control itself. main.js rebuilds the match on
+                 click. The live page has no such button. -->
+            <button id="play-again-btn" class="play-button">Play again</button>
+            <!-- The bot count for the NEXT match, below Play again: this modal
+                 is the only screen that means "the match is over, decide what
+                 next". It shares the `.modal-actions` row of the shared
+                 stylesheet so it lines up like every other modal control, and
+                 it survives every `showWinnerModal` call — the reused component
+                 only rewrites the h2, #winner-kills, #vote-boxes and
+                 #winner-sub inside this modal.
+
+                 Each control is a toggle carrying its count in `data-`, so
+                 main.js reads the choice off the DOM instead of parsing a
+                 label, and `aria-pressed` states it to assistive tech.
+                 Pressing one only MARKS it; Play again is the control that
+                 rebuilds the match. `role="group"` plus the label name the
+                 row as one "how many bots next" control set. -->
+            <div id="bot-count-picker" class="modal-actions bot-count-picker" role="group" aria-label="Bots for the next match">
+                <button type="button" class="btn btn-cancel" data-bot-count="1" aria-pressed="false">1 Bot</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="2" aria-pressed="true">2 Bots</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="3" aria-pressed="false">3 Bots</button>
+                <button type="button" class="btn btn-cancel" data-bot-count="4" aria-pressed="false">4 Bots</button>
+            </div>
+            <a href="https://tankstrike.onrender.com/" target="_blank" rel="noopener noreferrer" class="play-button multiplayer-link">PLAY MULTIPLAYER</a>
+        </div>
+    </div>
+
+    <!-- The demo entry point. No socket.io CDN script and no /static/ init.js:
+         the demo imports the client modules itself, without a server. -->
+    <script type="module" src="./demo/main.js"></script>
+</body>
+</html>

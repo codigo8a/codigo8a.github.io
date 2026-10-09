@@ -1,0 +1,475 @@
+/* Shared base layout for the single page (`/`): board, header, sidebar and timer.
+   Nació como la hoja compartida de las dos plantillas (jugador y espectador); hoy hay una
+   sola página, así que esto es su layout.
+   Shared components (modal, countdown, players, chat): components.css — do NOT duplicate here.
+   Player-only panels (#player-section, #commands-section) arrancan ocultas y se muestran al
+   reclamar el tanque; sus reglas van por ID para no pisar esta base. */
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+body {
+    background: #0a0a0a;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #e0e0e0;
+    -webkit-text-size-adjust: 100%;
+}
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px;
+    background: #111;
+    border-bottom: 1px solid #222;
+    flex-shrink: 0;
+}
+header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00d4ff;
+    letter-spacing: 2px;
+    margin: 0;
+}
+#round-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+#round-label {
+    font-weight: bold;
+    color: #ffc800;
+    text-shadow: 0 0 10px rgba(255, 200, 0, 0.4);
+}
+#timer-text {
+    font-weight: bold;
+    color: #ffc800;
+    min-width: 35px;
+    text-shadow: 0 0 10px rgba(255, 200, 0, 0.7);
+    animation: timerPulse 1s ease-in-out infinite;
+}
+@keyframes timerPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+#timer-bar {
+    width: 200px;
+    height: 6px;
+    background: #222;
+    border-radius: 3px;
+    overflow: hidden;
+}
+#timer-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00d4ff, #00ff88);
+    transition: width 0.3s;
+}
+main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+}
+#game-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+canvas {
+    max-width: 100%;
+    max-height: 100%;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    user-select: none;
+    margin: 0;
+    display: block;
+}
+#sidebar {
+    width: 260px;
+    background: #111;
+    border-left: 1px solid #222;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+    padding: 12px;
+}
+#sidebar .panel {
+    background: transparent;
+    border: none;
+    padding: 8px 0;
+}
+#sidebar .panel h3 {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 6px;
+}
+.play-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #00d4ff;
+    color: #0a0a0a;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+}
+.play-button:hover {
+    background: #00ff88;
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.35);
+}
+/* ── Cuenta: quién sos y las puertas de entrada (login opcional) ── */
+#account-panel a {
+    color: #00d4ff;
+    text-decoration: none;
+    margin-right: 12px;
+}
+#account-panel a:hover {
+    color: #00ff88;
+}
+#account-panel #account-identifier {
+    color: #888;
+    font-size: 12px;
+    margin-top: 2px;
+}
+#logout-btn {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid #444;
+    color: #ddd;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#logout-btn:hover {
+    border-color: #00d4ff;
+    color: #00d4ff;
+}
+#players-list {
+    max-height: none;
+    overflow-y: auto;
+}
+/* ── Player-only panels (ocultas hasta reclamar el tanque) ── */
+#player-section input,
+#commands-section input {
+    width: 100%;
+    padding: 8px;
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 4px;
+    color: #e0e0e0;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+#player-section input:focus,
+#commands-section input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+#player-section button,
+#commands-section button {
+    width: 100%;
+    padding: 8px;
+    background: #0f3460;
+    color: #e0e0e0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    margin-bottom: 5px;
+    transition: background 0.2s;
+}
+#player-section button:hover,
+#commands-section button:hover {
+    background: #1a4a8a;
+}
+#commands-section #command-help {
+    margin-top: 8px;
+    color: #888;
+    font-size: 0.75em;
+}
+#commands-section #command-help b {
+    color: #00d4ff;
+}
+#commands-section #command-display {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+    padding: 6px !important;
+    min-height: 56px !important;
+    height: auto !important;
+    background: #111 !important;
+    border: 2px solid #00d4ff !important;
+    border-radius: 6px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+#commands-section .cmd-cell {
+    width: 100% !important;
+    min-width: 28px !important;
+    height: 44px !important;
+    background: #1a1a1a !important;
+    border: 3px solid #00d4ff !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.4em !important;
+    color: #00d4ff !important;
+    box-sizing: border-box !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+#commands-section .cmd-cell.filled {
+    background: #003344 !important;
+    border-color: #00ffff !important;
+    color: #00ffff !important;
+}
+#commands-section #command-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+#commands-section #command-buttons button {
+    width: 100%;
+    padding: 10px;
+    background: #0f3460;
+    color: #e0e0e0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.2s;
+}
+#commands-section #command-buttons button:hover {
+    background: #1a4a8a;
+}
+#commands-section #command-buttons button.active {
+    background: #00d4ff;
+    color: #0a0a0a;
+}
+#commands-section #command-buttons button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transition: none;
+}
+/* ── Mobiles / narrow portraits ─────────────────── */
+@media (max-width: 720px), (orientation: portrait) {
+    body {
+        overflow: hidden;
+    }
+    main {
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+    }
+    header {
+        padding: 6px 12px;
+        gap: 8px;
+    }
+    header h1 {
+        font-size: 15px;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        margin: 0;
+    }
+    #round-info {
+        flex: 1;
+        min-width: 0;
+        gap: 8px;
+        font-size: 12px;
+        justify-content: flex-end;
+    }
+    #round-label {
+        white-space: nowrap;
+    }
+    #timer-bar {
+        flex: 1;
+        width: auto;
+        min-width: 40px;
+        max-width: 140px;
+    }
+    main {
+        gap: 0;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+    }
+    #game-area {
+        flex: 0 0 auto;
+        width: 100%;
+        justify-content: flex-start;
+        align-items: center;
+        min-height: 0;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+    }
+    #sidebar {
+        width: 100%;
+        min-width: 0;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+        border-left: none;
+        border-top: none;
+        margin: 0;
+        padding: 0 12px 8px;
+    }
+    /* Móvil: sin título Comandos y tanque debajo de botones */
+    #commands-section h3 {
+        display: none;
+    }
+    #sidebar {
+        display: flex;
+        flex-direction: column;
+    }
+    /* El orden se fija POR ID, no por posición: con `nth-child`, agregar un panel
+       corre los números y el orden se rompe en silencio (pasó al sumar el Lobby).
+       El criterio de siempre: comandos primero y el tanque debajo de los botones. */
+    #play-panel { order: 1; }
+    #commands-section {
+        order: 2;
+        display: flex;
+        flex-direction: column;
+    }
+    #commands-section #command-display {
+        order: 1;
+    }
+    #commands-section #command-buttons {
+        order: 2;
+    }
+    #commands-section #clear-btn {
+        order: 3;
+    }
+    #player-section {
+        order: 3;
+        margin-top: 8px;
+    }
+    #players-panel { order: 4; }
+    #lobby-panel { order: 5; }
+    #scores-panel { order: 6; }
+    /* La cuenta va última: es información, no juego. */
+    #account-panel { order: 7; }
+    #players-list,
+    #score-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 14px;
+        max-height: 100%;
+        overflow-y: auto;
+    }
+    .player-row {
+        padding: 2px 0;
+        font-size: 12px;
+    }
+    .player-name {
+        font-size: 12px;
+    }
+    .player-hp {
+        font-size: 10px;
+    }
+    .score-row {
+        padding: 2px 0;
+        font-size: 12px;
+        gap: 6px;
+    }
+    .score-pos {
+        min-width: 22px;
+    }
+    .score-stats {
+        font-size: 10px;
+    }
+
+    #commands-section #command-display {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .modal-content {
+        padding: 24px;
+        gap: 4px;
+    }
+    .modal-content h2 {
+        font-size: 1.8em;
+        margin-bottom: 4px;
+        line-height: 1.1;
+    }
+    .modal-content p,
+    .modal-content .winner-name {
+        font-size: 1.2em;
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+    .winner-kills {
+        margin-bottom: 4px !important;
+        line-height: 1.2;
+    }
+    .winner-sub {
+        line-height: 1.2;
+    }
+    #vote-boxes {
+        margin-top: 8px;
+        gap: 8px;
+    }
+
+    #game-area canvas,
+    canvas#game-canvas {
+        width: auto;
+        height: auto;
+        max-width: 100vw;
+        max-height: none;
+        aspect-ratio: auto;
+        display: block;
+        margin: 0 auto;
+        padding: 0;
+        align-self: center;
+    }
+
+
+}
+
+/* Voting boxes reuse components.css — no duplication needed.
+   Ensure vote boxes are visible in viewer (read-only, no pointer change needed). */
+.vote-boxes {
+    display: flex;
+}

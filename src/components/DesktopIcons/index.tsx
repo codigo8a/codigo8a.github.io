@@ -24,9 +24,6 @@ interface IconPosition {
 /** Online radio station opened by the "Radio Código 2" desktop icon */
 const RADIO_URL = 'https://kick.com/radio-codigo2';
 
-/** TankStrike live game opened by the "TankStrike" desktop icon */
-const TANKSTRIKE_URL = 'https://tankstrike-live.onrender.com';
-
 /** YouTube channel opened by the "YouTube Juan David Ochoa" desktop icon */
 const YOUTUBE_URL = 'https://www.youtube.com/@JuanDavidOchoa';
 
@@ -299,7 +296,7 @@ export const DesktopIcons: React.FC = () => {
       // would navigate away whatever the user was looking at.
       openApp('iexplorer', { url: RADIO_URL });
     } else if (iconId === 'tankstrike') {
-      openApp('iexplorer', { url: TANKSTRIKE_URL });
+      openApp('tankstrike');
     } else if (iconId === 'youtube') {
       // YouTube forbids embedding inside an iframe (X-Frame-Options and
       // CSP frame-ancestors), so open the channel in a real browser tab.

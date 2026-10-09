@@ -86,8 +86,13 @@ export const TaskBar: React.FC<TaskBarProps> = ({
           <img className="tray-icon" src="/images/icons/task-scheduler-16x16.png" alt="" />
           <img className="tray-icon" src="/images/icons/audio-okay-16x16.png" alt="" />
         </div>
-        <div className="taskbar-time">
-          {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        <div className="taskbar-time-wrapper">
+          <div className="taskbar-time">
+            {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </div>
+          <div className="taskbar-time-tooltip">
+            {time.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
         </div>
       </div>
     </div>

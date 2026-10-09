@@ -118,11 +118,46 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
 }
-.taskbar-time {
+.taskbar-time-wrapper {
+  position: relative;
   width: 60px;
   text-align: center;
+}
+.taskbar-time {
   font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
   font-size: 11px;
   line-height: 22px;
   user-select: none;
+}
+.taskbar-time-tooltip {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: var(--ButtonFace);
+  border: 1px solid var(--ButtonShadow);
+  border-bottom-color: var(--ButtonHilight);
+  border-right-color: var(--ButtonHilight);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 100;
+  pointer-events: none;
+}
+.taskbar-time-wrapper:hover .taskbar-time-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+.taskbar-time-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 12px;
+  border: 5px solid transparent;
+  border-bottom-color: var(--ButtonShadow);
 }
